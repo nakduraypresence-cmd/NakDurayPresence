@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treino Encerrado - Nak Duray</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="container" style="text-align: center; margin-top: 60px;">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Nak Duray" class="header-logo">
+        </div>
+        
+        <h1>NAK DURAY</h1>
+        
+        <div class="card" style="margin-top: 30px; padding: 30px;">
+            <i data-lucide="alert-triangle" style="width: 48px; height: 48px; color: var(--accent-red); margin-bottom: 15px;"></i>
+            <h2 style="color: var(--text-main); margin-bottom: 10px;">Treino Encerrado</h2>
+            <p>Este treino foi finalizado ou removido pelo instrutor.</p>
+        </div>
+    </div>
+    <script>lucide.createIcons();</script>
+</body>
+</html>

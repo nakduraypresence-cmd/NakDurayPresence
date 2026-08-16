@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presença - Nak Duray</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="header-logo">
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 25px;">
+            <h2 style="margin-bottom: 5px;">{{ treino.titulo }}</h2>
+            <p style="color: var(--text-muted); font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <i data-lucide="users" style="width: 14px; height: 14px;"></i> Vagas ocupadas: <span id="vagas-ocupadas">{{ total }}</span> de {{ treino.vagas }}
+            </p>
+        </div>
+        
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div style="background: #311; color: #ff6b6b; padding: 12px; border-radius: 10px; text-align: center; border: 1px solid #421a1a; margin-bottom: 20px; font-size: 14px;">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% if session.get("admin") %}
+            <div style="text-align: center; margin-bottom: 25px;">
+                <a href="{{ url_for('index') }}" style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-size: 14px; transition: background 0.2s;">
+                    <i data-lucide="arrow-left" style="width: 16px; height: 16px;"></i> Voltar para o Dashboard
+                </a>
+            </div>
+        {% else %}
+            <div class="card">
+                <form method="POST">
+                    <input type="text" name="nome_aluno" placeholder="Seu Nome Completo" required autocomplete="off">
+                    <button type="submit" class="btn-icon">
+                        <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i> 
+                        <span>CONFIRMAR PRESENÇA</span>
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+
+        <h3 style="margin-top: 30px; color: var(--text-muted); text-align: center; font-size: 15px;">Confirmados (<span id="contador-titulo">{{ total }}</span>)</h3>
+        
+        <ul id="lista-presencas" style="padding: 0; list-style: none; margin: 0 auto;">
+            {% for p in presencas %}
+                <li style="background: var(--card-bg); border: 1px solid var(--border-color); margin-bottom: 8px; padding: 10px 14px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; font-weight: 500; color: var(--text-main);">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i data-lucide="user" style="width: 16px; height: 16px; color: var(--text-muted);"></i> 
+                        <span>{{ p.nome_aluno }}</span>
+                    </div>
+                    {% if session.get("admin") %}
+                        <a href="{{ url_for('remover_presenca', id=p.id, treino_id=treino.id) }}" class="btn-action-del" onclick="return confirm('Deseja remover este aluno?')">
+                            <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                        </a>
+                    {% endif %}
+                </li>
+            {% else %}
+                <p id="sem-alunos" style="color: var(--text-muted); text-align: center; font-size: 14px; margin-top: 10px;">Nenhum aluno confirmado ainda.</p>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function atualizarStatusTreino() {
+            fetch("{{ url_for('api_treino_status', id=treino.id) }}")
+                .then(response => {
+                    if (!response.ok) {
+                        window.location.reload();
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (!data) return;
+
+                    document.getElementById('vagas-ocupadas').innerText = data.vagas_ocupadas;
+                    document.getElementById('contador-titulo').innerText = data.vagas_ocupadas;
+
+                    const listaUl = document.getElementById('lista-presencas');
+                    let htmlContent = '';
+
+                    if (data.presencas.length === 0) {
+                        htmlContent = '<p id="sem-alunos" style="color: var(--text-muted); text-align: center; font-size: 14px; margin-top: 10px;">Nenhum aluno confirmado ainda.</p>';
+                    } else {
+                        data.presencas.forEach(p => {
+                            let botaoRemover = '';
+                            if (data.is_admin) {
+                                botaoRemover = `<a href="/remover_presenca/${p.id}/{{ treino.id }}" class="btn-action-del" onclick="return confirm('Deseja remover este aluno?')">
+                                                    <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                                                </a>`;
+                            }
+
+                            htmlContent += `
+                                <li style="background: var(--card-bg); border: 1px solid var(--border-color); margin-bottom: 8px; padding: 10px 14px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between; font-weight: 500; color: var(--text-main);">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <i data-lucide="user" style="width: 16px; height: 16px; color: var(--text-muted);"></i> 
+                                        <span>${p.nome_aluno}</span>
+                                    </div>
+                                    ${botaoRemover}
+                                </li>
+                            `;
+                        });
+                    }
+                    listaUl.innerHTML = htmlContent;
+                    lucide.createIcons();
+                })
+                .catch(err => console.error("Erro ao atualizar dados:", err));
+        }
+
+        setInterval(atualizarStatusTreino, 3000);
+    </script>
+</body>
+</html>

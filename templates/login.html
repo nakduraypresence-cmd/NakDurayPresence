@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acesso Mestre - Nak Duray</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .input-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .input-group input {
+            width: 100%;
+            margin-bottom: 0 !important;
+            padding-right: 45px;
+        }
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        .toggle-password:hover {
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="header-logo">
+        </div>
+        
+        <div class="card" style="text-align: center;">
+            <h2 style="margin-bottom: 20px; font-size: 18px;">Acesso Mestre</h2>
+            
+            <form method="POST">
+                <div class="input-group">
+                    <input type="password" name="senha" id="senha" placeholder="Digite a senha" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('senha', 'icon-senha')">
+                        <i id="icon-senha" data-lucide="eye" style="width: 18px; height: 18px;"></i>
+                    </button>
+                </div>
+                
+                <button type="submit" class="btn-icon">
+                    <i data-lucide="lock" style="width: 18px; height: 18px;"></i>
+                    <span>ENTRAR</span>
+                </button>
+            </form>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <div style="background: #311; color: #ff6b6b; padding: 10px; border-radius: 8px; border: 1px solid #421a1a; margin-top: 15px; font-size: 14px;">
+                        {{ messages[0] }}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div style="margin-top: 20px;">
+                <a href="{{ url_for('alterar_senha') }}" style="color: var(--text-muted); font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                    <i data-lucide="key" style="width: 13px; height: 13px;"></i> Esqueci / Alterar Senha
+                </a>
+            </div>
+        </div>
+    </div>
+    <script>
+        lucide.createIcons();
+        function togglePassword(fieldId, iconId) {
+            const input = document.getElementById(fieldId);
+            const icon = document.getElementById(iconId);
+            
+            if (input.type === "password") {
+                input.type = "text";
+                icon.setAttribute("data-lucide", "eye-off");
+            } else {
+                input.type = "password";
+                icon.setAttribute("data-lucide", "eye");
+            }
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

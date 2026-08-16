@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento - Nakduray Presence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Botão de Sair no Canto Direito -->
+        <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 20px; padding: 0 5px;">
+            <a href="{{ url_for('logout') }}" style="color: #ff6b6b; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                <i data-lucide="log-out" style="width: 14px; height: 14px;"></i> Sair
+            </a>
+        </div>
+
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="header-logo">
+        </div>
+        <h2>Gerenciamento</h2>
+        
+        <div class="card">
+            <form method="POST">
+                <select name="periodo" required>
+                    <option value="" disabled selected>Selecione o Turno</option>
+                    <option value="Manhã">Manhã</option>
+                    <option value="Tarde">Tarde</option>
+                    <option value="Noite">Noite</option>
+                </select>
+                <select name="dia" required>
+                    <option value="" disabled selected>Selecione o Dia</option>
+                    <option value="Segunda-feira">Segunda-feira</option>
+                    <option value="Terça-feira">Terça-feira</option>
+                    <option value="Quarta-feira">Quarta-feira</option>
+                    <option value="Quinta-feira">Quinta-feira</option>
+                    <option value="Sexta-feira">Sexta-feira</option>
+                    <option value="Sábado">Sábado</option>
+                    <option value="Domingo">Domingo</option>
+                </select>
+                <select name="horario" required>
+                    <option value="" disabled selected>Selecione o Horário</option>
+                    <option value="06:00">06:00</option>
+                    <option value="07:00">07:00</option>
+                    <option value="08:00">08:00</option>
+                    <option value="12:00">12:00</option>
+                    <option value="16:00">16:00</option>
+                    <option value="17:30">17:30</option>
+                    <option value="18:30">18:30</option>
+                    <option value="19:00">19:00</option>
+                    <option value="19:30">19:30</option>
+                    <option value="20:00">20:00</option>
+                </select>
+                <select name="vagas" required>
+                    <option value="" disabled selected>Limite de Vagas</option>
+                    <option value="10">10 Vagas</option>
+                    <option value="15">15 Vagas</option>
+                    <option value="20">20 Vagas</option>
+                    <option value="25">25 Vagas</option>
+                    <option value="30">30 Vagas</option>
+                </select>
+                <button type="submit" class="btn-icon">
+                    <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i> 
+                    <span>CRIAR TREINO</span>
+                </button>
+            </form>
+        </div>
+
+        <h3 style="margin-top: 30px; color: var(--text-muted); font-size: 15px;">Treinos Ativos</h3>
+        
+        <div class="treinos-list">
+            {% for treino in treinos %}
+                <div class="treino-item" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="treino-info">
+                            <h4>{{ treino.titulo }}</h4>
+                            <p><i data-lucide="calendar" style="width: 14px; height: 14px;"></i> {{ treino.data_horario }}</p>
+                        </div>
+                        <div class="treino-actions">
+                            <a href="{{ url_for('treino_detalhe', id=treino.id) }}" class="btn-action-ver">Ver Lista</a>
+                            <a href="{{ url_for('remover_treino', id=treino.id) }}" class="btn-action-del" onclick="return confirm('Deseja apagar este treino?')">
+                                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                   
+<!-- Botão Copiar Link com Mensagem Pronta -->
+<div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px; display: flex; justify-content: flex-end;">
+    <button type="button" data-url="{{ url_for('treino_detalhe', id=treino.id, _external=True) }}" onclick="copiarMensagemWhatsApp(this)" style="background: #22c55e15; border: 1px solid #22c55e40; color: #4ade80; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;">
+        <i data-lucide="copy" style="width: 15px; height: 15px;"></i> Copiar Mensagem p/ WhatsApp
+    </button>
+</div>
+                </div>
+            {% else %}
+                <p style="color: var(--text-muted); text-align: center; font-size: 14px;">Nenhum treino cadastrado.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+       function copiarMensagemWhatsApp(botao) {
+    const url = botao.getAttribute('data-url');
+    const textoMensagem = `🥊 Treino de Muay Thai garantido! Confirme sua presença no link abaixo (vagas limitadas):\n\n${url}\n\nSawadee krap 🙏`;
+
+    navigator.clipboard.writeText(textoMensagem).then(() => {
+        alert("Mensagem e link copiados com sucesso! Agora é só colar no grupo do WhatsApp.");
+    }).catch(err => {
+        console.error("Erro ao copiar: ", err);
+    });
+}
+    </script>
+</body>
+</html>

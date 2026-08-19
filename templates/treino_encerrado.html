@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Treino Encerrado - Nakduray Presence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body { background: #0a0a0a; color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { max-width: 400px; width: 100%; background: #121214; padding: 32px 24px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); text-align: center; }
+        .icon-box { font-size: 3.5rem; color: #e11d48; margin-bottom: 16px; background: rgba(225, 29, 72, 0.1); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; }
+        h2 { margin: 0 0 10px 0; font-size: 1.4rem; color: #fff; }
+        p { color: #a1a1aa; font-size: 0.95rem; line-height: 1.5; margin-bottom: 24px; }
+        .btn-voltar { background: #27272a; color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; text-decoration: none; display: inline-block; transition: background 0.2s; font-size: 1rem; }
+        .btn-voltar:hover { background: #3f3f46; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="icon-box">
+            <i class="ph ph-prohibit"></i>
+        </div>
+        <h2>Treino Encerrado ou Cancelado</h2>
+        <p>O mestre encerrou ou removeu este treino do sistema. O link de check-in não está mais ativo.</p>
+        <p style="font-size: 0.85rem; color: #71717a; margin-top: -12px; margin-bottom: 20px;">Você já pode fechar esta aba com segurança.</p>
+        <a href="https://google.com" class="btn-voltar">Sair da Página</a>
+    </div>
+
+</body>
+</html>

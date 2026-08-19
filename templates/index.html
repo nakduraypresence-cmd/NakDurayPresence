@@ -1,118 +1,188 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciamento - Nakduray Presence</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nakduray Presence - Dashboard</title>
+    
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .card-actions-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-trash {
+            background: rgba(225, 29, 72, 0.1);
+            color: #e11d48;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+        .btn-trash:hover {
+            background: rgba(225, 29, 72, 0.2);
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
+    <div class="app-container">
+        <!-- HEADER DINÂMICO -->
+        <header class="header">
+            <div class="user-info">
+                <span class="greeting">BEM-VINDO, MESTRE</span>
+                <h1 class="user-name">{{ nome_mestre }}</h1>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <!-- Botão Rápido para Gerenciar Alunos -->
+                <a href="{{ url_for('gerenciar_alunos') }}" class="btn-primary" style="text-decoration: none; padding: 8px 12px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                    <i class="ph ph-users" style="font-size: 1rem;"></i> Alunos
+                </a>
+                <div class="avatar-container">
+                    <img src="https://ui-avatars.com/api/?name={{ nome_mestre }}&background=333&color=fff" alt="Avatar" class="avatar">
+                    <div class="notification-dot"></div>
+                </div>
+            </div>
+        </header>
 
-        <!-- Botão de Sair no Canto Direito -->
-        <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 20px; padding: 0 5px;">
-            <a href="{{ url_for('logout') }}" style="color: #ff6b6b; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
-                <i data-lucide="log-out" style="width: 14px; height: 14px;"></i> Sair
-            </a>
-        </div>
+        <!-- CARDS DE ESTATÍSTICAS DINÂMICOS -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <i class="ph ph-users"></i>
+                <h2>{{ total_alunos }}</h2>
+                <p>Alunos</p>
+            </div>
+            <div class="stat-card active-stat">
+                <i class="ph ph-check-circle"></i>
+                <h2>{{ presencas_hoje }}</h2>
+                <p>Presenças Hoje</p>
+            </div>
+            <div class="stat-card">
+                <i class="ph ph-x-circle"></i>
+                <h2>{{ ausentes_hoje }}</h2>
+                <p>Ausentes</p>
+            </div>
+        </section>
 
-        <div class="logo-container">
-            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="header-logo">
-        </div>
-        <h2>Gerenciamento</h2>
-        
-        <div class="card">
-            <form method="POST">
-                <select name="periodo" required>
-                    <option value="" disabled selected>Selecione o Turno</option>
-                    <option value="Manhã">Manhã</option>
-                    <option value="Tarde">Tarde</option>
-                    <option value="Noite">Noite</option>
-                </select>
-                <select name="dia" required>
-                    <option value="" disabled selected>Selecione o Dia</option>
-                    <option value="Segunda-feira">Segunda-feira</option>
-                    <option value="Terça-feira">Terça-feira</option>
-                    <option value="Quarta-feira">Quarta-feira</option>
-                    <option value="Quinta-feira">Quinta-feira</option>
-                    <option value="Sexta-feira">Sexta-feira</option>
-                    <option value="Sábado">Sábado</option>
-                    <option value="Domingo">Domingo</option>
-                </select>
-                <select name="horario" required>
-                    <option value="" disabled selected>Selecione o Horário</option>
-                    <option value="06:00">06:00</option>
-                    <option value="07:00">07:00</option>
-                    <option value="08:00">08:00</option>
-                    <option value="12:00">12:00</option>
-                    <option value="16:00">16:00</option>
-                    <option value="17:30">17:30</option>
-                    <option value="18:30">18:30</option>
-                    <option value="19:00">19:00</option>
-                    <option value="19:30">19:30</option>
-                    <option value="20:00">20:00</option>
-                </select>
-                <select name="vagas" required>
-                    <option value="" disabled selected>Limite de Vagas</option>
-                    <option value="10">10 Vagas</option>
-                    <option value="15">15 Vagas</option>
-                    <option value="20">20 Vagas</option>
-                    <option value="25">25 Vagas</option>
-                    <option value="30">30 Vagas</option>
-                </select>
-                <button type="submit" class="btn-icon">
-                    <i data-lucide="plus-circle" style="width: 18px; height: 18px;"></i> 
-                    <span>CRIAR TREINO</span>
-                </button>
-            </form>
-        </div>
+        <!-- SEÇÃO: AULAS DE HOJE (LOOP DO BANCO DE DADOS) -->
+        <section class="section-container">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 class="section-title" style="margin-bottom: 0;">Aulas de Hoje</h3>
+                <a href="/criar_aula" class="btn-primary" style="text-decoration: none; padding: 6px 12px; font-size: 0.8rem; background-color: var(--green-bar);">
+                    + Nova Aula
+                </a>
+            </div>
 
-        <h3 style="margin-top: 30px; color: var(--text-muted); font-size: 15px;">Treinos Ativos</h3>
-        
-        <div class="treinos-list">
-            {% for treino in treinos %}
-                <div class="treino-item" style="display: flex; flex-direction: column; gap: 12px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="treino-info">
-                            <h4>{{ treino.titulo }}</h4>
-                            <p><i data-lucide="calendar" style="width: 14px; height: 14px;"></i> {{ treino.data_horario }}</p>
+            {% if aulas %}
+                {% for aula in aulas %}
+                <div class="class-card">
+                    <div class="class-header">
+                        <div>
+                            <h4>{{ aula.nome_turma }}</h4>
+                            <span class="class-time">Hoje - {{ aula.horario }}</span>
                         </div>
-                        <div class="treino-actions">
-                            <a href="{{ url_for('treino_detalhe', id=treino.id) }}" class="btn-action-ver">Ver Lista</a>
-                            <a href="{{ url_for('remover_treino', id=treino.id) }}" class="btn-action-del" onclick="return confirm('Deseja apagar este treino?')">
-                                <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+                        <!-- Ações do Card: Gerenciar + Lixeira -->
+                        <div class="card-actions-top">
+                            <a href="/gerenciar/{{ aula.id }}" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 16px;">Gerenciar</a>
+                            <a href="/excluir_aula/{{ aula.id }}" class="btn-trash" onclick="return confirm('Tem certeza que deseja excluir esta aula?')" title="Excluir Aula">
+                                <i class="ph ph-trash"></i>
                             </a>
                         </div>
                     </div>
-                    
-                   
-<!-- Botão Copiar Link com Mensagem Pronta -->
-<div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px; display: flex; justify-content: flex-end;">
-    <button type="button" data-url="{{ url_for('treino_detalhe', id=treino.id, _external=True) }}" onclick="copiarMensagemWhatsApp(this)" style="background: #22c55e15; border: 1px solid #22c55e40; color: #4ade80; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;">
-        <i data-lucide="copy" style="width: 15px; height: 15px;"></i> Copiar Mensagem p/ WhatsApp
-    </button>
-</div>
+                    <div class="class-stats">
+                        <div class="stat-item">
+                            <strong>{{ aula.confirmados }}</strong>
+                            <span>Confirmados</span>
+                        </div>
+                        <div class="stat-item">
+                            <strong>{{ aula.vagas }}</strong>
+                            <span>Vagas</span>
+                        </div>
+                        <div class="stat-item">
+                            <strong>{{ aula.ocupacao_pct }}%</strong>
+                            <span>Ocupação</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-red" style="width: {{ aula.ocupacao_pct }}%;"></div>
+                    </div>
+                    <div class="class-footer">
+                        <i class="ph ph-user"></i> {{ aula.professor }}
+                    </div>
                 </div>
+                {% endfor %}
             {% else %}
-                <p style="color: var(--text-muted); text-align: center; font-size: 14px;">Nenhum treino cadastrado.</p>
-            {% endfor %}
-        </div>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Nenhuma aula cadastrada para hoje.</p>
+            {% endif %}
+        </section>
+
+        <!-- SEÇÃO: PLACAR DE PUNIÇÕES -->
+        <section class="section-container punicoes-section">
+            <div class="punicoes-header">
+                <div>
+                    <h3 class="section-title">Placar de Punições</h3>
+                    <span class="subtitle">Flexões devidas</span>
+                </div>
+                <!-- Botão Registrar linkado para a rota correta -->
+                <a href="{{ url_for('registrar_punicao') }}" class="btn-primary" style="text-decoration: none; padding: 8px 16px; font-size: 0.85rem; display: inline-flex; align-items: center;">Registrar</a>
+            </div>
+
+            {% if punicoes %}
+                {% for punicao in punicoes %}
+                <div class="punicao-card" style="display: flex; align-items: center; justify-content: space-between; background: #121214; padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="punicao-icon" style="background: rgba(225, 29, 72, 0.1); color: #e11d48; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;"><i class="ph ph-warning"></i></div>
+                        <div class="punicao-info">
+                            <strong style="display: block; color: white;">{{ punicao.nome_completo }}</strong>
+                            <span style="font-size: 0.85rem; color: #a1a1aa;"><i class="ph ph-chat-text"></i> {{ punicao.motivo }}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div class="punicao-valor" style="text-align: right;">
+                            <strong style="color: #e11d48; font-size: 1.1rem;">{{ punicao.quantidade }}</strong>
+                            <span style="display: block; font-size: 0.75rem; color: #a1a1aa;">flexões</span>
+                        </div>
+                        <!-- Botão para remover quando o aluno pagar -->
+                        <a href="{{ url_for('remover_punicao', id=punicao.id) }}" class="btn-trash" onclick="return confirm('O aluno pagou as flexões e cumpriu a punição?')" title="Remover Punição">
+                            <i class="ph ph-check"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 12px;">Nenhum aluno devendo flexões. O treino foi bom!</p>
+            {% endif %}
+        </section>
+
+        <!-- MENU INFERIOR -->
+        <nav class="bottom-nav">
+            <a href="{{ url_for('dashboard') }}" class="nav-item active">
+                <i class="ph-fill ph-house"></i>
+                <span>Início</span>
+            </a>
+            <a href="{{ url_for('gerenciar_alunos') }}" class="nav-item">
+                <i class="ph ph-users"></i>
+                <span>Alunos</span>
+            </a>
+            <a href="{{ url_for('ranking') }}" class="nav-item">
+                <i class="ph ph-trophy"></i>
+                <span>Ranking</span>
+            </a>
+            <a href="{{ url_for('perfil') }}" class="nav-item">
+                <i class="ph ph-user"></i>
+                <span>Perfil</span>
+            </a>
+        </nav>
     </div>
-
-    <script>
-        lucide.createIcons();
-
-       function copiarMensagemWhatsApp(botao) {
-    const url = botao.getAttribute('data-url');
-    const textoMensagem = `🥊 Treino de Muay Thai garantido! Confirme sua presença no link abaixo (vagas limitadas):\n\n${url}\n\nSawadee krap 🙏`;
-
-    navigator.clipboard.writeText(textoMensagem).then(() => {
-        alert("Mensagem e link copiados com sucesso! Agora é só colar no grupo do WhatsApp.");
-    }).catch(err => {
-        console.error("Erro ao copiar: ", err);
-    });
-}
-    </script>
 </body>
 </html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Registrar Punição - Nakduray Presence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body { background: #0a0a0a; color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .card-form { background: #121214; border-radius: 16px; padding: 24px; border: 1px solid rgba(255,255,255,0.05); margin-top: 20px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-size: 0.9rem; color: #a1a1aa; margin-bottom: 6px; }
+        select, input { width: 100%; padding: 12px 16px; border-radius: 12px; background: #18181b; border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 1rem; outline: none; box-sizing: border-box; }
+        select:focus, input:focus { border-color: #f43f5e; }
+        .btn-submit { background: #f43f5e; color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 20px; transition: background 0.2s; font-size: 1rem; }
+        .btn-submit:hover { background: #e11d48; }
+        .voltar { color: #a1a1aa; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('dashboard') }}" class="voltar"><i class="ph ph-arrow-left"></i> Voltar ao Dashboard</a>
+        
+        <div class="card-form">
+            <h2 style="margin: 0 0 4px 0; font-size: 1.3rem;">Aplicar Punição</h2>
+            <p style="margin: 0 0 20px 0; color: #a1a1aa; font-size: 0.9rem;">Registre as flexões devidas por indisciplina ou atraso.</p>
+
+            <form method="POST">
+                <div class="form-group">
+                    <label for="aluno_id"><i class="ph ph-user"></i> Selecionar Aluno</label>
+                    <select name="aluno_id" id="aluno_id" required>
+                        <option value="" disabled selected>Escolha o atleta...</option>
+                        {% for aluno in alunos %}
+                        <option value="{{ aluno.id }}">{{ aluno.nome_completo }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantidade"><i class="ph ph-activity"></i> Quantidade de Flexões</label>
+                    <input type="number" name="quantidade" id="quantidade" placeholder="Ex: 30" required min="1">
+                </div>
+
+                <div class="form-group">
+                    <label for="motivo"><i class="ph ph-chat-text"></i> Motivo da Punição</label>
+                    <input type="text" name="motivo" id="motivo" placeholder="Ex: Atraso, conversa excessiva..." required>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="ph ph-check-circle" style="font-size: 1.2rem;"></i> Confirmar Punição
+                </button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

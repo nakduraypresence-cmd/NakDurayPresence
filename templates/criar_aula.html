@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Configurar Aula</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            background: #0a0a0a;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container-form {
+            width: 100%;
+            max-width: 420px;
+            background: #121214;
+            padding: 24px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .form-label {
+            display: block;
+            color: #a1a1aa;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .option-group { 
+            display: flex; 
+            gap: 10px; 
+            flex-wrap: wrap; 
+            margin-bottom: 20px; 
+        }
+        .radio-btn { 
+            cursor: pointer; 
+            flex: 1; 
+            min-width: 90px; 
+            text-align: center; 
+        }
+        .radio-btn input { 
+            display: none; 
+        }
+        .radio-btn span { 
+            display: block; 
+            padding: 12px; 
+            border-radius: 10px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            background: #1c1c1e; 
+            color: #888;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+        .radio-btn input:checked + span { 
+            background: #e11d48; 
+            color: white; 
+            border-color: #e11d48; 
+            font-weight: bold;
+        }
+        .btn-salvar { 
+            width: 100%; 
+            padding: 16px; 
+            border-radius: 12px; 
+            border: none; 
+            background: #e11d48; 
+            color: white; 
+            font-weight: bold; 
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-salvar:hover {
+            background: #be123c;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container-form">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="font-size: 1.2rem; margin: 0;">Configurar Nova Aula</h2>
+            <a href="/" style="color: #888; font-size: 1.4rem; text-decoration: none;"><i class="ph ph-x"></i></a>
+        </div>
+
+        <form action="/criar_aula" method="POST">
+            
+            <!-- Seleção de Nome -->
+            <span class="form-label">Qual a Modalidade?</span>
+            <div class="option-group">
+                <label class="radio-btn"><input type="radio" name="nome" value="Muay Thai - Feminina" required><span>Feminina</span></label>
+                <label class="radio-btn"><input type="radio" name="nome" value="Muay Thai - Masculina"><span>Masculina</span></label>
+                <label class="radio-btn"><input type="radio" name="nome" value="Muay Thai - Infantil"><span>Infantil</span></label>
+            </div>
+
+            <!-- Seleção de Professor -->
+            <span class="form-label">Quem será o Mestre?</span>
+            <div class="option-group">
+                <label class="radio-btn"><input type="radio" name="professor" value="Mestra Julia" required><span>Julia</span></label>
+                <label class="radio-btn"><input type="radio" name="professor" value="Mestre Carlos"><span>Carlos</span></label>
+                <label class="radio-btn"><input type="radio" name="professor" value="Mestre João"><span>João</span></label>
+            </div>
+
+            <!-- Seleção de Vagas -->
+            <span class="form-label">Quantidade de Vagas</span>
+            <div class="option-group">
+                <label class="radio-btn"><input type="radio" name="vagas" value="10" required><span>10</span></label>
+                <label class="radio-btn"><input type="radio" name="vagas" value="15"><span>15</span></label>
+                <label class="radio-btn"><input type="radio" name="vagas" value="20"><span>20</span></label>
+            </div>
+
+            <!-- Seleção de Horário por Botões -->
+            <span class="form-label">Horário da Aula</span>
+            <div class="option-group">
+                <label class="radio-btn"><input type="radio" name="horario" value="18:00" required><span>18:00</span></label>
+                <label class="radio-btn"><input type="radio" name="horario" value="19:00"><span>19:00</span></label>
+                <label class="radio-btn"><input type="radio" name="horario" value="20:00"><span>20:00</span></label>
+            </div>
+
+            <button type="submit" class="btn-salvar">Criar Aula</button>
+        </form>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ranking - Nakduray Presence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+
+    <div class="container" style="padding-bottom: 90px;">
+        <h2 style="margin-top: 0; margin-bottom: 20px;"><i class="ph ph-trophy" style="color: #f59e0b;"></i> Ranking de Presenças</h2>
+
+        {% if ranking %}
+            {% for aluno in ranking %}
+            <div class="rank-card" style="background: #1c1c1e; padding: 14px 18px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.03);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-weight: bold; color: {% if loop.index == 1 %}#f59e0b{% elif loop.index == 2 %}#94a3b8{% elif loop.index == 3 %}#b45309{% else %}#71717a{% endif %}; font-size: 1.1rem;">#{{ loop.index }}</span>
+                    <span style="font-weight: 500;">{{ aluno.nome_completo }}</span>
+                </div>
+                <span style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
+                    {{ aluno.presencas }} presenças
+                </span>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color: #71717a; font-size: 0.9rem;">Nenhum registro de presença no ranking ainda.</p>
+        {% endif %}
+    </div>
+
+    <!-- MENU INFERIOR -->
+    <nav class="bottom-nav">
+        <a href="{{ url_for('dashboard') }}" class="nav-item">
+            <i class="ph ph-house"></i>
+            <span>Início</span>
+        </a>
+        <a href="{{ url_for('gerenciar_alunos') }}" class="nav-item">
+            <i class="ph ph-users"></i>
+            <span>Alunos</span>
+        </a>
+        <a href="{{ url_for('ranking') }}" class="nav-item active">
+            <i class="ph-fill ph-trophy"></i>
+            <span>Ranking</span>
+        </a>
+        <a href="{{ url_for('perfil') }}" class="nav-item">
+            <i class="ph ph-user"></i>
+            <span>Perfil</span>
+        </a>
+    </nav>
+
+</body>
+</html>

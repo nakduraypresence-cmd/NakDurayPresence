@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
+import os
 from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
@@ -281,12 +282,6 @@ def gerenciar(id):
     return render_template('gerenciar.html', turma=turma, alunos=alunos)
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
-    import os
-
-if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    # Se estiver no Render, a variável PORT existe. Usamos debug=False para liberar a porta externa.
     is_production = os.environ.get("PORT") is not None
     app.run(host='0.0.0.0', port=port, debug=not is_production)

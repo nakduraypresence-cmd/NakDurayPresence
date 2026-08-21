@@ -53,7 +53,8 @@
 
     <script>
         function copiarLink() {
-            const linkAula = window.location.origin + "/treino/{{ turma.id }}";
+            // Ajustado para coincidir com a rota /aluno/turma/ID
+            const linkAula = window.location.origin + "/aluno/turma/{{ turma.id }}";
             
             const mensagem = `🥊 *Nakduray Presence - Check-in* 🥊\n\n` +
                              `Sawadee krap, time! O treino de *{{ turma.nome }}* já está liberado.\n` +

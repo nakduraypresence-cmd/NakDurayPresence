@@ -281,6 +281,26 @@ def gerenciar(id):
     
     return render_template('gerenciar.html', turma=turma, alunos=alunos)
 
+# --- ROTA PÚBLICA PARA O ALUNO ---
+@app.route('/aluno/turma/<int:id>')
+def aluno_turma(id):
+    conn = get_db_connection()
+    turma = conn.execute('SELECT * FROM turmas WHERE id = ?', (id,)).fetchone()
+    if not turma:
+        conn.close()
+        return "Turma não encontrada", 404
+        
+    # Busca os alunos confirmados nesta turma
+    alunos = conn.execute('''
+        SELECT a.id, a.nome_completo 
+        FROM alunos a 
+        JOIN alunos_turma at ON a.id = at.aluno_id 
+        WHERE at.turma_id = ?
+    ''', (id,)).fetchall()
+    conn.close()
+    
+    return render_template('aluno_turma.html', turma=turma, alunos=alunos)
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     is_production = os.environ.get("PORT") is not None

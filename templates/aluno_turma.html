@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check-in {{ turma.nome }}</title>
+    <style>
+        body { background: #0a0a0a; color: white; font-family: sans-serif; padding: 20px; text-align: center; }
+        .card { background: #121214; padding: 20px; border-radius: 16px; border: 1px solid #333; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>{{ turma.nome }}</h1>
+        <p>Horário: {{ turma.horario }}</p>
+        <p>Professor: {{ turma.professor }}</p>
+        <hr style="border: 0; border-top: 1px solid #333;">
+        <h3>Alunos já confirmados:</h3>
+        {% for aluno in alunos %}
+            <p>{{ aluno.nome_completo }}</p>
+        {% endfor %}
+    </div>
+</body>
+</html>

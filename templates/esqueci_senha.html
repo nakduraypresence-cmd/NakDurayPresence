@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha - Nakduray Presence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --card-bg: #121214;
+            --input-bg: #18181b;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --primary: #f43f5e;
+            --primary-hover: #e11d48;
+            --success: #10b981;
+        }
+
+        body { background: var(--bg-dark); color: var(--text-main); font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .login-card { background: var(--card-bg); padding: 40px 32px; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .header-text { text-align: center; margin-bottom: 32px; }
+        .header-text h2 { margin: 0 0 8px 0; font-size: 1.5rem; }
+        .header-text p { margin: 0; color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
+        
+        .erro-msg { background: rgba(225, 29, 72, 0.1); color: var(--primary-hover); padding: 12px; border-radius: 12px; font-size: 0.9rem; margin-bottom: 24px; text-align: center; border: 1px solid rgba(225, 29, 72, 0.2); display: flex; align-items: center; justify-content: center; gap: 8px;}
+        .sucesso-msg { background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 12px; border-radius: 12px; font-size: 0.9rem; margin-bottom: 24px; text-align: center; border: 1px solid rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; gap: 8px;}
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 500;}
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-wrapper i { position: absolute; left: 16px; color: var(--text-muted); font-size: 1.2rem; }
+        .input-wrapper input { width: 100%; padding: 14px 16px 14px 44px; border-radius: 12px; background: var(--input-bg); border: 1px solid var(--border-color); color: white; font-size: 1rem; outline: none; box-sizing: border-box; transition: all 0.2s;}
+        .input-wrapper input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15);}
+        
+        .btn-submit { background: var(--primary); color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: background 0.2s, transform 0.1s; margin-top: 10px;}
+        .btn-submit:hover { background: var(--primary-hover); }
+        .btn-submit:active { transform: scale(0.98); }
+        .link-voltar { text-align: center; margin-top: 24px; font-size: 0.9rem; }
+        .link-voltar a { color: var(--text-muted); text-decoration: none; font-weight: 500; transition: color 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;}
+        .link-voltar a:hover { color: white; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="header-text">
+            <h2>Recuperar Senha</h2>
+            <p>Digite o e-mail cadastrado e enviaremos um link para você criar uma nova senha.</p>
+        </div>
+
+        <!-- EXIBE A MENSAGEM DE ERRO (VERMELHA) -->
+        {% if erro %}
+        <div class="erro-msg">
+            <i class="ph ph-warning-circle"></i> {{ erro }}
+        </div>
+        {% endif %}
+
+        <!-- EXIBE A MENSAGEM DE SUCESSO (VERDE) -->
+        {% if sucesso %}
+        <div class="sucesso-msg">
+            <i class="ph ph-check-circle"></i> {{ sucesso }}
+        </div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label>Seu E-mail</label>
+                <div class="input-wrapper">
+                    <i class="ph ph-envelope"></i>
+                    <input type="email" name="email" placeholder="seu@email.com" required>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-submit">Enviar Link</button>
+        </form>
+
+        <div class="link-voltar">
+            <a href="{{ url_for('login') }}"><i class="ph ph-arrow-left"></i> Voltar para o Login</a>
+        </div>
+    </div>
+</body>
+</html>

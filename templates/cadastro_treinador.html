@@ -17,6 +17,7 @@
         .btn-submit { background: #f43f5e; color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1rem; transition: background 0.2s; }
         .btn-submit:hover { background: #e11d48; }
         .erro-msg { background: rgba(225, 29, 72, 0.1); color: #e11d48; padding: 10px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px; text-align: center; }
+        .sucesso-msg { background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 10px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px; text-align: center; }
         .link-cadastro { text-align: center; margin-top: 16px; font-size: 0.85rem; color: #a1a1aa; }
         .link-cadastro a { color: #f43f5e; text-decoration: none; font-weight: 600; }
     </style>
@@ -25,6 +26,10 @@
     <div class="login-card">
         <h2 style="margin: 0 0 6px 0; font-size: 1.5rem; text-align: center;">Novo Treinador</h2>
         <p style="margin: 0 0 24px 0; color: #a1a1aa; font-size: 0.9rem; text-align: center;">Crie seu acesso ao painel</p>
+
+        {% if sucesso %}
+        <div class="sucesso-msg">{{ sucesso }}</div>
+        {% endif %}
 
         {% if erro %}
         <div class="erro-msg">{{ erro }}</div>

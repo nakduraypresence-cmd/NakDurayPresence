@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova Senha - Nakduray Presence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .auth-card {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 32px 24px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .auth-title { font-family: var(--font-serif); font-size: 1.5rem; text-align: center; margin-bottom: 8px; }
+        .auth-subtitle { color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-bottom: 24px; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+        .input-wrapper { position: relative; }
+        .input-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .input-wrapper input {
+            width: 100%;
+            background-color: var(--bg-dark);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 12px 12px 40px;
+            border-radius: 12px;
+            color: white;
+            font-size: 0.95rem;
+        }
+        .input-wrapper input:focus { border-color: var(--primary-red); outline: none; }
+        .btn-submit {
+            width: 100%;
+            background-color: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <h2 class="auth-title">Nova Senha</h2>
+        <p class="auth-subtitle">Digite a sua nova senha de acesso.</p>
+        
+        <form method="POST">
+            <div class="input-group">
+                <label>Nova Senha</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" name="senha" placeholder="********" required>
+                </div>
+            </div>
+            <button type="submit" class="btn-submit">Salvar Nova Senha</button>
+        </form>
+    </div>
+</body>
+</html>

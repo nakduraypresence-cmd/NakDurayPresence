@@ -1,11 +1,25 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
 import os
+import re
+import itsdangerous
 from flask_bcrypt import Bcrypt
+from flask_mail import Mail, Message
 
 app = Flask(__name__)
 app.secret_key = 'sua_chave_secreta_super_segura' 
 bcrypt = Bcrypt(app)
+
+# Declarando a variável 's' para os tokens de segurança
+s = itsdangerous.URLSafeTimedSerializer(app.secret_key)
+
+# Configurações de E-mail
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'nakduray.presence@gmail.com'
+app.config['MAIL_PASSWORD'] = 'hssxixzibitohaqc'
+mail = Mail(app)
 
 def get_db_connection():
     conn = sqlite3.connect('database.db')
@@ -14,7 +28,16 @@ def get_db_connection():
 
 def init_db():
     conn = get_db_connection()
-    conn.execute('CREATE TABLE IF NOT EXISTS treinadores (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT NOT NULL, email TEXT UNIQUE NOT NULL, senha TEXT NOT NULL)')
+    # Adicionada a coluna 'ativo' INTEGER DEFAULT 0 na tabela treinadores
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS treinadores (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, 
+            nome TEXT NOT NULL, 
+            email TEXT UNIQUE NOT NULL, 
+            senha TEXT NOT NULL,
+            ativo INTEGER DEFAULT 0
+        )
+    ''')
     conn.execute('CREATE TABLE IF NOT EXISTS alunos (id INTEGER PRIMARY KEY AUTOINCREMENT, nome_completo TEXT NOT NULL, presencas INTEGER DEFAULT 0)')
     conn.execute('CREATE TABLE IF NOT EXISTS turmas (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT NOT NULL, horario TEXT NOT NULL, professor TEXT NOT NULL, vagas_totais INTEGER NOT NULL)')
     conn.execute('CREATE TABLE IF NOT EXISTS alunos_turma (aluno_id INTEGER, turma_id INTEGER, FOREIGN KEY (aluno_id) REFERENCES alunos (id), FOREIGN KEY (turma_id) REFERENCES turmas (id))')
@@ -23,6 +46,16 @@ def init_db():
     conn.close()
 
 init_db()
+
+def validar_email(email):
+    padrao = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
+    if not re.match(padrao, email):
+        return False
+    dominios_proibidos = ['teste.com', 'email.com', 'abc.com', 'fake.com', 'x.com']
+    dominio = email.split('@')[-1].lower()
+    if dominio in dominios_proibidos:
+        return False
+    return True
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -33,10 +66,15 @@ def login():
         conn = get_db_connection()
         treinador = conn.execute('SELECT * FROM treinadores WHERE email = ?', (email,)).fetchone()
         conn.close()
+        
         if treinador and bcrypt.check_password_hash(treinador['senha'], senha):
-            session['treinador_id'] = treinador['id']
-            session['nome_mestre'] = treinador['nome']
-            return redirect(url_for('dashboard'))
+            # Valida se a conta já foi ativada por e-mail
+            if treinador['ativo'] == 0:
+                erro = 'Conta ainda não ativada. Verifique sua caixa de entrada e clique no link de ativação.'
+            else:
+                session['treinador_id'] = treinador['id']
+                session['nome_mestre'] = treinador['nome']
+                return redirect(url_for('dashboard'))
         else:
             erro = 'E-mail ou senha incorretos.'
     return render_template('login.html', erro=erro)
@@ -44,21 +82,57 @@ def login():
 @app.route('/cadastro_treinador', methods=['GET', 'POST'])
 def cadastro_treinador():
     erro = None
+    sucesso = None
     if request.method == 'POST':
         nome = request.form['nome']
-        email = request.form['email']
+        email = request.form['email'].strip().lower()
         senha = request.form['senha']
-        hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
-        conn = get_db_connection()
-        try:
-            conn.execute('INSERT INTO treinadores (nome, email, senha) VALUES (?, ?, ?)', (nome, email, hashed_password))
-            conn.commit()
-            conn.close()
-            return redirect(url_for('login'))
-        except sqlite3.IntegrityError:
-            erro = 'Este e-mail já está cadastrado.'
-            conn.close()
-    return render_template('cadastro_treinador.html', erro=erro)
+        
+        # Validação do e-mail
+        if not validar_email(email):
+            erro = 'Por favor, insira um endereço de e-mail real e válido.'
+        else:
+            hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
+            conn = get_db_connection()
+            try:
+                # Salva o usuário com ativo = 0 (pendente)
+                conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 0)', (nome, email, hashed_password))
+                conn.commit()
+                conn.close()
+                
+                # Gera o token de ativação por e-mail (expira em 1 hora)
+                token = s.dumps(email, salt='email-confirmacao')
+                link_ativacao = url_for('ativar_conta', token=token, _external=True)
+                
+                # Envia o e-mail de confirmação
+                msg = Message(
+                    'Confirme seu cadastro - Nakduray Presence',
+                    sender=app.config['MAIL_USERNAME'],
+                    recipients=[email]
+                )
+                msg.body = f"Olá, {nome}!\n\nObrigado por se cadastrar no Nakduray Presence.\n\nPara ativar sua conta e liberar o acesso ao sistema, clique no link abaixo:\n{link_ativacao}\n\nEste link expira em 1 hora."
+                mail.send(msg)
+                
+                sucesso = 'Cadastro realizado! Enviamos um link de ativação para o seu e-mail.'
+            except sqlite3.IntegrityError:
+                erro = 'Este e-mail já está cadastrado.'
+                conn.close()
+                
+    return render_template('cadastro_treinador.html', erro=erro, sucesso=sucesso)
+
+@app.route('/ativar/<token>')
+def ativar_conta(token):
+    try:
+        email = s.loads(token, salt='email-confirmacao', max_age=3600) # Token válido por 1 hora
+    except:
+        return 'O link de ativação é inválido ou já expirou.', 400
+    
+    conn = get_db_connection()
+    conn.execute('UPDATE treinadores SET ativo = 1 WHERE email = ?', (email,))
+    conn.commit()
+    conn.close()
+    
+    return 'Conta ativada com sucesso! Você já pode fechar esta aba e fazer o login no sistema.'
 
 @app.route('/logout')
 def logout():
@@ -84,11 +158,7 @@ def dashboard():
         })
     
     total_alunos = conn.execute('SELECT COUNT(*) FROM alunos').fetchone()[0]
-    
-    # Presenças reflete exatamente o total de confirmados nas turmas
     presencas_hoje = total_confirmados_geral
-    
-    # Ausentes é o total de alunos cadastrados menos os alunos únicos que já confirmaram presença
     alunos_com_presenca = conn.execute('SELECT COUNT(DISTINCT aluno_id) FROM alunos_turma').fetchone()[0]
     ausentes_hoje = max(0, total_alunos - alunos_com_presenca)
     
@@ -102,9 +172,7 @@ def criar_aula():
         return redirect(url_for('login'))
     
     conn = get_db_connection()
-    
     if request.method == 'POST':
-        # Busca o nome exato do treinador logado diretamente no banco de dados usando o ID da sessão
         treinador_atual = conn.execute('SELECT nome FROM treinadores WHERE id = ?', (session['treinador_id'],)).fetchone()
         professor_responsavel = treinador_atual['nome'] if treinador_atual else session.get('nome_mestre')
         
@@ -157,8 +225,6 @@ def gerenciar_alunos():
     
     if request.method == 'POST':
         nome_aluno = request.form['nome'].strip()
-        
-        # Verifica se já existe um atleta cadastrado com o mesmo nome exato
         aluno_existente = conn.execute('SELECT * FROM alunos WHERE nome_completo = ?', (nome_aluno,)).fetchone()
         
         if aluno_existente:
@@ -235,6 +301,55 @@ def aluno_turma(id):
     alunos_confirmados = conn.execute('SELECT a.id, a.nome_completo FROM alunos a JOIN alunos_turma at ON a.id = at.aluno_id WHERE at.turma_id = ?', (id,)).fetchall()
     conn.close()
     return render_template('aluno_turma.html', turma=turma, todos_alunos=todos_alunos, alunos_confirmados=alunos_confirmados)
+
+@app.route('/esqueci_senha', methods=['GET', 'POST'])
+def esqueci_senha():
+    erro = None
+    sucesso = None
+    if request.method == 'POST':
+        email = request.form['email'].strip().lower()
+        conn = get_db_connection()
+        treinador = conn.execute('SELECT * FROM treinadores WHERE email = ?', (email,)).fetchone()
+        conn.close()
+        
+        if treinador:
+            token = s.dumps(email, salt='recuperar-senha')
+            link = url_for('redefinir_senha', token=token, _external=True)
+            
+            try:
+                msg = Message('Redefinição de Senha - Nakduray Presence',
+                              sender=app.config['MAIL_USERNAME'],
+                              recipients=[email])
+                msg.body = f"Olá, {treinador['nome']}!\n\nVocê solicitou a redefinição de senha.\n\nPara criar uma nova senha, clique no link abaixo:\n{link}\n\nEste link expira em 15 minutos. Se você não solicitou isso, apenas ignore este e-mail."
+                mail.send(msg)
+                
+                sucesso = 'Um link de recuperação foi enviado para o seu e-mail!'
+            except Exception as e:
+                print(f"Erro ao enviar e-mail: {e}")
+                erro = 'Erro interno ao tentar enviar o e-mail. Verifique as configurações no app.py.'
+        else:
+            erro = 'E-mail não encontrado em nossa base de dados.'
+            
+    return render_template('esqueci_senha.html', erro=erro, sucesso=sucesso)
+
+@app.route('/redefinir_senha/<token>', methods=['GET', 'POST'])
+def redefinir_senha(token):
+    try:
+        email = s.loads(token, salt='recuperar-senha', max_age=900)
+    except:
+        return 'O link de recuperação é inválido ou expirou.', 400
+        
+    if request.method == 'POST':
+        nova_senha = request.form['senha']
+        hashed_password = bcrypt.generate_password_hash(nova_senha).decode('utf-8')
+        
+        conn = get_db_connection()
+        conn.execute('UPDATE treinadores SET senha = ? WHERE email = ?', (hashed_password, email))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('login'))
+        
+    return render_template('nova_senha.html')
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

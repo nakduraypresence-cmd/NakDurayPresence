@@ -4,10 +4,24 @@ def init_db():
     conn = sqlite3.connect('database.db')
     cursor = conn.cursor()
 
+    # Removido o DROP da tabela de treinadores para não apagar dados importantes, 
+    # mas caso queira recriar do zero, basta descomentar a linha abaixo.
+    # cursor.execute('DROP TABLE IF EXISTS treinadores')
     cursor.execute('DROP TABLE IF EXISTS punicoes')
     cursor.execute('DROP TABLE IF EXISTS alunos_turma')
     cursor.execute('DROP TABLE IF EXISTS alunos')
     cursor.execute('DROP TABLE IF EXISTS turmas')
+
+    # Tabela de Treinadores atualizada com a coluna 'ativo' (0 = pendente, 1 = ativo)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS treinadores (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            senha TEXT NOT NULL,
+            ativo INTEGER DEFAULT 0
+        )
+    ''')
 
     cursor.execute('''
         CREATE TABLE turmas (
@@ -51,7 +65,7 @@ def init_db():
 
     conn.commit()
     conn.close()
-    print("Banco de dados configurado com Cadastro, Ranking e Check-in! 🥊")
+    print("Banco de dados configurado com sucesso, incluindo a tabela de Treinadores com validação de e-mail! 🥊")
 
 if __name__ == '__main__':
     init_db()

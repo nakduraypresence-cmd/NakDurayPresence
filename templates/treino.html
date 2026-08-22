@@ -3,39 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Check-in - Nakduray Presence</title>
+    <title>{{ turma.nome }} - Nakduray Presence</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        body { background: #0a0a0a; color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        .container { max-width: 400px; width: 100%; background: #121214; padding: 24px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); text-align: center; }
-        .input-field { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #27272a; background: #1c1c1e; color: white; font-size: 1rem; margin-bottom: 16px; box-sizing: border-box; outline: none; }
-        .input-field:focus { border-color: #10b981; }
-        .btn-checkin { background: #10b981; color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
-        .btn-checkin:hover { background: #059669; }
+        body { background: #09090b; color: #f4f4f5; font-family: 'Inter', sans-serif; margin: 0; padding: 16px; display: flex; justify-content: center; min-height: 100vh; box-sizing: border-box; }
+        .wrapper { max-width: 420px; width: 100%; margin: 0 auto; padding-bottom: 40px; }
+        
+        /* Card Principal da Turma */
+        .turma-card { background: #121214; padding: 24px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        h2 { margin: 0 0 12px 0; font-size: 1.4rem; font-weight: 700; color: #f4f4f5; display: flex; align-items: center; gap: 8px; }
+        .info-list { color: #a1a1aa; font-size: 0.9rem; margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px; }
+        .info-list span { display: flex; align-items: center; gap: 8px; }
+        .info-list i { color: #e11d48; font-size: 1.1rem; }
+
+        .select-wrapper { position: relative; margin-bottom: 16px; }
+        .input-field { 
+            width: 100%; 
+            padding: 16px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(255,255,255,0.08); 
+            background: #18181b; 
+            color: #f4f4f5; 
+            font-size: 0.95rem; 
+            outline: none; 
+            box-sizing: border-box; 
+            appearance: none;
+            transition: all 0.2s;
+        }
+        .input-field:focus { border-color: #e11d48; box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15); }
+        .select-wrapper::after {
+            content: "\e93a";
+            font-family: "Phosphor";
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #71717a;
+            pointer-events: none;
+            font-size: 1.1rem;
+        }
+
+        .btn-checkin { 
+            background: #e11d48; 
+            color: white; 
+            border: none; 
+            width: 100%; 
+            padding: 16px; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            font-size: 1rem; 
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-checkin:hover { background: #be123c; }
+        .btn-checkin:active { transform: scale(0.98); }
+
+        /* Mensagem de Sucesso (Substitui o form quando já confirmado) */
+        .success-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 20px;
+            border-radius: 14px;
+            text-align: center;
+        }
+        .success-box i { font-size: 2.5rem; color: #10b981; margin-bottom: 8px; display: block; }
+        .success-box h3 { color: #10b981; font-size: 1.1rem; margin: 0 0 4px 0; font-weight: 700; }
+        .success-box p { color: #a1a1aa; font-size: 0.85rem; margin: 0; }
+
+        /* Seção de Alunos Confirmados */
+        .section-title { font-size: 1.15rem; font-weight: 600; color: #f4f4f5; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .aluno-card { 
+            background: #121214; 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+            margin-bottom: 8px; 
+            border: 1px solid rgba(255,255,255,0.03); 
+        }
+        .aluno-card i { color: #10b981; font-size: 1.2rem; }
+        .aluno-nome { font-weight: 500; color: #f4f4f5; font-size: 0.95rem; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <i class="ph ph-shield-check" style="font-size: 3rem; color: #10b981; margin-bottom: 12px;"></i>
-        <h2 style="margin: 0 0 8px 0; font-size: 1.4rem;">{{ turma.nome }}</h2>
-        <p style="color: #a1a1aa; font-size: 0.9rem; margin-bottom: 24px;">
-            <i class="ph ph-clock"></i> Horário: {{ turma.horario }} | <i class="ph ph-user"></i> Mestre: {{ turma.professor }}
-        </p>
+    <div class="wrapper">
+        <div class="turma-card">
+            <h2>{{ turma.nome }}</h2>
+            <div class="info-list">
+                <span><i class="ph ph-clock"></i> Horário: {{ turma.horario }}</span>
+                <span><i class="ph ph-user-circle"></i> Professor: {{ turma.professor }}</span>
+                {% if turma.vagas %}
+                <span><i class="ph ph-users"></i> Vagas Totais: {{ turma.vagas }}</span>
+                {% endif %}
+            </div>
 
-        <form method="POST">
-            <select name="aluno_id" class="input-field" required>
-                <option value="">Selecione seu nome na lista...</option>
-                {% for aluno in alunos %}
-                    <option value="{{ aluno.id }}">{{ aluno.nome_completo }}</option>
+            <!-- Formulário de Check-in (Some se já votou) -->
+            <div id="checkin-container">
+                <p style="color: #a1a1aa; font-size: 0.9rem; margin-bottom: 12px;">Selecione seu nome para confirmar:</p>
+                <form method="POST" onsubmit="salvarCheckin()">
+                    <div class="select-wrapper">
+                        <select name="aluno_id" class="input-field" required>
+                            <option value="" disabled selected>-- Escolha seu nome --</option>
+                            {% for aluno in alunos %}
+                                <option value="{{ aluno.id }}">{{ aluno.nome_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-checkin">
+                        <i class="ph ph-check-circle" style="font-size: 1.2rem;"></i> Confirmar Presença
+                    </button>
+                </form>
+            </div>
+
+            <!-- Caixa de aviso exibida caso o aparelho já tenha feito o check-in -->
+            <div id="success-confirmed" style="display: none;" class="success-box">
+                <i class="ph ph-check-fat"></i>
+                <h3>Presença Registrada!</h3>
+                <p>Este dispositivo já confirmou presença nesta aula. Bom treino!</p>
+            </div>
+        </div>
+
+        <!-- Lista de Alunos já Confirmados -->
+        <div class="section-title">
+            <span>Alunos Confirmados</span>
+            <span style="background: rgba(225, 29, 72, 0.1); color: #e11d48; font-size: 0.8rem; padding: 3px 10px; border-radius: 20px;">{{ confirmados|length if confirmados else 0 }}</span>
+        </div>
+
+        {% if confirmados %}
+            <div>
+                {% for aluno in confirmados %}
+                <div class="aluno-card">
+                    <i class="ph ph-check-circle"></i>
+                    <span class="aluno-nome">{{ aluno.nome_completo }}</span>
+                </div>
                 {% endfor %}
-            </select>
-            <button type="submit" class="btn-checkin">Confirmar Presença</button>
-        </form>
-        
+            </div>
+        {% else %}
+            <p style="color: #71717a; font-size: 0.9rem; text-align: center; padding: 20px 0;">Nenhum aluno confirmado ainda.</p>
+        {% endif %}
     </div>
+
+    <script>
+        // Chave única para o navegador baseada no ID da turma
+        const turmaKey = "checkin_feito_{{ turma.id if turma.id else turma.nome }}";
+
+        // Se já tiver salvo no navegador deste celular, esconde o form e mostra o aviso
+        if (localStorage.getItem(turmaKey) === "true") {
+            document.getElementById("checkin-container").style.display = "none";
+            document.getElementById("success-confirmed").style.display = "block";
+        }
+
+        function salvarCheckin() {
+            localStorage.setItem(turmaKey, "true");
+        }
+    </script>
 
 </body>
 </html>

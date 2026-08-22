@@ -1,188 +1,173 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nakduray Presence - Dashboard</title>
-    
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+{% extends "base.html" %}
+
+{% block title %}Nakduray Presence - Dashboard{% endblock %}
+
+{% block conteudo %}
     <style>
-        .card-actions-top {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .btn-trash {
-            background: rgba(225, 29, 72, 0.1);
-            color: #e11d48;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: background 0.2s;
-            text-decoration: none;
-        }
-        .btn-trash:hover {
-            background: rgba(225, 29, 72, 0.2);
-        }
+        /* Forçando a fonte limpa em todos os textos para matar a serifa */
+        h1, h2, h3, h4, h5, span, p, strong, a, div { font-family: 'Inter', sans-serif !important; }
+        
+        /* Design Premium para o Dashboard */
+        .greeting { color: #a1a1aa; font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+        .user-name { color: #f4f4f5; font-size: 1.5rem; font-weight: 700; margin: 4px 0 0 0; }
+        
+        .section-title { color: #f4f4f5; font-size: 1.15rem; font-weight: 600; margin-bottom: 0; }
+        
+        /* Botões Refinados e Alinhados */
+        .btn-outline { background: transparent; color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.4); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
+        .btn-outline:hover { background: rgba(225, 29, 72, 0.1); }
+        
+        .btn-solid { background: #e11d48; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2); white-space: nowrap; }
+        .btn-solid:hover { background: #be123c; }
+
+        .btn-dark { background: #27272a; color: #f4f4f5; border: 1px solid rgba(255,255,255,0.05); padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+        
+        .btn-icon { background: rgba(255,255,255,0.05); color: #71717a; border: none; width: 36px; height: 36px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s; flex-shrink: 0; }
+        .btn-icon:hover { background: rgba(255,255,255,0.1); color: #f4f4f5; }
+
+        /* Ajuste fino nos cards */
+        .class-card { background: #18181b; border: 1px solid rgba(255,255,255,0.03); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+        .class-title { color: #f4f4f5; font-size: 1.15rem; font-weight: 700; margin: 0 0 4px 0; line-height: 1.2; }
+        .class-time { color: #a1a1aa; font-size: 0.85rem; display: block; margin-top: 4px; }
+        
+        .stat-item { text-align: center; }
+        .stat-item strong { display: block; font-size: 1.3rem; color: #f4f4f5; font-weight: 700; margin-bottom: 2px; }
+        .stat-item span { color: #71717a; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        
+        .progress-bar { background: #27272a; height: 6px; border-radius: 10px; overflow: hidden; margin: 20px 0 16px 0; }
+        .progress-fill { background: linear-gradient(90deg, #e11d48, #fb7185); height: 100%; border-radius: 10px; }
     </style>
-</head>
-<body>
-    <div class="app-container">
-        <!-- HEADER DINÂMICO -->
-        <header class="header">
-            <div class="user-info">
-                <span class="greeting">BEM-VINDO, MESTRE</span>
-                <h1 class="user-name">{{ nome_mestre }}</h1>
-            </div>
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <!-- Botão Rápido para Gerenciar Alunos -->
-                <a href="{{ url_for('gerenciar_alunos') }}" class="btn-primary" style="text-decoration: none; padding: 8px 12px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
-                    <i class="ph ph-users" style="font-size: 1rem;"></i> Alunos
-                </a>
-                <div class="avatar-container">
-                    <img src="https://ui-avatars.com/api/?name={{ nome_mestre }}&background=333&color=fff" alt="Avatar" class="avatar">
-                    <div class="notification-dot"></div>
-                </div>
-            </div>
-        </header>
 
-        <!-- CARDS DE ESTATÍSTICAS DINÂMICOS -->
-        <section class="stats-grid">
-            <div class="stat-card">
-                <i class="ph ph-users"></i>
-                <h2>{{ total_alunos }}</h2>
-                <p>Alunos</p>
+    <!-- HEADER DINÂMICO -->
+    <header class="header" style="margin-bottom: 24px;">
+        <div class="user-info">
+            <span class="greeting">BEM-VINDO, MESTRE</span>
+            <h1 class="user-name">{{ nome_mestre }}</h1>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <a href="{{ url_for('gerenciar_alunos') }}" class="btn-dark">
+                <i class="ph ph-users" style="font-size: 1.1rem; color: #a1a1aa;"></i> Alunos
+            </a>
+            <div class="avatar-container" style="position: relative;">
+                <img src="https://ui-avatars.com/api/?name={{ nome_mestre }}&background=18181b&color=fff" alt="Avatar" class="avatar" style="width: 40px; height: 40px; border-radius: 50%;">
+                <div class="notification-dot" style="background: #e11d48; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #0a0a0a; position: absolute; top: 0; right: 0;"></div>
             </div>
-            <div class="stat-card active-stat">
-                <i class="ph ph-check-circle"></i>
-                <h2>{{ presencas_hoje }}</h2>
-                <p>Presenças Hoje</p>
-            </div>
-            <div class="stat-card">
-                <i class="ph ph-x-circle"></i>
-                <h2>{{ ausentes_hoje }}</h2>
-                <p>Ausentes</p>
-            </div>
-        </section>
+        </div>
+    </header>
 
-        <!-- SEÇÃO: AULAS DE HOJE (LOOP DO BANCO DE DADOS) -->
-        <section class="section-container">
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h3 class="section-title" style="margin-bottom: 0;">Aulas de Hoje</h3>
-                <a href="/criar_aula" class="btn-primary" style="text-decoration: none; padding: 6px 12px; font-size: 0.8rem; background-color: var(--green-bar);">
-                    + Nova Aula
-                </a>
-            </div>
+    <!-- CARDS DE ESTATÍSTICAS -->
+    <section class="stats-grid" style="margin-bottom: 32px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+        <div class="stat-card" style="background: #18181b; border: 1px solid rgba(255,255,255,0.03); padding: 16px; border-radius: 12px; text-align: center;">
+            <i class="ph ph-users" style="color: #a1a1aa; font-size: 1.5rem; margin-bottom: 8px;"></i>
+            <h2 style="color: #f4f4f5; margin: 0; font-size: 1.5rem;">{{ total_alunos }}</h2>
+            <p style="color: #71717a; margin: 4px 0 0 0; font-size: 0.8rem;">Alunos</p>
+        </div>
+        <div class="stat-card" style="background: rgba(225, 29, 72, 0.05); border: 1px solid rgba(225, 29, 72, 0.2); padding: 16px; border-radius: 12px; text-align: center;">
+            <i class="ph ph-check-circle" style="color: #e11d48; font-size: 1.5rem; margin-bottom: 8px;"></i>
+            <h2 style="color: #f4f4f5; margin: 0; font-size: 1.5rem;">{{ presencas_hoje }}</h2>
+            <p style="color: #71717a; margin: 4px 0 0 0; font-size: 0.8rem;">Presenças</p>
+        </div>
+        <div class="stat-card" style="background: #18181b; border: 1px solid rgba(255,255,255,0.03); padding: 16px; border-radius: 12px; text-align: center;">
+            <i class="ph ph-x-circle" style="color: #a1a1aa; font-size: 1.5rem; margin-bottom: 8px;"></i>
+            <h2 style="color: #f4f4f5; margin: 0; font-size: 1.5rem;">{{ ausentes_hoje }}</h2>
+            <p style="color: #71717a; margin: 4px 0 0 0; font-size: 0.8rem;">Ausentes</p>
+        </div>
+    </section>
 
-            {% if aulas %}
-                {% for aula in aulas %}
-                <div class="class-card">
-                    <div class="class-header">
-                        <div>
-                            <h4>{{ aula.nome_turma }}</h4>
-                            <span class="class-time">Hoje - {{ aula.horario }}</span>
-                        </div>
-                        <!-- Ações do Card: Gerenciar + Lixeira -->
-                        <div class="card-actions-top">
-                            <a href="/gerenciar/{{ aula.id }}" class="btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; height: 40px; padding: 0 16px;">Gerenciar</a>
-                            <a href="/excluir_aula/{{ aula.id }}" class="btn-trash" onclick="return confirm('Tem certeza que deseja excluir esta aula?')" title="Excluir Aula">
-                                <i class="ph ph-trash"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="class-stats">
-                        <div class="stat-item">
-                            <strong>{{ aula.confirmados }}</strong>
-                            <span>Confirmados</span>
-                        </div>
-                        <div class="stat-item">
-                            <strong>{{ aula.vagas }}</strong>
-                            <span>Vagas</span>
-                        </div>
-                        <div class="stat-item">
-                            <strong>{{ aula.ocupacao_pct }}%</strong>
-                            <span>Ocupação</span>
-                        </div>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill fill-red" style="width: {{ aula.ocupacao_pct }}%;"></div>
-                    </div>
-                    <div class="class-footer">
-                        <i class="ph ph-user"></i> {{ aula.professor }}
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Nenhuma aula cadastrada para hoje.</p>
-            {% endif %}
-        </section>
+    <!-- SEÇÃO: AULAS DE HOJE -->
+    <section class="section-container" style="margin-bottom: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 class="section-title">Aulas de Hoje</h3>
+            <a href="/criar_aula" class="btn-solid">
+                <i class="ph ph-plus"></i> Nova Aula
+            </a>
+        </div>
 
-        <!-- SEÇÃO: PLACAR DE PUNIÇÕES -->
-        <section class="section-container punicoes-section">
-            <div class="punicoes-header">
-                <div>
-                    <h3 class="section-title">Placar de Punições</h3>
-                    <span class="subtitle">Flexões devidas</span>
-                </div>
-                <!-- Botão Registrar linkado para a rota correta -->
-                <a href="{{ url_for('registrar_punicao') }}" class="btn-primary" style="text-decoration: none; padding: 8px 16px; font-size: 0.85rem; display: inline-flex; align-items: center;">Registrar</a>
-            </div>
-
-            {% if punicoes %}
-                {% for punicao in punicoes %}
-                <div class="punicao-card" style="display: flex; align-items: center; justify-content: space-between; background: #121214; padding: 12px 16px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05);">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div class="punicao-icon" style="background: rgba(225, 29, 72, 0.1); color: #e11d48; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;"><i class="ph ph-warning"></i></div>
-                        <div class="punicao-info">
-                            <strong style="display: block; color: white;">{{ punicao.nome_completo }}</strong>
-                            <span style="font-size: 0.85rem; color: #a1a1aa;"><i class="ph ph-chat-text"></i> {{ punicao.motivo }}</span>
-                        </div>
+        {% if aulas %}
+            {% for aula in aulas %}
+            <div class="class-card">
+                <!-- CABEÇALHO DO CARD (ALINHADO PERFEITAMENTE) -->
+                <div class="class-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px;">
+                    <div style="flex: 1;">
+                        <h4 class="class-title">{{ aula.nome_turma }}</h4>
+                        <span class="class-time">Hoje - {{ aula.horario }}</span>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 14px;">
-                        <div class="punicao-valor" style="text-align: right;">
-                            <strong style="color: #e11d48; font-size: 1.1rem;">{{ punicao.quantidade }}</strong>
-                            <span style="display: block; font-size: 0.75rem; color: #a1a1aa;">flexões</span>
-                        </div>
-                        <!-- Botão para remover quando o aluno pagar -->
-                        <a href="{{ url_for('remover_punicao', id=punicao.id) }}" class="btn-trash" onclick="return confirm('O aluno pagou as flexões e cumpriu a punição?')" title="Remover Punição">
-                            <i class="ph ph-check"></i>
+                    <div class="card-actions-top" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                        <a href="/gerenciar/{{ aula.id }}" class="btn-outline">Gerenciar</a>
+                        <a href="/excluir_aula/{{ aula.id }}" class="btn-icon" onclick="return confirm('Tem certeza que deseja excluir esta aula?')" title="Excluir Aula">
+                            <i class="ph ph-trash" style="font-size: 1.1rem;"></i>
                         </a>
                     </div>
                 </div>
-                {% endfor %}
-            {% else %}
-                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 12px;">Nenhum aluno devendo flexões. O treino foi bom!</p>
-            {% endif %}
-        </section>
+                
+                <div class="class-stats" style="display: flex; justify-content: space-between;">
+                    <div class="stat-item">
+                        <strong>{{ aula.confirmados }}</strong>
+                        <span>Confirmados</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>{{ aula.vagas }}</strong>
+                        <span>Vagas</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>{{ aula.ocupacao_pct }}%</strong>
+                        <span>Ocupação</span>
+                    </div>
+                </div>
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ aula.ocupacao_pct }}%;"></div>
+                </div>
+                
+                <div class="class-footer" style="color: #a1a1aa; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
+                    <i class="ph ph-user"></i> {{ aula.professor }}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color: #71717a; font-size: 0.9rem;">Nenhuma aula cadastrada para hoje.</p>
+        {% endif %}
+    </section>
 
-        <!-- MENU INFERIOR -->
-        <nav class="bottom-nav">
-            <a href="{{ url_for('dashboard') }}" class="nav-item active">
-                <i class="ph-fill ph-house"></i>
-                <span>Início</span>
+    <!-- SEÇÃO: PLACAR DE PUNIÇÕES -->
+    <section class="section-container punicoes-section" style="padding-bottom: 40px;">
+        <div class="punicoes-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+                <h3 class="section-title">Placar de Punições</h3>
+                <span class="subtitle" style="color: #71717a; font-size: 0.85rem;">Flexões devidas</span>
+            </div>
+            <a href="{{ url_for('registrar_punicao') }}" class="btn-outline">
+                <i class="ph ph-warning"></i> Registrar
             </a>
-            <a href="{{ url_for('gerenciar_alunos') }}" class="nav-item">
-                <i class="ph ph-users"></i>
-                <span>Alunos</span>
-            </a>
-            <a href="{{ url_for('ranking') }}" class="nav-item">
-                <i class="ph ph-trophy"></i>
-                <span>Ranking</span>
-            </a>
-            <a href="{{ url_for('perfil') }}" class="nav-item">
-                <i class="ph ph-user"></i>
-                <span>Perfil</span>
-            </a>
-        </nav>
-    </div>
-</body>
-</html>
+        </div>
+
+        {% if punicoes %}
+            {% for punicao in punicoes %}
+            <div class="punicao-card" style="display: flex; align-items: center; justify-content: space-between; background: #18181b; padding: 14px 16px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.03);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="punicao-icon" style="background: rgba(225, 29, 72, 0.1); color: #e11d48; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="ph ph-warning" style="font-size: 1.2rem;"></i>
+                    </div>
+                    <div class="punicao-info">
+                        <strong style="display: block; color: #f4f4f5; font-size: 1rem;">{{ punicao.nome_completo }}</strong>
+                        <span style="font-size: 0.8rem; color: #71717a;">{{ punicao.motivo }}</span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <div class="punicao-valor" style="text-align: right;">
+                        <strong style="color: #e11d48; font-size: 1.2rem;">{{ punicao.quantidade }}</strong>
+                        <span style="display: block; font-size: 0.7rem; color: #71717a; text-transform: uppercase;">flexões</span>
+                    </div>
+                    <a href="{{ url_for('remover_punicao', id=punicao.id) }}" class="btn-icon" style="background: #27272a; color: #10b981;" onclick="return confirm('O aluno cumpriu a punição?')" title="Pagar Punição">
+                        <i class="ph ph-check" style="font-size: 1.1rem;"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.3); padding: 16px; border-radius: 12px; text-align: center;">
+                <p style="color: #10b981; font-size: 0.9rem; margin: 0; font-weight: 500;">Nenhum aluno devendo flexões. O treino foi excelente!</p>
+            </div>
+        {% endif %}
+    </section>
+{% endblock %}

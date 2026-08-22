@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>{% block title %}Nakduray Presence{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        .card-actions-top { display: flex; align-items: center; gap: 8px; }
+        .btn-trash {
+            background: rgba(225, 29, 72, 0.1); color: #e11d48; border: none;
+            width: 40px; height: 40px; border-radius: 10px; display: flex;
+            align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem;
+            transition: background 0.2s; text-decoration: none;
+        }
+        .btn-trash:hover { background: rgba(225, 29, 72, 0.2); }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- CONTEÚDO PRINCIPAL DA TELA -->
+        {% block conteudo %}{% endblock %}
+
+        <!-- NAVBAR INFERIOR FIXA -->
+        <nav class="bottom-nav">
+            <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                <i class="ph-fill ph-house"></i>
+                <span>Início</span>
+            </a>
+            <a href="{{ url_for('gerenciar_alunos') }}" class="nav-item {% if request.endpoint == 'gerenciar_alunos' %}active{% endif %}">
+                <i class="ph ph-users"></i>
+                <span>Alunos</span>
+            </a>
+            <a href="{{ url_for('ranking') }}" class="nav-item {% if request.endpoint == 'ranking' %}active{% endif %}">
+                <i class="ph ph-trophy"></i>
+                <span>Ranking</span>
+            </a>
+            <a href="{{ url_for('perfil') }}" class="nav-item {% if request.endpoint == 'perfil' %}active{% endif %}">
+                <i class="ph ph-user"></i>
+                <span>Perfil</span>
+            </a>
+        </nav>
+    </div>
+</body>
+</html>

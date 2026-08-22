@@ -12,10 +12,24 @@
     --font-serif: 'Merriweather', serif; /* Para títulos estilosos */
 }
 
+/* Comportamento Nativo (App Experience) */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+/* Ocultar barra de rolagem (scrollbar) mantendo a rolagem fluida */
+html, body {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE e Edge */
+}
+
+html::-webkit-scrollbar, 
+body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari e Opera */
 }
 
 body {
@@ -23,6 +37,8 @@ body {
     color: var(--text-main);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    -webkit-user-select: none;
+    user-select: none;
     /* Centralizar em telas maiores simulando mobile */
     display: flex;
     justify-content: center;

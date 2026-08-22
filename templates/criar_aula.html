@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Configurar Aula</title>
+    <title>Configurar Aula - Nakduray Presence</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
         body {
@@ -36,12 +36,12 @@
             display: flex; 
             gap: 10px; 
             flex-wrap: wrap; 
-            margin-bottom: 20px; 
+            margin-bottom: 12px; 
         }
         .radio-btn { 
             cursor: pointer; 
             flex: 1; 
-            min-width: 90px; 
+            min-width: 70px; 
             text-align: center; 
         }
         .radio-btn input { 
@@ -62,6 +62,23 @@
             color: white; 
             border-color: #e11d48; 
             font-weight: bold;
+        }
+        .input-custom {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: #1c1c1e;
+            color: white;
+            font-size: 0.95rem;
+            outline: none;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+        .input-custom:focus {
+            border-color: #e11d48;
+            box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15);
         }
         .btn-salvar { 
             width: 100%; 
@@ -90,8 +107,8 @@
 
         <form action="/criar_aula" method="POST">
             
-            <!-- Seleção de Nome -->
-            <span class="form-label">Qual a Modalidade?</span>
+            <!-- Seleção de Categoria -->
+            <span class="form-label">Qual a Categoria?</span>
             <div class="option-group">
                 <label class="radio-btn"><input type="radio" name="nome" value="Muay Thai - Feminina" required><span>Feminina</span></label>
                 <label class="radio-btn"><input type="radio" name="nome" value="Muay Thai - Masculina"><span>Masculina</span></label>
@@ -99,28 +116,33 @@
             </div>
 
             <!-- Seleção de Professor -->
-            <span class="form-label">Quem será o Mestre?</span>
+            <span class="form-label">Quem será o Responsável?</span>
             <div class="option-group">
-                <label class="radio-btn"><input type="radio" name="professor" value="Mestra Julia" required><span>Julia</span></label>
-                <label class="radio-btn"><input type="radio" name="professor" value="Mestre Carlos"><span>Carlos</span></label>
-                <label class="radio-btn"><input type="radio" name="professor" value="Mestre João"><span>João</span></label>
+                {% for treinador in treinadores %}
+                    <label class="radio-btn">
+                        <input type="radio" name="professor" value="{{ treinador.nome }}" {% if loop.first %}required{% endif %}>
+                        <span>{{ treinador.nome }}</span>
+                    </label>
+                {% endfor %}
             </div>
 
-            <!-- Seleção de Vagas -->
+            <!-- Vagas -->
             <span class="form-label">Quantidade de Vagas</span>
-            <div class="option-group">
-                <label class="radio-btn"><input type="radio" name="vagas" value="10" required><span>10</span></label>
-                <label class="radio-btn"><input type="radio" name="vagas" value="15"><span>15</span></label>
-                <label class="radio-btn"><input type="radio" name="vagas" value="20"><span>20</span></label>
+            <div class="option-group" style="margin-bottom: 8px;">
+                <label class="radio-btn"><input type="radio" name="vagas_atalho" onclick="document.getElementById('vagas').value='10'"><span>10</span></label>
+                <label class="radio-btn"><input type="radio" name="vagas_atalho" onclick="document.getElementById('vagas').value='15'"><span>15</span></label>
+                <label class="radio-btn"><input type="radio" name="vagas_atalho" onclick="document.getElementById('vagas').value='20'"><span>20</span></label>
             </div>
+            <input type="number" id="vagas" name="vagas" class="input-custom" placeholder="Digite ou selecione as vagas..." required min="1">
 
-            <!-- Seleção de Horário por Botões -->
+            <!-- Horário -->
             <span class="form-label">Horário da Aula</span>
-            <div class="option-group">
-                <label class="radio-btn"><input type="radio" name="horario" value="18:00" required><span>18:00</span></label>
-                <label class="radio-btn"><input type="radio" name="horario" value="19:00"><span>19:00</span></label>
-                <label class="radio-btn"><input type="radio" name="horario" value="20:00"><span>20:00</span></label>
+            <div class="option-group" style="margin-bottom: 8px;">
+                <label class="radio-btn"><input type="radio" name="horario_atalho" onclick="document.getElementById('horario').value='18:00'"><span>18:00</span></label>
+                <label class="radio-btn"><input type="radio" name="horario_atalho" onclick="document.getElementById('horario').value='19:00'"><span>19:00</span></label>
+                <label class="radio-btn"><input type="radio" name="horario_atalho" onclick="document.getElementById('horario').value='20:00'"><span>20:00</span></label>
             </div>
+            <input type="text" id="horario" name="horario" class="input-custom" placeholder="Digite ou selecione o horário..." required>
 
             <button type="submit" class="btn-salvar">Criar Aula</button>
         </form>

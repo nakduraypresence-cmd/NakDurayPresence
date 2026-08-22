@@ -1,54 +1,104 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ranking - Nakduray Presence</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-</head>
-<body>
+{% extends "base.html" %}
 
-    <div class="container" style="padding-bottom: 90px;">
-        <h2 style="margin-top: 0; margin-bottom: 20px;"><i class="ph ph-trophy" style="color: #f59e0b;"></i> Ranking de Presenças</h2>
+{% block title %}Ranking - Nakduray Presence{% endblock %}
+
+{% block conteudo %}
+    <style>
+        /* Reset de tipografia para manter a fonte moderna */
+        h1, h2, h3, h4, h5, span, p, strong, a, div { font-family: 'Inter', sans-serif !important; }
+        
+        .page-title { color: #f4f4f5; font-size: 1.5rem; font-weight: 700; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px; }
+        .page-title i { color: #f59e0b; /* Dourado do troféu */ }
+
+        /* Cards do Ranking */
+        .rank-card {
+            background: #18181b;
+            padding: 12px 16px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255,255,255,0.03);
+            transition: border-color 0.2s;
+        }
+        .rank-card:hover { border-color: rgba(255,255,255,0.1); }
+
+        /* Caixinhas de Posição (Ouro, Prata, Bronze e Outros) */
+        .rank-pos {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .pos-1 { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .pos-2 { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+        .pos-3 { background: rgba(180, 83, 9, 0.15); color: #b45309; border: 1px solid rgba(180, 83, 9, 0.3); }
+        .pos-other { background: #27272a; color: #a1a1aa; border: 1px solid rgba(255,255,255,0.05); }
+
+        .aluno-nome { font-weight: 600; color: #f4f4f5; font-size: 1.05rem; }
+
+        /* Badge de Presenças */
+        .presencas-badge {
+            background: rgba(225, 29, 72, 0.1);
+            color: #e11d48;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Estado Vazio Elegante */
+        .empty-state {
+            background: rgba(255,255,255,0.02);
+            border: 1px dashed rgba(255,255,255,0.1);
+            padding: 40px 24px;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .empty-state i { font-size: 3rem; color: rgba(245, 158, 11, 0.5); margin-bottom: 16px; display: block; }
+        .empty-state p { color: #a1a1aa; font-size: 0.95rem; margin: 0; line-height: 1.5; }
+    </style>
+
+    <div style="padding-bottom: 40px;">
+        <h2 class="page-title">
+            <i class="ph ph-trophy"></i> 
+            Ranking de Presenças
+        </h2>
 
         {% if ranking %}
-            {% for aluno in ranking %}
-            <div class="rank-card" style="background: #1c1c1e; padding: 14px 18px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.03);">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-weight: bold; color: {% if loop.index == 1 %}#f59e0b{% elif loop.index == 2 %}#94a3b8{% elif loop.index == 3 %}#b45309{% else %}#71717a{% endif %}; font-size: 1.1rem;">#{{ loop.index }}</span>
-                    <span style="font-weight: 500;">{{ aluno.nome_completo }}</span>
+            <div style="max-height: 500px; overflow-y: auto; padding-right: 4px;">
+                {% for aluno in ranking %}
+                <div class="rank-card">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <!-- Lógica Jinja para definir a cor da posição -->
+                        <div class="rank-pos {% if loop.index == 1 %}pos-1{% elif loop.index == 2 %}pos-2{% elif loop.index == 3 %}pos-3{% else %}pos-other{% endif %}">
+                            {{ loop.index }}º
+                        </div>
+                        <span class="aluno-nome">{{ aluno.nome_completo }}</span>
+                    </div>
+                    <div class="presencas-badge">
+                        <i class="ph ph-check-circle" style="font-size: 1.1rem;"></i>
+                        {{ aluno.presencas }}
+                    </div>
                 </div>
-                <span style="background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;">
-                    {{ aluno.presencas }} presenças
-                </span>
+                {% endfor %}
             </div>
-            {% endfor %}
         {% else %}
-            <p style="color: #71717a; font-size: 0.9rem;">Nenhum registro de presença no ranking ainda.</p>
+            <!-- Novo visual para quando o ranking estiver vazio -->
+            <div class="empty-state">
+                <i class="ph ph-medal"></i>
+                <p>O pódio está vazio!<br>Nenhum atleta pontuou no ranking ainda. Os treinos do     NAKDURAY aguardam.</p>
+            </div>
         {% endif %}
     </div>
-
-    <!-- MENU INFERIOR -->
-    <nav class="bottom-nav">
-        <a href="{{ url_for('dashboard') }}" class="nav-item">
-            <i class="ph ph-house"></i>
-            <span>Início</span>
-        </a>
-        <a href="{{ url_for('gerenciar_alunos') }}" class="nav-item">
-            <i class="ph ph-users"></i>
-            <span>Alunos</span>
-        </a>
-        <a href="{{ url_for('ranking') }}" class="nav-item active">
-            <i class="ph-fill ph-trophy"></i>
-            <span>Ranking</span>
-        </a>
-        <a href="{{ url_for('perfil') }}" class="nav-item">
-            <i class="ph ph-user"></i>
-            <span>Perfil</span>
-        </a>
-    </nav>
-
-</body>
-</html>
+{% endblock %}

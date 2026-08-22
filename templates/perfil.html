@@ -1,15 +1,10 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Perfil do Mestre - Nakduray Presence</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+{% extends "base.html" %}
+
+{% block title %}Perfil do Mestre - Nakduray Presence{% endblock %}
+
+{% block conteudo %}
+    <!-- Estilos específicos da página de perfil -->
     <style>
-        body { background: #0a0a0a; color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
-        .container { max-width: 500px; margin: 0 auto 80px auto; }
         .profile-header { background: #121214; border-radius: 20px; padding: 24px; text-align: center; border: 1px solid rgba(255,255,255,0.05); margin-top: 10px; }
         .profile-avatar { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #f43f5e; margin-bottom: 12px; }
         .profile-name { font-size: 1.4rem; font-weight: 700; margin: 0 0 4px 0; }
@@ -20,7 +15,7 @@
         .stat-mini-card strong { display: block; font-size: 1.2rem; color: white; margin-bottom: 2px; }
         .stat-mini-card span { font-size: 0.75rem; color: #a1a1aa; }
 
-        .menu-options { margin-top: 24px; background: #121214; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; }
+        .menu-options { margin-top: 24px; background: #121214; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; margin-bottom: 12px; }
         .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; text-decoration: none; color: white; border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.2s; }
         .menu-item:last-child { border-bottom: none; }
         .menu-item:hover { background: #18181b; }
@@ -28,9 +23,8 @@
         .menu-left i { font-size: 1.2rem; color: #f43f5e; }
         .menu-item span.badge { background: rgba(244, 63, 94, 0.1); color: #f43f5e; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; }
     </style>
-</head>
-<body>
-    <div class="container">
+
+    <div style="padding-bottom: 20px;">
         <!-- HEADER DO PERFIL -->
         <div class="profile-header">
             <img src="https://ui-avatars.com/api/?name={{ nome_mestre }}&background=f43f5e&color=fff" alt="Avatar Mestre" class="profile-avatar">
@@ -77,34 +71,16 @@
                 <span class="badge">v1.0</span>
             </a>
         </div>
-        <a href="{{ url_for('logout') }}" class="menu-item" style="color: #e11d48;">
-    <div class="menu-left">
-        <i class="ph ph-sign-out" style="color: #e11d48;"></i>
-        <span>Sair da Conta</span>
+        
+        <!-- BOTÃO DE SAIR (LOGOUT) -->
+        <div style="background: #121214; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden;">
+            <a href="{{ url_for('logout') }}" class="menu-item" style="color: #e11d48;">
+                <div class="menu-left">
+                    <i class="ph ph-sign-out" style="color: #e11d48;"></i>
+                    <span>Sair da Conta</span>
+                </div>
+                <i class="ph ph-caret-right" style="color: #71717a;"></i>
+            </a>
+        </div>
     </div>
-    <i class="ph ph-caret-right" style="color: #71717a;"></i>
-</a>
-    </div>
-
-   <!-- MENU INFERIOR -->
-        <nav class="bottom-nav">
-            <a href="{{ url_for('dashboard') }}" class="nav-item active">
-                <i class="ph-fill ph-house"></i>
-                <span>Início</span>
-            </a>
-            <a href="{{ url_for('gerenciar_alunos') }}" class="nav-item">
-                <i class="ph ph-users"></i>
-                <span>Alunos</span>
-            </a>
-            <a href="{{ url_for('ranking') }}" class="nav-item">
-                <i class="ph ph-trophy"></i>
-                <span>Ranking</span>
-            </a>
-            <a href="{{ url_for('perfil') }}" class="nav-item">
-                <i class="ph ph-user"></i>
-                <span>Perfil</span>
-            </a>
-        </nav>
-    
-</body>
-</html>
+{% endblock %}

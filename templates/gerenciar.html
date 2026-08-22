@@ -4,45 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gerenciar Aula - Nakduray Presence</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         body { background: #0a0a0a; color: white; font-family: 'Inter', sans-serif; margin: 0; padding: 20px; }
         .container { max-width: 500px; margin: 0 auto; }
-        .card-info { background: #121214; border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
+        .card { background: #121214; border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
         .btn-copiar { background: #27272a; color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; transition: background 0.2s; }
         .btn-copiar:hover { background: #3f3f46; }
         .voltar { color: #a1a1aa; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 20px; font-size: 0.9rem; }
+        .aluno-item { background: #18181b; padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.03); }
+        /* Caixa de texto invisível para o comando de cópias */
+        #link-input { position: absolute; left: -9999px; }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="{{ url_for('dashboard') }}" class="voltar"><i class="ph ph-arrow-left"></i> Voltar ao Dashboard</a>
-        
-        <div class="card-info">
-            <h2 style="margin: 0 0 8px 0; font-size: 1.3rem;">{{ turma.nome }}</h2>
-            <p style="margin: 4px 0; color: #a1a1aa; font-size: 0.9rem;"><i class="ph ph-clock"></i> Horário: {{ turma.horario }}</p>
-            <p style="margin: 4px 0; color: #a1a1aa; font-size: 0.9rem;"><i class="ph ph-user"></i> Professor: {{ turma.professor }}</p>
-            <p style="margin: 4px 0; color: #a1a1aa; font-size: 0.9rem;"><i class="ph ph-users"></i> Vagas Totais: {{ turma.vagas }}</p>
 
-            <!-- Botão de Copiar Link da Sala -->
-            <button class="btn-copiar" onclick="copiarLink()">
+        <div class="card">
+            <h1>{{ turma.nome }}</h1>
+            <p><i class="ph ph-clock"></i> Horário: {{ turma.horario }}</p>
+            <p><i class="ph ph-user"></i> Professor: {{ turma.professor }}</p>
+            <p><i class="ph ph-users"></i> Vagas Totais: {{ turma.vagas_totais }}</p>
+
+            <!-- Input oculto que armazena o link gerado dinamicamente -->
+            <input type="text" id="link-input">
+
+            <button onclick="copiarLinkCheckin()" class="btn-copiar">
                 <i class="ph ph-copy" style="font-size: 1.2rem;"></i> Copiar Link de Check-in
             </button>
         </div>
 
-        <h3 class="section-title">Alunos Confirmados</h3>
+        <h3 style="font-size: 1.1rem; margin-bottom: 12px;">Alunos Confirmados</h3>
         
         {% if alunos %}
-            <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div>
                 {% for aluno in alunos %}
-                <div style="background: #121214; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 500; color: white;">
-                        <i class="ph ph-user-circle" style="font-size: 1.1rem; vertical-align: middle; margin-right: 6px; color: #10b981;"></i> 
-                        {{ aluno.nome_completo if aluno.nome_completo else aluno.nome }}
+                <div class="aluno-item">
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                        <i class="ph ph-user-circle-check" style="color: #10b981; font-size: 1.2rem;">‍</i>
+                        {{ aluno.nome_completo }}
                     </span>
-                    <span style="font-size: 0.8rem; background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 4px 8px; border-radius: 6px;">Confirmado</span>
                 </div>
                 {% endfor %}
             </div>
@@ -52,21 +55,62 @@
     </div>
 
     <script>
-        function copiarLink() {
-            // Ajustado para coincidir com a rota /aluno/turma/ID
-            const linkAula = window.location.origin + "/aluno/turma/{{ turma.id }}";
+        function copiarLinkCheckin() {
+            // Monta a URL completa do check-in
+            const urlCheckin = window.location.origin + "/aluno/turma/{{ turma.id }}";
             
-            const mensagem = `🥊 *Nakduray Presence - Check-in* 🥊\n\n` +
-                             `Sawadee krap, time! O treino de *{{ turma.nome }}* já está liberado.\n` +
-                             `Horário: {{ turma.horario }}\n\n` +
-                             `Garanta sua vaga marcando presença aqui:\n${linkAula}\n\n` +
-                             `Nos vemos no tatame! 👊`;
+            // Dados da turma vindos do backend
+            const nomeTurma = "{{ turma.nome }}";
+            const horarioTurma = "{{ turma.horario }}";
+            const professorTurma = "{{ turma.professor }}";
+            const vagasTurma = "{{ turma.vagas_totais }}";
 
-            navigator.clipboard.writeText(mensagem).then(() => {
-                alert("Mensagem copiada para o WhatsApp!");
-            }).catch(err => {
-                console.error('Erro ao copiar: ', err);
-            });
+            // Mensagem formatada e bonita para o WhatsApp
+            const mensagemWhatsApp = 
+                `🔥 *NAKDURAY PRESENCE - CHECK-IN* 🔥\n\n` +
+                `Opa, guerreiros e guerreiras! 🥊\n` +
+                `Estão abertas as confirmações para o nosso próximo treino de Muay Thai:\n\n` +
+                `📌 *Modalidade:* ${nomeTurma}\n` +
+                `⏰ *Horário:* ${horarioTurma}\n` +
+                `👨‍🏫 *Responsável:* ${professorTurma}\n` +
+                `🎟️ *Vagas Totais:* ${vagasTurma}\n\n` +
+                `Garanta já a sua vaga clicando no link oficial de presença abaixo:\n` +
+                `👉 ${urlCheckin}\n\n` +
+                `_Sawadee! Nos vemos no tatame!_ 🥋`;
+
+            // Tenta copiar para a área de transferência usando a API moderna (Navigator Clipboard)
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(mensagemWhatsApp).then(() => {
+                    alert("Mensagem formatada para o WhatsApp copiada com sucesso! 🚀");
+                }).catch(() => {
+                    fallbackCopiar(mensagemWhatsApp);
+                });
+            } else {
+                fallbackCopiar(mensagemWhatsApp);
+            }
+        }
+
+        // Função de suporte caso o navegador bloqueie a área de transferência direta
+        function fallbackCopiar(texto) {
+            const textArea = document.createElement("textarea");
+            textArea.value = texto;
+            textArea.style.position = "fixed";  // Evita rolar a página para o campo
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const sucesso = document.execCommand('copy');
+                if (sucesso) {
+                    alert("Mensagem formatada para o WhatsApp copiada com sucesso! 🚀");
+                } else {
+                    prompt("Copie a mensagem abaixo:", texto);
+                }
+            } catch (err) {
+                prompt("Copie a mensagem abaixo:", texto);
+            }
+
+            document.body.removeChild(textArea);
         }
     </script>
 </body>

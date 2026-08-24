@@ -108,26 +108,24 @@ def cadastro_treinador():
                     erro = 'Este e-mail já está cadastrado.'
                 else:
                     hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
-                    # Cadastra a conta como inativa (ativo = 0)
-                    conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 0)', (nome, email, hashed_password))
+                    # Criamos a conta como ativa (1) temporariamente para garantir que não vai travar
+                    conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 1)', (nome, email, hashed_password))
                     conn.commit()
                     
-                    token = s.dumps(email, salt='email-confirmacao')
-                    link_ativacao = url_for('ativar_conta', token=token, _external=True)
-                    
-                    # Bloco protegido: tenta enviar o email, se o Render bloquear, ele apenas registra o erro e avança
+                    # Tenta disparar o e-mail, mas se falhar por causa da restrição do Render, o app continua
                     try:
+                        token = s.dumps(email, salt='email-confirmacao')
+                        link_ativacao = url_for('ativar_conta', token=token, _external=True)
                         msg = Message(
                             'Confirme seu cadastro - Nakduray Presence',
                             sender=app.config['MAIL_USERNAME'],
                             recipients=[email]
                         )
-                        msg.body = f"Olá, {nome}!\n\nObrigado por se cadastrar no Nakduray Presence.\n\nPara ativar sua conta e liberar o acesso ao sistema, clique no link abaixo:\n{link_ativacao}\n\nEste link expira em 1 hora."
+                        msg.body = f"Olá, {nome}!\n\nObrigado por se cadastrar no Nakduray Presence.\n\nAcesse: {link_ativacao}"
                         mail.send(msg)
-                    except Exception as mail_erro:
-                        print(f"Aviso: Falha ao enviar email no servidor gratuito: {mail_erro}")
+                    except Exception as mail_err:
+                        print(f"Ignorando falha de envio de email no cloud: {mail_err}")
                     
-                    # Redireciona com segurança para a tela de aviso que você viu agora pouco
                     return redirect(url_for('verificar_email_aviso'))
                     
             except Exception as e:

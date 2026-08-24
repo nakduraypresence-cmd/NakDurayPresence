@@ -16,7 +16,7 @@
         .stat-mini-card span { font-size: 0.75rem; color: #a1a1aa; }
 
         .menu-options { margin-top: 24px; background: #121214; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; margin-bottom: 12px; }
-        .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; text-decoration: none; color: white; border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.2s; }
+        .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; text-decoration: none; color: white; border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.2s; width: 100%; box-sizing: border-box; background: transparent; border-top: none; border-left: none; border-right: none; text-align: left; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
         .menu-item:last-child { border-bottom: none; }
         .menu-item:hover { background: #18181b; }
         .menu-left { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; }
@@ -73,7 +73,7 @@
         </div>
         
         <!-- BOTÃO DE SAIR (LOGOUT) -->
-        <div style="background: #121214; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden;">
+        <div style="background: #121214; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; margin-bottom: 12px;">
             <a href="{{ url_for('logout') }}" class="menu-item" style="color: #e11d48;">
                 <div class="menu-left">
                     <i class="ph ph-sign-out" style="color: #e11d48;"></i>
@@ -81,6 +81,19 @@
                 </div>
                 <i class="ph ph-caret-right" style="color: #71717a;"></i>
             </a>
+        </div>
+
+        <!-- ZONA DE PERIGO: APAGAR CONTA -->
+        <div style="background: #121214; border-radius: 16px; border: 1px solid rgba(225, 29, 72, 0.2); overflow: hidden;">
+            <form action="{{ url_for('apagar_conta') }}" method="POST" onsubmit="return confirm('Tem certeza absoluta que deseja excluir sua conta? Esta ação é irreversível e apagará todos os seus dados.');">
+                <button type="submit" class="menu-item" style="color: #e11d48; width: 100%;">
+                    <div class="menu-left">
+                        <i class="ph ph-trash" style="color: #e11d48;"></i>
+                        <span>Apagar Minha Conta</span>
+                    </div>
+                    <i class="ph ph-caret-right" style="color: #71717a;"></i>
+                </button>
+            </form>
         </div>
     </div>
 {% endblock %}

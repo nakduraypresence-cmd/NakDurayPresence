@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Configurar Aula - Nakduray Presence</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         body {
             background: #0a0a0a;
@@ -25,6 +26,46 @@
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
+        
+        /* CORREÇÃO DO CABEÇALHO */
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: 16px; /* Espaço fixo entre o botão e o título */
+            margin-bottom: 24px;
+        }
+        
+        .btn-voltar {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #a1a1aa;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(255,255,255,0.05);
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: 0.2s;
+            flex-shrink: 0; /* Impede que o botão encolha e quebre o layout */
+        }
+        
+        .btn-voltar:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .form-title {
+            font-size: 1.15rem;
+            margin: 0;
+            color: #f4f4f5;
+            font-weight: 700;
+            line-height: 1.2;
+            flex-grow: 1; /* Permite que o título ocupe o resto do espaço */
+        }
+        /* FIM DA CORREÇÃO */
+
         .form-label {
             display: block;
             color: #a1a1aa;
@@ -100,9 +141,12 @@
 <body>
 
     <div class="container-form">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="font-size: 1.2rem; margin: 0;">Configurar Nova Aula</h2>
-            <a href="/" style="color: #888; font-size: 1.4rem; text-decoration: none;"><i class="ph ph-x"></i></a>
+        <!-- NOVO CABEÇALHO -->
+        <div class="form-header">
+            <a href="/" class="btn-voltar">
+                <i class="ph ph-arrow-left" style="font-size: 1rem;"></i> Voltar
+            </a>
+            <h2 class="form-title">Configurar Nova Aula</h2>
         </div>
 
         <form action="/criar_aula" method="POST">

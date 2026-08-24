@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conta Ativada - Nakduray Presence</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background-color: #1e1e1e;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        h2 {
+            margin-bottom: 15px;
+            color: #28a745;
+        }
+        p {
+            color: #b0b0b0;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+        a {
+            display: inline-block;
+            background-color: #ff3b5c;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        a:hover {
+            background-color: #e0324e;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Tudo pronto! 🎉</h2>
+        <p>Sua conta foi ativada com sucesso. Agora você já pode acessar o painel do Nakduray Presence.</p>
+        <a href="{{ url_for('login') }}">Fazer Login</a>
+    </div>
+</body>
+</html>

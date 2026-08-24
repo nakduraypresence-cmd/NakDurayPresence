@@ -8,91 +8,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        /* Aplica a fonte Inter para TODOS os elementos da página */
         * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
-
         body { background: #09090b; color: #f4f4f5; margin: 0; padding: 16px; display: flex; justify-content: center; min-height: 100vh; }
         .wrapper { max-width: 420px; width: 100%; margin: 0 auto; padding-bottom: 40px; }
-        
-        /* Card Principal da Turma */
         .turma-card { background: #121214; padding: 24px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
         h2 { margin: 0 0 12px 0; font-size: 1.4rem; font-weight: 700; color: #f4f4f5; display: flex; align-items: center; gap: 8px; }
         .info-list { color: #a1a1aa; font-size: 0.9rem; margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px; }
         .info-list span { display: flex; align-items: center; gap: 8px; }
         .info-list i { color: #e11d48; font-size: 1.1rem; }
-
         .select-wrapper { position: relative; margin-bottom: 16px; }
-        .input-field { 
-            width: 100%; 
-            padding: 16px; 
-            border-radius: 12px; 
-            border: 1px solid rgba(255,255,255,0.08); 
-            background: #18181b; 
-            color: #f4f4f5; 
-            font-size: 0.95rem; 
-            outline: none; 
-            appearance: none;
-            transition: all 0.2s;
-        }
+        .input-field { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: #18181b; color: #f4f4f5; font-size: 0.95rem; outline: none; appearance: none; }
         .input-field:focus { border-color: #e11d48; box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15); }
-        .select-wrapper::after {
-            content: "\e93a";
-            font-family: "Phosphor";
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #71717a;
-            pointer-events: none;
-            font-size: 1.1rem;
-        }
-
-        .btn-checkin { 
-            background: #e11d48; 
-            color: white; 
-            border: none; 
-            width: 100%; 
-            padding: 16px; 
-            border-radius: 12px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            font-size: 1rem; 
-            transition: background 0.2s, transform 0.1s;
-            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
+        .select-wrapper::after { content: "\e93a"; font-family: "Phosphor"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: #71717a; pointer-events: none; font-size: 1.1rem; }
+        .btn-checkin { background: #e11d48; color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: background 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25); }
         .btn-checkin:hover { background: #be123c; }
-        .btn-checkin:active { transform: scale(0.98); }
-
-        /* Mensagem de Sucesso */
-        .success-box {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            padding: 20px;
-            border-radius: 14px;
-            text-align: center;
-        }
+        .success-box { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); padding: 20px; border-radius: 14px; text-align: center; }
         .success-box i { font-size: 2.5rem; color: #10b981; margin-bottom: 8px; display: block; }
         .success-box h3 { color: #10b981; font-size: 1.1rem; margin: 0 0 4px 0; font-weight: 700; }
         .success-box p { color: #a1a1aa; font-size: 0.85rem; margin: 0; }
-
-        /* Seção de Alunos Confirmados */
         .section-title { font-size: 1.15rem; font-weight: 600; color: #f4f4f5; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
-        .aluno-card { 
-            background: #121214; 
-            padding: 12px 16px; 
-            border-radius: 12px; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px;
-            margin-bottom: 8px; 
-            border: 1px solid rgba(255,255,255,0.03); 
-        }
-        .aluno-card i { color: #10b981; font-size: 1.2rem; }
+        .aluno-card { background: #121214; padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.03); }
+        .aluno-info { display: flex; align-items: center; gap: 12px; }
+        .aluno-card i.ph-check-circle { color: #10b981; font-size: 1.2rem; }
         .aluno-nome { font-weight: 500; color: #f4f4f5; font-size: 0.95rem; }
+        .btn-delete-checkin { background: rgba(225, 29, 72, 0.1); color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.2); width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; text-decoration: none; }
+        .btn-delete-checkin:hover { background: #e11d48; color: #fff; }
     </style>
 </head>
 <body>
@@ -108,25 +48,34 @@
                 {% endif %}
             </div>
 
-            <!-- Formulário de Check-in (Some se já votou) -->
+            <!-- Formulário de Check-in -->
             <div id="checkin-container">
                 <p style="color: #a1a1aa; font-size: 0.9rem; margin-bottom: 12px;">Selecione seu nome para confirmar:</p>
-                <form method="POST" onsubmit="salvarCheckin()">
+                <form id="form-checkin" method="POST" onsubmit="salvarCheckin()">
                     <div class="select-wrapper">
-                        <select name="aluno_id" class="input-field" required>
+                        <select name="aluno_id" id="select-aluno" class="input-field" required>
                             <option value="" disabled selected>-- Escolha seu nome --</option>
                             {% for aluno in todos_alunos %}
-                                <option value="{{ aluno.id }}">{{ aluno.nome_completo }}</option>
+                                {% set is_confirmado = namespace(val=false) %}
+                                {% for ac in alunos_confirmados %}
+                                    {% if ac.id == aluno.id %}
+                                        {% set is_confirmado.val = true %}
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if not is_confirmado.val %}
+                                    <option value="{{ aluno.id }}">{{ aluno.nome_completo }}</option>
+                                {% endif %}
                             {% endfor %}
                         </select>
                     </div>
-                    <button type="submit" class="btn-checkin">
+                    <button type="submit" class="btn-checkin" style="width:100%;">
                         <i class="ph ph-check-circle" style="font-size: 1.2rem;"></i> Confirmar Presença
                     </button>
                 </form>
             </div>
 
-            <!-- Caixa de aviso exibida caso o aparelho já tenha feito o check-in -->
+            <!-- Caixa de aviso -->
             <div id="success-confirmed" style="display: none;" class="success-box">
                 <i class="ph ph-check-fat"></i>
                 <h3>Presença Registrada!</h3>
@@ -144,8 +93,19 @@
             <div>
                 {% for aluno in alunos_confirmados %}
                 <div class="aluno-card">
-                    <i class="ph ph-check-circle"></i>
-                    <span class="aluno-nome">{{ aluno.nome_completo }}</span>
+                    <div class="aluno-info">
+                        <i class="ph ph-check-circle"></i>
+                        <span class="aluno-nome">{{ aluno.nome_completo }}</span>
+                    </div>
+                    
+                    <a href="{{ url_for('remover_checkin', aula_id=turma.id, aluno_id=aluno.id) }}" 
+                       class="btn-delete-checkin aluno-lixeira-item" 
+                       data-aluno-id="{{ aluno.id }}"
+                       style="display: none;" 
+                       onclick="removerCheckinLocal(); return confirm('Deseja realmente desistir da presença?');" 
+                       title="Remover Presença">
+                        <i class="ph ph-trash" style="font-size: 1rem;"></i>
+                    </a>
                 </div>
                 {% endfor %}
             </div>
@@ -155,18 +115,45 @@
     </div>
 
     <script>
-        // Chave única para o navegador baseada no ID da turma
         const turmaKey = "checkin_feito_{{ turma.id }}";
+        const alunoKey = "aluno_id_feito_{{ turma.id }}";
 
-        // Se já tiver salvo no navegador deste celular, esconde o form e mostra o aviso
-        if (localStorage.getItem(turmaKey) === "true") {
-            document.getElementById("checkin-container").style.display = "none";
-            document.getElementById("success-confirmed").style.display = "block";
+        const jaConfirmouEsteAparelho = localStorage.getItem(turmaKey) === "true";
+        const alunoSalvo = localStorage.getItem(alunoKey);
+
+        if (jaConfirmouEsteAparelho) {
+            const lixeiraDoAluno = document.querySelector(`[data-aluno-id="${alunoSalvo}"]`);
+            
+            if (lixeiraDoAluno) {
+                document.getElementById("checkin-container").style.display = "none";
+                document.getElementById("success-confirmed").style.display = "block";
+                lixeiraDoAluno.style.display = "flex";
+            } else {
+                localStorage.removeItem(turmaKey);
+                localStorage.removeItem(alunoKey);
+            }
         }
 
         function salvarCheckin() {
+            const select = document.getElementById("select-aluno");
             localStorage.setItem(turmaKey, "true");
+            localStorage.setItem(alunoKey, select.value);
         }
+
+        function removerCheckinLocal() {
+            localStorage.removeItem(turmaKey);
+            localStorage.removeItem(alunoKey);
+        }
+
+        // ATUALIZAÇÃO EM TEMPO REAL:
+        // Atualiza a página automaticamente a cada 4 segundos para que todos vejam novos check-ins instantaneamente
+        setInterval(function() {
+            // Evita atualizar se o usuário estiver com o select aberto escolhendo o nome
+            const selectAtivo = document.activeElement && document.activeElement.id === 'select-aluno';
+            if (!selectAtivo) {
+                location.reload();
+            }
+        }, 4000);
     </script>
 
 </body>

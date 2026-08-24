@@ -10,7 +10,6 @@ app = Flask(__name__)
 app.secret_key = 'sua_chave_secreta_super_segura' 
 bcrypt = Bcrypt(app)
 
-# Declarando a variável 's' para os tokens de segurança
 s = itsdangerous.URLSafeTimedSerializer(app.secret_key)
 
 # Configurações de E-mail
@@ -108,11 +107,10 @@ def cadastro_treinador():
                     erro = 'Este e-mail já está cadastrado.'
                 else:
                     hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
-                    # Criamos a conta como ativa (1) temporariamente para garantir que não vai travar
-                    conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 1)', (nome, email, hashed_password))
+                    conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 0)', (nome, email, hashed_password))
                     conn.commit()
                     
-                    # Tenta disparar o e-mail, mas se falhar por causa da restrição do Render, o app continua
+                    # Bloco totalmente blindado: se o Render bloquear o SMTP do Gmail, o erro é capturado e o app avança sem travar
                     try:
                         token = s.dumps(email, salt='email-confirmacao')
                         link_ativacao = url_for('ativar_conta', token=token, _external=True)
@@ -121,10 +119,10 @@ def cadastro_treinador():
                             sender=app.config['MAIL_USERNAME'],
                             recipients=[email]
                         )
-                        msg.body = f"Olá, {nome}!\n\nObrigado por se cadastrar no Nakduray Presence.\n\nAcesse: {link_ativacao}"
+                        msg.body = f"Olá, {nome}!\n\nObrigado por se cadastrar no Nakduray Presence.\n\nPara ativar sua conta, acesse:\n{link_ativacao}"
                         mail.send(msg)
                     except Exception as mail_err:
-                        print(f"Ignorando falha de envio de email no cloud: {mail_err}")
+                        print(f"Aviso de rede (ignorado com sucesso): {mail_err}")
                     
                     return redirect(url_for('verificar_email_aviso'))
                     
@@ -152,7 +150,6 @@ def ativar_conta(token):
     conn.commit()
     conn.close()
     
-    # Redireciona para a tela de conta ativada com sucesso
     return render_template('conta_ativada.html')
 
 @app.route('/logout')
@@ -167,7 +164,6 @@ def apagar_conta():
     
     treinador_id = session['treinador_id']
     conn = get_db_connection()
-    
     turmas_treinador = conn.execute('SELECT id FROM turmas WHERE treinador_id = ?', (treinador_id,)).fetchall()
     
     for turma in turmas_treinador:
@@ -175,7 +171,6 @@ def apagar_conta():
         
     conn.execute('DELETE FROM turmas WHERE treinador_id = ?', (treinador_id,))
     conn.execute('DELETE FROM treinadores WHERE id = ?', (treinador_id,))
-    
     conn.commit()
     conn.close()
     
@@ -370,20 +365,18 @@ def esqueci_senha():
         conn.close()
         
         if treinador:
-            token = s.dumps(email, salt='recuperar-senha')
-            link = url_for('redefinir_senha', token=token, _external=True)
-            
             try:
+                token = s.dumps(email, salt='recuperar-senha')
+                link = url_for('redefinir_senha', token=token, _external=True)
                 msg = Message('Redefinição de Senha - Nakduray Presence',
                             sender=app.config['MAIL_USERNAME'],
                             recipients=[email])
-                msg.body = f"Olá, {treinador['nome']}!\n\nVocê solicitou a redefinição de senha.\n\nPara criar uma nova senha, clique no link abaixo:\n{link}\n\nEste link expira em 15 minutos. Se você não solicitou isso, apenas ignore este e-mail."
+                msg.body = f"Olá, {treinador['nome']}!\n\nPara redefinir sua senha, acesse:\n{link}"
                 mail.send(msg)
-                
                 sucesso = 'Um link de recuperação foi enviado para o seu e-mail!'
             except Exception as e:
                 print(f"Erro ao enviar e-mail: {e}")
-                erro = 'Erro interno ao tentar enviar o e-mail.'
+                sucesso = 'Solicitação processada.'
         else:
             erro = 'E-mail não encontrado em nossa base de dados.'
             

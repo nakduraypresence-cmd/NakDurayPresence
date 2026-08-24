@@ -98,17 +98,44 @@ def cadastro_treinador():
         email = request.form['email'].strip().lower()
         senha = request.form['senha']
         
-        conn = get_db_connection()
-        try:
-            hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
-            conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 1)', (nome, email, hashed_password))
-            conn.commit()
-            return redirect(url_for('verificar_email_aviso'))
-        except Exception as e:
-            erro = f"Erro no banco: {e}"
-        finally:
-            conn.close()
-            
+        if not validar_email(email):
+            erro = 'Por favor, insira um endereço de e-mail real e válido.'
+        else:
+            conn = get_db_connection()
+            try:
+                treinador_existente = conn.execute('SELECT id FROM treinadores WHERE email = ?', (email,)).fetchone()
+                if treinador_existente:
+                    erro = 'Este e-mail já está cadastrado.'
+                else:
+                    hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
+                    # Cadastra a conta como inativa (ativo = 0)
+                    conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 0)', (nome, email, hashed_password))
+                    conn.commit()
+                    
+                    token = s.dumps(email, salt='email-confirmacao')
+                    link_ativacao = url_for('ativar_conta', token=token, _external=True)
+                    
+                    # Bloco protegido: tenta enviar o email, se o Render bloquear, ele apenas registra o erro e avança
+                    try:
+                        msg = Message(
+                            'Confirme seu cadastro - Nakduray Presence',
+                            sender=app.config['MAIL_USERNAME'],
+                            recipients=[email]
+                        )
+                        msg.body = f"Olá, {nome}!\n\nObrigado por se cadastrar no Nakduray Presence.\n\nPara ativar sua conta e liberar o acesso ao sistema, clique no link abaixo:\n{link_ativacao}\n\nEste link expira em 1 hora."
+                        mail.send(msg)
+                    except Exception as mail_erro:
+                        print(f"Aviso: Falha ao enviar email no servidor gratuito: {mail_erro}")
+                    
+                    # Redireciona com segurança para a tela de aviso que você viu agora pouco
+                    return redirect(url_for('verificar_email_aviso'))
+                    
+            except Exception as e:
+                print(f"ERRO EXATO NO CADASTRO: {e}")
+                erro = f"Erro ao cadastrar: {e}"
+            finally:
+                conn.close()
+                
     return render_template('cadastro_treinador.html', erro=erro)
 
 @app.route('/verificar_email_aviso')

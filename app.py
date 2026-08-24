@@ -98,41 +98,17 @@ def cadastro_treinador():
         email = request.form['email'].strip().lower()
         senha = request.form['senha']
         
-        if not validar_email(email):
-            erro = 'Por favor, insira um endereço de e-mail real e válido.'
-        else:
-            conn = get_db_connection()
-            try:
-                treinador_existente = conn.execute('SELECT id FROM treinadores WHERE email = ?', (email,)).fetchone()
-                if treinador_existente:
-                    erro = 'Este e-mail já está cadastrado.'
-                else:
-                    hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
-                    conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 0)', (nome, email, hashed_password))
-                    conn.commit()
-                    
-                    token = s.dumps(email, salt='email-confirmacao')
-                    link_ativacao = url_for('ativar_conta', token=token, _external=True)
-                    
-                    try:
-                        msg = Message(
-                            'Confirme seu cadastro - Nakduray Presence',
-                            sender=app.config['MAIL_USERNAME'],
-                            recipients=[email]
-                        )
-                        msg.body = f"Olá, {nome}!\n\nObrigado por se cadastrar.\n\nClique no link abaixo para ativar sua conta:\n{link_ativacao}"
-                        mail.send(msg)
-                    except Exception as email_erro:
-                        print(f"FALHA AO ENVIAR EMAIL: {email_erro}")
-                    
-                    return redirect(url_for('verificar_email_aviso'))
-                    
-            except Exception as e:
-                print(f"ERRO EXATO NO CADASTRO: {e}")
-                erro = f"Erro ao cadastrar: {e}"
-            finally:
-                conn.close()
-                
+        conn = get_db_connection()
+        try:
+            hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
+            conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 1)', (nome, email, hashed_password))
+            conn.commit()
+            return redirect(url_for('verificar_email_aviso'))
+        except Exception as e:
+            erro = f"Erro no banco: {e}"
+        finally:
+            conn.close()
+            
     return render_template('cadastro_treinador.html', erro=erro)
 
 @app.route('/verificar_email_aviso')

@@ -89,10 +89,11 @@ def login():
             
     return render_template('login.html', erro=erro, sucesso=sucesso)
 
+import os
 import resend
 
-# Cole sua chave do Resend aqui (ou leia de uma variavel de ambiente)
-resend.api_key = "re_j74aTqYq_Em9Wd4N7toDyWxfBXEyw6K6J"
+# Lê a chave diretamente da variável de ambiente configurada no sistema/Render
+resend.api_key = os.environ.get("re_j74aTqYq_Em9Wd4N7toDyWxfBXEyw6K6J")
 
 @app.route('/cadastro_treinador', methods=['GET', 'POST'])
 def cadastro_treinador():

@@ -89,13 +89,18 @@ def login():
             
     return render_template('login.html', erro=erro, sucesso=sucesso)
 
+import resend
+
+# Cole sua chave do Resend aqui (ou leia de uma variavel de ambiente)
+resend.api_key = "re_j74aTqYq_Em9Wd4N7toDyWxfBXEyw6K6J"
+
 @app.route('/cadastro_treinador', methods=['GET', 'POST'])
 def cadastro_treinador():
     erro = None
     if request.method == 'POST':
-        nome = request.form['nome']
+        nome = request.form['nome'].strip()
         email = request.form['email'].strip().lower()
-        senha = request.form['senha']
+        senha = request.form['senha'].strip()
         
         if not validar_email(email):
             erro = 'Por favor, insira um endereço de e-mail real e válido.'
@@ -107,28 +112,35 @@ def cadastro_treinador():
                     erro = 'Este e-mail já está cadastrado.'
                 else:
                     hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
-                    # Criamos a conta como ativa direto (ativo = 1) para evitar qualquer travamento de token na nuvem
-                    conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 1)', (nome, email, hashed_password))
+                    # Cria a conta inativa (ativo = 0) até clicar no link
+                    conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 0)', (nome, email, hashed_password))
                     conn.commit()
                     
-                    # Tenta disparar o e-mail em segundo plano de forma totalmente segura
+                    token = s.dumps(email, salt='email-confirmacao')
+                    link_ativacao = url_for('ativar_conta', token=token, _external=True)
+                    
+                    # Dispara o e-mail via API do Resend (não sofre bloqueio de porta)
                     try:
-                        token = s.dumps(email, salt='email-confirmacao')
-                        link_ativacao = url_for('ativar_conta', token=token, _external=True)
-                        msg = Message(
-                            'Confirme seu cadastro - Nakduray Presence',
-                            sender=app.config['MAIL_USERNAME'],
-                            recipients=[email]
-                        )
-                        msg.body = f"Olá, {nome}!\n\nObrigado por se cadastrar no Nakduray Presence.\n\nPara acessar, acesse: {link_ativacao}"
-                        mail.send(msg)
-                    except Exception as mail_err:
-                        print(f"Aviso de envio ignorado: {mail_err}")
+                        resend.Emails.send({
+                            "from": "Nakduray Presence <onboarding@resend.dev>",
+                            "to": email,
+                            "subject": "Confirme seu cadastro - Nakduray Presence",
+                            "html": f"""
+                                <h2>Olá, {nome}!</h2>
+                                <p>Obrigado por se cadastrar no <strong>Nakduray Presence</strong>.</p>
+                                <p>Para ativar sua conta e liberar o acesso ao sistema, clique no botão abaixo:</p>
+                                <p><a href="{link_ativacao}" style="background-color: #E50914; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Ativar Minha Conta</a></p>
+                                <br>
+                                <p><small>Este link expira em 1 hora.</small></p>
+                            """
+                        })
+                    except Exception as resend_err:
+                        print(f"Erro ao enviar via Resend: {resend_err}")
                     
                     return redirect(url_for('verificar_email_aviso'))
                     
             except Exception as e:
-                print(f"ERRO EXATO NO CADASTRO: {e}")
+                print(f"ERRO NO CADASTRO: {e}")
                 erro = f"Erro ao cadastrar: {e}"
             finally:
                 conn.close()

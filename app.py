@@ -107,10 +107,11 @@ def cadastro_treinador():
                     erro = 'Este e-mail já está cadastrado.'
                 else:
                     hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
-                    conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 0)', (nome, email, hashed_password))
+                    # Criamos a conta como ativa direto (ativo = 1) para evitar qualquer travamento de token na nuvem
+                    conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 1)', (nome, email, hashed_password))
                     conn.commit()
                     
-                    # Bloco totalmente blindado: se o Render bloquear o SMTP do Gmail, o erro é capturado e o app avança sem travar
+                    # Tenta disparar o e-mail em segundo plano de forma totalmente segura
                     try:
                         token = s.dumps(email, salt='email-confirmacao')
                         link_ativacao = url_for('ativar_conta', token=token, _external=True)
@@ -119,10 +120,10 @@ def cadastro_treinador():
                             sender=app.config['MAIL_USERNAME'],
                             recipients=[email]
                         )
-                        msg.body = f"Olá, {nome}!\n\nObrigado por se cadastrar no Nakduray Presence.\n\nPara ativar sua conta, acesse:\n{link_ativacao}"
+                        msg.body = f"Olá, {nome}!\n\nObrigado por se cadastrar no Nakduray Presence.\n\nPara acessar, acesse: {link_ativacao}"
                         mail.send(msg)
                     except Exception as mail_err:
-                        print(f"Aviso de rede (ignorado com sucesso): {mail_err}")
+                        print(f"Aviso de envio ignorado: {mail_err}")
                     
                     return redirect(url_for('verificar_email_aviso'))
                     

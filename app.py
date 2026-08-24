@@ -90,7 +90,7 @@ def login():
             
     return render_template('login.html', erro=erro, sucesso=sucesso)
 
-@@app.route('/cadastro_treinador', methods=['GET', 'POST'])
+@app.route('/cadastro_treinador', methods=['GET', 'POST'])
 def cadastro_treinador():
     erro = None
     if request.method == 'POST':
@@ -120,12 +120,11 @@ def cadastro_treinador():
                             sender=app.config['MAIL_USERNAME'],
                             recipients=[email]
                         )
-                        msg.body = f"Olá, {nome}!\n\nObrigado por se cadastrar no Nakduray Presence.\n\nPara ativar sua conta e liberar o acesso ao sistema, clique no link abaixo:\n{link_ativacao}\n\nEste link expira em 1 hora."
+                        msg.body = f"Olá, {nome}!\n\nObrigado por se cadastrar.\n\nClique no link abaixo para ativar sua conta:\n{link_ativacao}"
                         mail.send(msg)
                     except Exception as email_erro:
-                        print(f"FALHA AO ENVIAR EMAIL NO RENDER: {email_erro}")
+                        print(f"FALHA AO ENVIAR EMAIL: {email_erro}")
                     
-                    # Redireciona para a tela de aviso mesmo se o email falhar por restrição do servidor
                     return redirect(url_for('verificar_email_aviso'))
                     
             except Exception as e:

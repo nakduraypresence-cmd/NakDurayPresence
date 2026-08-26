@@ -7,10 +7,12 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
+        /* Padronização da tipografia Inter e eliminação de serifas */
+        h1, h2, h3, h4, h5, span, p, strong, a, div, label { font-family: 'Inter', sans-serif !important; }
+
         body {
             background: #0a0a0a;
-            color: white;
-            font-family: 'Inter', sans-serif;
+            color: #f4f4f5;
             padding: 20px;
             display: flex;
             justify-content: center;
@@ -21,17 +23,18 @@
         .container-form {
             width: 100%;
             max-width: 420px;
-            background: #121214;
+            background: rgba(18, 18, 21, 0.95);
             padding: 24px;
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
         
-        /* CORREÇÃO DO CABEÇALHO */
+        /* CABEÇALHO */
         .form-header {
             display: flex;
             align-items: center;
-            gap: 16px; /* Espaço fixo entre o botão e o título */
+            gap: 16px;
             margin-bottom: 24px;
         }
         
@@ -44,104 +47,125 @@
             text-decoration: none;
             font-size: 0.85rem;
             font-weight: 600;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             padding: 8px 12px;
             border-radius: 8px;
-            transition: 0.2s;
-            flex-shrink: 0; /* Impede que o botão encolha e quebre o layout */
+            transition: all 0.2s;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         
         .btn-voltar:hover {
-            background: rgba(255,255,255,0.1);
-            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.15);
         }
 
         .form-title {
             font-size: 1.15rem;
             margin: 0;
-            color: #f4f4f5;
-            font-weight: 700;
+            color: #ffffff;
+            font-weight: 800;
             line-height: 1.2;
-            flex-grow: 1; /* Permite que o título ocupe o resto do espaço */
+            flex-grow: 1;
+            letter-spacing: -0.02em;
         }
-        /* FIM DA CORREÇÃO */
 
         .form-label {
             display: block;
             color: #a1a1aa;
             font-size: 0.85rem;
             margin-bottom: 8px;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
         }
+
         .option-group { 
             display: flex; 
             gap: 10px; 
             flex-wrap: wrap; 
-            margin-bottom: 12px; 
+            margin-bottom: 16px; 
         }
+
         .radio-btn { 
             cursor: pointer; 
             flex: 1; 
             min-width: 70px; 
             text-align: center; 
         }
+
         .radio-btn input { 
             display: none; 
         }
+
         .radio-btn span { 
             display: block; 
             padding: 12px; 
             border-radius: 10px; 
-            border: 1px solid rgba(255,255,255,0.1); 
-            background: #1c1c1e; 
-            color: #888;
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            background: #121215; 
+            color: #a1a1aa;
             font-size: 0.9rem;
+            font-weight: 600;
             transition: all 0.2s ease;
         }
-        .radio-btn input:checked + span { 
-            background: #e11d48; 
-            color: white; 
-            border-color: #e11d48; 
-            font-weight: bold;
+
+        .radio-btn span:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #f4f4f5;
         }
+
+        .radio-btn input:checked + span { 
+            background: rgba(220, 38, 38, 0.15); 
+            color: #fca5a5; 
+            border-color: rgba(220, 38, 38, 0.4); 
+            font-weight: 700;
+        }
+
         .input-custom {
             width: 100%;
             padding: 14px 16px;
             border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: #1c1c1e;
-            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #121215;
+            color: #ffffff;
             font-size: 0.95rem;
             outline: none;
             margin-bottom: 20px;
             box-sizing: border-box;
             transition: all 0.2s ease;
         }
+
         .input-custom:focus {
-            border-color: #e11d48;
-            box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15);
+            border-color: rgba(220, 38, 38, 0.5);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
         }
+
         .btn-salvar { 
             width: 100%; 
             padding: 16px; 
             border-radius: 12px; 
             border: none; 
-            background: #e11d48; 
-            color: white; 
-            font-weight: bold; 
+            background: #dc2626; 
+            color: #ffffff; 
+            font-weight: 800; 
             font-size: 1rem;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
         }
+
         .btn-salvar:hover {
-            background: #be123c;
+            background: #ef4444;
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
         }
     </style>
 </head>
 <body>
 
     <div class="container-form">
-        <!-- NOVO CABEÇALHO -->
+        <!-- CABEÇALHO -->
         <div class="form-header">
             <a href="/" class="btn-voltar">
                 <i class="ph ph-arrow-left" style="font-size: 1rem;"></i> Voltar

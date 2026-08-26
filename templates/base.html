@@ -5,17 +5,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{% block title %}Nakduray Presence{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            /* Remove o destaque cinza/branco padrão do navegador mobile ao tocar */
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            background-color: #08080a;
+            background-image: 
+                radial-gradient(at 50% 15%, rgba(220, 38, 38, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 85%, rgba(234, 179, 8, 0.08) 0px, transparent 40%);
+            color: #f4f4f5; 
+            font-family: 'Inter', sans-serif; 
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            min-height: 100vh;
+            padding: 20px 20px 90px 20px; /* Padding inferior extra para não cobrir o conteúdo com a nav */
+            position: relative;
+        }
+
         .card-actions-top { display: flex; align-items: center; gap: 8px; }
+        
         .btn-trash {
-            background: rgba(225, 29, 72, 0.1); color: #e11d48; border: none;
+            background: rgba(220, 38, 38, 0.15); color: #ef4444; border: 1px solid rgba(220, 38, 38, 0.3);
             width: 40px; height: 40px; border-radius: 10px; display: flex;
             align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem;
-            transition: background 0.2s; text-decoration: none;
+            transition: all 0.2s; text-decoration: none;
         }
-        .btn-trash:hover { background: rgba(225, 29, 72, 0.2); }
+        .btn-trash:hover { background: rgba(220, 38, 38, 0.25); border-color: #eab308; }
+
+        /* NAVBAR INFERIOR ESTILIZADA (Glassmorphism + Vermelho/Dourado) */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 480px;
+            background: rgba(15, 15, 18, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 1000;
+            box-shadow: 0 -10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #71717a;
+            font-size: 0.7rem;
+            font-weight: 600;
+            gap: 4px;
+            transition: color 0.2s ease;
+            width: 25%;
+            outline: none; /* Remove bordas de foco padrão */
+        }
+
+        .nav-item i {
+            font-size: 1.35rem;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .nav-item span {
+            letter-spacing: 0.02em;
+        }
+
+        /* Item Ativo com destaque em Vermelho Vivo / Dourado */
+        .nav-item.active {
+            color: #ef4444;
+        }
+
+        .nav-item.active i {
+            color: #ef4444;
+            transform: scale(1.1);
+            filter: drop-shadow(0 0 8px rgba(220, 38, 38, 0.4));
+        }
+
+        /* Hover e Active (quando segura o dedo ou clica) mantendo o tom elegante */
+        .nav-item:hover, 
+        .nav-item:active, 
+        .nav-item:focus {
+            color: #fca5a5;
+            background: transparent;
+        }
+
+        .nav-item:hover i, 
+        .nav-item:active i, 
+        .nav-item:focus i {
+            color: #ef4444;
+        }
     </style>
 </head>
 <body>
@@ -32,7 +128,7 @@
             </a>
             <a href="{{ url_for('gerenciar_alunos') }}" class="nav-item {% if request.endpoint == 'gerenciar_alunos' %}active{% endif %}">
                 <i class="ph ph-users"></i>
-                <span>Alunos</span>
+                <span>Atletas</span>
             </a>
             <a href="{{ url_for('ranking') }}" class="nav-item {% if request.endpoint == 'ranking' %}active{% endif %}">
                 <i class="ph ph-trophy"></i>

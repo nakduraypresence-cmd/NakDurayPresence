@@ -7,89 +7,104 @@
         /* Reset de tipografia para garantir a fonte Inter e matar serifas */
         h1, h2, h3, h4, h5, span, p, strong, a, div, input, button { font-family: 'Inter', sans-serif !important; }
         
-        .page-title { color: #f4f4f5; font-size: 1.5rem; font-weight: 700; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px; }
-        .page-title i { color: #e11d48; }
+        .page-title { color: #ffffff; font-size: 1.5rem; font-weight: 800; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px; letter-spacing: -0.02em; }
+        .page-title i { color: #dc2626; }
 
-        .section-subtitle { color: #f4f4f5; font-size: 1.15rem; font-weight: 600; margin: 0 0 16px 0; display: flex; align-items: center; justify-content: space-between; }
-        .badge-count { background: rgba(225, 29, 72, 0.1); color: #e11d48; font-size: 0.85rem; padding: 4px 10px; border-radius: 20px; font-weight: 700; }
+        .section-subtitle { color: #ffffff; font-size: 1.15rem; font-weight: 700; margin: 0 0 16px 0; display: flex; align-items: center; justify-content: space-between; }
+        .badge-count { background: rgba(220, 38, 38, 0.15); color: #fca5a5; font-size: 0.85rem; padding: 4px 12px; border-radius: 20px; font-weight: 700; border: 1px solid rgba(220, 38, 38, 0.3); }
 
         /* Estilização do Form */
         .form-group { margin-bottom: 16px; }
-        .input-wrapper { position: relative; margin-bottom: 16px; }
-        .input-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #71717a; font-size: 1.2rem; }
+        .input-wrapper { position: relative; margin-bottom: 16px; display: flex; align-items: center; }
+        .input-icon { position: absolute; left: 16px; color: #71717a; font-size: 1.25rem; pointer-events: none; transition: color 0.2s ease; }
         
         .input-field { 
             width: 100%; 
-            padding: 16px 16px 16px 48px; /* Espaço extra na esquerda para o ícone */
+            padding: 14px 16px 14px 48px; /* Espaço extra na esquerda para o ícone */
             border-radius: 12px; 
-            border: 1px solid rgba(255,255,255,0.05); 
-            background: #18181b; 
-            color: #f4f4f5; 
-            font-size: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            background: #121215; 
+            color: #ffffff; 
+            font-size: 0.95rem;
             outline: none; 
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             box-sizing: border-box;
         }
-        .input-field::placeholder { color: #71717a; }
-        .input-field:focus { border-color: #e11d48; box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15); }
+        .input-field::placeholder { color: #52525b; }
+        .input-field:focus { 
+            border-color: #eab308; 
+            box-shadow: 0 0 0 4px rgba(234, 179, 8, 0.15);
+            background: #18181b;
+        }
+        .input-wrapper:focus-within .input-icon {
+            color: #eab308;
+        }
 
         .btn-primary { 
-            background: #e11d48; 
-            color: white; 
-            border: none; 
+            background: linear-gradient(135deg, #dc2626, #991b1b); 
+            color: #ffffff; 
+            border: 1px solid rgba(234, 179, 8, 0.3); 
             width: 100%; 
-            padding: 16px; 
+            padding: 14px; 
             border-radius: 12px; 
-            font-weight: 600; 
-            font-size: 1rem; 
+            font-weight: 700; 
+            font-size: 0.95rem; 
             cursor: pointer; 
-            transition: background 0.2s;
-            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 18px rgba(220, 38, 38, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
-        .btn-primary:hover { background: #be123c; }
+        .btn-primary:hover { 
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-color: #eab308;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 22px rgba(220, 38, 38, 0.45);
+        }
 
-        .divider { border: 0; border-top: 1px solid rgba(255,255,255,0.05); margin: 32px 0; }
+        .divider { border: 0; border-top: 1px solid rgba(255, 255, 255, 0.06); margin: 32px 0; }
 
         /* Lista de Atletas */
         .aluno-card { 
-            background: #18181b; 
+            background: rgba(18, 18, 21, 0.9); 
             padding: 12px 16px; 
             border-radius: 12px; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             margin-bottom: 10px; 
-            border: 1px solid rgba(255,255,255,0.03); 
-            transition: transform 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .aluno-card:hover {
+            border-color: rgba(234, 179, 8, 0.2);
         }
         .aluno-card:active { transform: scale(0.98); }
         
         .aluno-nome { font-weight: 600; color: #f4f4f5; font-size: 1rem; display: flex; align-items: center; gap: 12px; }
         
-        /* Círculo com a inicial do nome */
+        /* Círculo com a inicial do nome estilizado */
         .aluno-avatar { 
             width: 38px; 
             height: 38px; 
             border-radius: 50%; 
-            background: #27272a; 
+            background: #18181b; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            color: #a1a1aa; 
+            color: #eab308; 
             font-size: 0.9rem; 
-            font-weight: bold; 
-            border: 1px solid rgba(255,255,255,0.05); 
+            font-weight: 700; 
+            border: 1px solid rgba(234, 179, 8, 0.3); 
             flex-shrink: 0;
         }
         
         .btn-delete { 
-            color: #ef4444; 
-            background: rgba(239, 68, 68, 0.1); 
-            border: none; 
+            color: #fca5a5; 
+            background: rgba(220, 38, 38, 0.12); 
+            border: 1px solid rgba(220, 38, 38, 0.25); 
             width: 36px; 
             height: 36px; 
             border-radius: 8px; 
@@ -97,20 +112,24 @@
             display: flex; 
             align-items: center; 
             justify-content: center;
-            transition: 0.2s;
+            transition: all 0.2s;
             flex-shrink: 0;
         }
-        .btn-delete:hover { background: rgba(239, 68, 68, 0.2); }
+        .btn-delete:hover { 
+            background: rgba(220, 38, 38, 0.25); 
+            color: #ffffff;
+            border-color: #dc2626;
+        }
         
         /* Estado Vazio Elegante */
         .empty-state {
-            background: rgba(255,255,255,0.02);
-            border: 1px dashed rgba(255,255,255,0.1);
+            background: rgba(18, 18, 21, 0.5);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
             padding: 32px 24px;
             border-radius: 16px;
             text-align: center;
         }
-        .empty-state i { font-size: 2.5rem; color: #71717a; margin-bottom: 12px; display: block; }
+        .empty-state i { font-size: 2.5rem; color: #eab308; opacity: 0.7; margin-bottom: 12px; display: block; }
         .empty-state p { color: #a1a1aa; font-size: 0.95rem; margin: 0; }
     </style>
 
@@ -127,7 +146,8 @@
                 <input type="text" name="nome" class="input-field" placeholder="Nome completo do atleta" required autocomplete="off">
             </div>
             <button type="submit" class="btn-primary">
-                <i class="ph ph-plus-circle" style="font-size: 1.2rem;"></i> Cadastrar Atleta
+                <i class="ph ph-plus-circle" style="font-size: 1.2rem;"></i> 
+                <span>Cadastrar Atleta</span>
             </button>
         </form>
 
@@ -139,7 +159,8 @@
         </div>
         
         {% if alunos %}
-            <div style="max-height: 450px; overflow-y: auto; padding-right: 4px;">
+            <!-- Sem max-height fixo para garantir rolagem natural e sem travamentos no celular -->
+            <div>
                 {% for aluno in alunos %}
                 <div class="aluno-card">
                     <div class="aluno-nome">

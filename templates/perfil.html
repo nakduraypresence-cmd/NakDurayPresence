@@ -5,29 +5,90 @@
 {% block conteudo %}
     <!-- Estilos específicos da página de perfil -->
     <style>
-        .profile-header { background: #121214; border-radius: 20px; padding: 24px; text-align: center; border: 1px solid rgba(255,255,255,0.05); margin-top: 10px; }
-        .profile-avatar { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #f43f5e; margin-bottom: 12px; }
-        .profile-name { font-size: 1.4rem; font-weight: 700; margin: 0 0 4px 0; }
-        .profile-role { color: #f43f5e; font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        h1, h2, h3, h4, h5, span, p, strong, a, div { font-family: 'Inter', sans-serif !important; }
+
+        .profile-header { 
+            background: rgba(18, 18, 21, 0.9); 
+            border-radius: 20px; 
+            padding: 24px; 
+            text-align: center; 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            margin-top: 10px; 
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        
+        .profile-avatar { 
+            width: 90px; 
+            height: 90px; 
+            border-radius: 50%; 
+            border: 2px solid rgba(234, 179, 8, 0.6); 
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.35);
+            margin-bottom: 12px; 
+            object-fit: cover;
+            background: #000;
+        }
+        
+        .profile-name { font-size: 1.4rem; font-weight: 800; margin: 0 0 4px 0; color: #ffffff; letter-spacing: -0.02em; }
+        .profile-role { color: #eab308; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
         
         .stats-box { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
-        .stat-mini-card { background: #18181b; padding: 14px 10px; border-radius: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.03); }
-        .stat-mini-card strong { display: block; font-size: 1.2rem; color: white; margin-bottom: 2px; }
-        .stat-mini-card span { font-size: 0.75rem; color: #a1a1aa; }
+        
+        .stat-mini-card { 
+            background: #121215; 
+            padding: 14px 10px; 
+            border-radius: 12px; 
+            text-align: center; 
+            border: 1px solid rgba(255, 255, 255, 0.06); 
+            transition: border-color 0.2s;
+        }
+        .stat-mini-card:hover { border-color: rgba(234, 179, 8, 0.25); }
+        .stat-mini-card strong { display: block; font-size: 1.2rem; color: #ffffff; margin-bottom: 2px; font-weight: 800; }
+        .stat-mini-card span { font-size: 0.75rem; color: #a1a1aa; font-weight: 500; }
 
-        .menu-options { margin-top: 24px; background: #121214; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; margin-bottom: 12px; }
-        .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; text-decoration: none; color: white; border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.2s; width: 100%; box-sizing: border-box; background: transparent; border-top: none; border-left: none; border-right: none; text-align: left; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 0.95rem; }
+        .menu-options { margin-top: 24px; background: rgba(18, 18, 21, 0.9); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; margin-bottom: 12px; }
+        
+        .menu-item { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 16px 20px; 
+            text-decoration: none; 
+            color: #f4f4f5; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06); 
+            transition: all 0.2s; 
+            width: 100%; 
+            box-sizing: border-box; 
+            background: transparent; 
+            border-top: none; 
+            border-left: none; 
+            border-right: none; 
+            text-align: left; 
+            cursor: pointer; 
+            font-family: 'Inter', sans-serif; 
+            font-size: 0.95rem; 
+            font-weight: 600;
+        }
         .menu-item:last-child { border-bottom: none; }
         .menu-item:hover { background: #18181b; }
+        
         .menu-left { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; }
-        .menu-left i { font-size: 1.2rem; color: #f43f5e; }
-        .menu-item span.badge { background: rgba(244, 63, 94, 0.1); color: #f43f5e; padding: 2px 8px; border-radius: 6px; font-size: 0.8rem; }
+        .menu-left i { font-size: 1.2rem; color: #dc2626; }
+        
+        .menu-item span.badge { 
+            background: rgba(234, 179, 8, 0.15); 
+            color: #facc15; 
+            padding: 3px 8px; 
+            border-radius: 6px; 
+            font-size: 0.75rem; 
+            font-weight: 700;
+            border: 1px solid rgba(234, 179, 8, 0.3);
+        }
     </style>
 
-    <div style="padding-bottom: 20px;">
+    <div style="padding-bottom: 40px;">
         <!-- HEADER DO PERFIL -->
         <div class="profile-header">
-            <img src="https://ui-avatars.com/api/?name={{ nome_mestre }}&background=f43f5e&color=fff" alt="Avatar Mestre" class="profile-avatar">
+            <img src="https://ui-avatars.com/api/?name={{ nome_mestre }}&background=dc2626&color=fff" alt="Avatar Mestre" class="profile-avatar">
             <h2 class="profile-name">{{ nome_mestre }}</h2>
             <span class="profile-role">Mestre / Organizador</span>
 
@@ -58,14 +119,14 @@
             </a>
             <a href="{{ url_for('ranking') }}" class="menu-item">
                 <div class="menu-left">
-                    <i class="ph ph-trophy"></i>
+                    <i class="ph ph-trophy" style="color: #eab308;"></i>
                     <span>Ranking de Presença</span>
                 </div>
                 <i class="ph ph-caret-right" style="color: #71717a;"></i>
             </a>
             <a href="#" class="menu-item" onclick="alert('Sistema Nakduray Presence v1.0 - Desenvolvido para gestão de treinos e disciplina.')">
                 <div class="menu-left">
-                    <i class="ph ph-info"></i>
+                    <i class="ph ph-info" style="color: #38bdf8;"></i>
                     <span>Sobre o Sistema</span>
                 </div>
                 <span class="badge">v1.0</span>
@@ -73,10 +134,10 @@
         </div>
         
         <!-- BOTÃO DE SAIR (LOGOUT) -->
-        <div style="background: #121214; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden; margin-bottom: 12px;">
-            <a href="{{ url_for('logout') }}" class="menu-item" style="color: #e11d48;">
+        <div style="background: rgba(18, 18, 21, 0.9); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden; margin-bottom: 12px;">
+            <a href="{{ url_for('logout') }}" class="menu-item" style="color: #fca5a5;">
                 <div class="menu-left">
-                    <i class="ph ph-sign-out" style="color: #e11d48;"></i>
+                    <i class="ph ph-sign-out" style="color: #dc2626;"></i>
                     <span>Sair da Conta</span>
                 </div>
                 <i class="ph ph-caret-right" style="color: #71717a;"></i>
@@ -84,11 +145,11 @@
         </div>
 
         <!-- ZONA DE PERIGO: APAGAR CONTA -->
-        <div style="background: #121214; border-radius: 16px; border: 1px solid rgba(225, 29, 72, 0.2); overflow: hidden;">
+        <div style="background: rgba(18, 18, 21, 0.9); border-radius: 16px; border: 1px solid rgba(220, 38, 38, 0.3); overflow: hidden;">
             <form action="{{ url_for('apagar_conta') }}" method="POST" onsubmit="return confirm('Tem certeza absoluta que deseja excluir sua conta? Esta ação é irreversível e apagará todos os seus dados.');">
-                <button type="submit" class="menu-item" style="color: #e11d48; width: 100%;">
+                <button type="submit" class="menu-item" style="color: #fca5a5; width: 100%;">
                     <div class="menu-left">
-                        <i class="ph ph-trash" style="color: #e11d48;"></i>
+                        <i class="ph ph-trash" style="color: #ef4444;"></i>
                         <span>Apagar Minha Conta</span>
                     </div>
                     <i class="ph ph-caret-right" style="color: #71717a;"></i>

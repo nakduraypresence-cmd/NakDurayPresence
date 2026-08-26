@@ -29,7 +29,8 @@ def init_db():
             nome TEXT NOT NULL,
             horario TEXT NOT NULL,
             professor TEXT NOT NULL,
-            vagas_totais INTEGER NOT NULL
+            vagas_totais INTEGER NOT NULL,
+            treinador_id INTEGER
         )
     ''')
 

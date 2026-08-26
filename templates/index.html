@@ -4,70 +4,101 @@
 
 {% block conteudo %}
     <style>
-        /* Forçando a fonte limpa em todos os textos para matar a serifa */
+
+        * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+/* Remove o contorno azul feio de foco padrão do navegador em botões e inputs */
+button:focus, input:focus, select:focus, a:focus, label:focus {
+    outline: none !important;
+}
+
+/* Impede o travamento por toque prolongado e seleção de texto indesejada em elementos interativos */
+button, a, .radio-btn span, input, select {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+        /* Forçando a fonte limpa e o fundo com o mesmo padrão do login */
         h1, h2, h3, h4, h5, span, p, strong, a, div { font-family: 'Inter', sans-serif !important; }
+
+        body { 
+            background-color: #08080a;
+            background-image: 
+                radial-gradient(at 50% 15%, rgba(220, 38, 38, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 85%, rgba(234, 179, 8, 0.08) 0px, transparent 40%);
+        }
         
-        /* Design Premium para o Dashboard */
+        /* Design System Premium IDêntico ao Login */
         .greeting { color: #a1a1aa; font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
-        .user-name { color: #f4f4f5; font-size: 1.5rem; font-weight: 700; margin: 4px 0 0 0; }
+        .user-name { color: #ffffff; font-size: 1.55rem; font-weight: 800; letter-spacing: -0.02em; margin: 4px 0 0 0; }
+        .section-title { color: #ffffff; font-size: 1.15rem; font-weight: 700; margin-bottom: 0; }
         
-        .section-title { color: #f4f4f5; font-size: 1.15rem; font-weight: 600; margin-bottom: 0; }
+        /* Botões Estilizados com o Padrão do Sistema */
+        .btn-outline { background: transparent; color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.4); padding: 8px 16px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
+        .btn-outline:hover { background: rgba(220, 38, 38, 0.15); border-color: #eab308; color: #fff; }
         
-        /* Botões Refinados e Alinhados */
-        .btn-outline { background: transparent; color: #e11d48; border: 1px solid rgba(225, 29, 72, 0.4); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
-        .btn-outline:hover { background: rgba(225, 29, 72, 0.1); }
-        
-        .btn-solid { background: #e11d48; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2); white-space: nowrap; }
-        .btn-solid:hover { background: #be123c; }
+        .btn-solid { background: linear-gradient(135deg, #dc2626, #991b1b); color: white; border: 1px solid rgba(234, 179, 8, 0.3); padding: 9px 18px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 18px rgba(220, 38, 38, 0.35); white-space: nowrap; transition: all 0.2s ease; }
+        .btn-solid:hover { background: linear-gradient(135deg, #ef4444, #dc2626); border-color: #eab308; transform: translateY(-1px); }
 
-        .btn-dark { background: #27272a; color: #f4f4f5; border: 1px solid rgba(255,255,255,0.05); padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        
-        .btn-icon { background: rgba(255,255,255,0.05); color: #71717a; border: none; width: 36px; height: 36px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s; flex-shrink: 0; }
-        .btn-icon:hover { background: rgba(255,255,255,0.1); color: #f4f4f5; }
+        .btn-icon { background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.08); width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s; flex-shrink: 0; }
+        .btn-icon:hover { background: rgba(255,255,255,0.1); color: #ffffff; border-color: rgba(234, 179, 8, 0.4); }
 
-        /* Ajuste fino nos cards */
-        .class-card { background: #18181b; border: 1px solid rgba(255,255,255,0.03); border-radius: 16px; padding: 20px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
-        .class-title { color: #f4f4f5; font-size: 1.15rem; font-weight: 700; margin: 0 0 4px 0; line-height: 1.2; }
+        /* Cards com efeito de vidro fosco (Glassmorphism) */
+        .class-card, .stat-card, .punicao-card { 
+            background: rgba(15, 15, 18, 0.9); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 16px; 
+            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7);
+        }
+        
+        .class-card { padding: 20px; margin-bottom: 16px; }
+        .class-title { color: #ffffff; font-size: 1.15rem; font-weight: 700; margin: 0 0 4px 0; line-height: 1.2; }
         .class-time { color: #a1a1aa; font-size: 0.85rem; display: block; margin-top: 4px; }
         
         .stat-item { text-align: center; }
-        .stat-item strong { display: block; font-size: 1.3rem; color: #f4f4f5; font-weight: 700; margin-bottom: 2px; }
-        .stat-item span { color: #71717a; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .stat-item strong { display: block; font-size: 1.35rem; color: #ffffff; font-weight: 700; margin-bottom: 2px; }
+        .stat-item span { color: #a1a1aa; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
         
-        .progress-bar { background: #27272a; height: 6px; border-radius: 10px; overflow: hidden; margin: 20px 0 16px 0; }
-        .progress-fill { background: linear-gradient(90deg, #e11d48, #fb7185); height: 100%; border-radius: 10px; }
+        .progress-bar { background: #121215; height: 6px; border-radius: 10px; overflow: hidden; margin: 20px 0 16px 0; border: 1px solid rgba(255,255,255,0.05); }
+        .progress-fill { background: linear-gradient(90deg, #dc2626, #eab308); height: 100%; border-radius: 10px; }
     </style>
 
-    <!-- HEADER DINÂMICO -->
-    <header class="header" style="margin-bottom: 24px;">
+    <!-- HEADER DINÂMICO COM LOGO ESTILIZADA -->
+    <header class="header" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
         <div class="user-info">
             <span class="greeting">BEM-VINDO, MESTRE</span>
             <h1 class="user-name">{{ nome_mestre }}</h1>
         </div>
         <div style="display: flex; align-items: center; gap: 12px;">
             <div class="avatar-container" style="position: relative;">
-                <img src="https://ui-avatars.com/api/?name={{ nome_mestre }}&background=18181b&color=fff" alt="Avatar" class="avatar" style="width: 40px; height: 40px; border-radius: 50%;">
-                <div class="notification-dot" style="background: #e11d48; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #0a0a0a; position: absolute; top: 0; right: 0;"></div>
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Nakduray" class="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(234, 179, 8, 0.6); box-shadow: 0 0 15px rgba(220, 38, 38, 0.3); background: #000; padding: 2px;">
+                <div class="notification-dot" style="background: #10b981; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #08080a; position: absolute; top: 0; right: 0;"></div>
             </div>
         </div>
     </header>
 
     <!-- CARDS DE ESTATÍSTICAS -->
     <section class="stats-grid" style="margin-bottom: 32px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-        <div class="stat-card" style="background: #18181b; border: 1px solid rgba(255,255,255,0.03); padding: 16px; border-radius: 12px; text-align: center;">
+        <div class="stat-card" style="padding: 16px; text-align: center;">
             <i class="ph ph-users" style="color: #a1a1aa; font-size: 1.5rem; margin-bottom: 8px;"></i>
-            <h2 style="color: #f4f4f5; margin: 0; font-size: 1.5rem;">{{ total_alunos }}</h2>
-            <p style="color: #71717a; margin: 4px 0 0 0; font-size: 0.8rem;">Alunos</p>
+            <h2 style="color: #ffffff; margin: 0; font-size: 1.5rem; font-weight: 700;">{{ total_alunos }}</h2>
+            <p style="color: #a1a1aa; margin: 4px 0 0 0; font-size: 0.8rem; font-weight: 500;">Atletas</p>
         </div>
-        <div class="stat-card" style="background: rgba(225, 29, 72, 0.05); border: 1px solid rgba(225, 29, 72, 0.2); padding: 16px; border-radius: 12px; text-align: center;">
-            <i class="ph ph-check-circle" style="color: #e11d48; font-size: 1.5rem; margin-bottom: 8px;"></i>
-            <h2 style="color: #f4f4f5; margin: 0; font-size: 1.5rem;">{{ presencas_hoje }}</h2>
-            <p style="color: #71717a; margin: 4px 0 0 0; font-size: 0.8rem;">Presenças</p>
+        <div class="stat-card" style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.25); padding: 16px; text-align: center;">
+            <i class="ph ph-check-circle" style="color: #ef4444; font-size: 1.5rem; margin-bottom: 8px;"></i>
+            <h2 style="color: #ffffff; margin: 0; font-size: 1.5rem; font-weight: 700;">{{ presencas_hoje }}</h2>
+            <p style="color: #a1a1aa; margin: 4px 0 0 0; font-size: 0.8rem; font-weight: 500;">Presenças</p>
         </div>
-        <div class="stat-card" style="background: #18181b; border: 1px solid rgba(255,255,255,0.03); padding: 16px; border-radius: 12px; text-align: center;">
+        <div class="stat-card" style="padding: 16px; text-align: center;">
             <i class="ph ph-x-circle" style="color: #a1a1aa; font-size: 1.5rem; margin-bottom: 8px;"></i>
-            <h2 style="color: #f4f4f5; margin: 0; font-size: 1.5rem;">{{ ausentes_hoje }}</h2>
-            <p style="color: #71717a; margin: 4px 0 0 0; font-size: 0.8rem;">Ausentes</p>
+            <h2 style="color: #ffffff; margin: 0; font-size: 1.5rem; font-weight: 700;">{{ ausentes_hoje }}</h2>
+            <p style="color: #a1a1aa; margin: 4px 0 0 0; font-size: 0.8rem; font-weight: 500;">Ausentes</p>
         </div>
     </section>
 
@@ -76,14 +107,13 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <h3 class="section-title">Aulas de Hoje</h3>
             <a href="/criar_aula" class="btn-solid">
-                <i class="ph ph-plus"></i> Nova Aula
+                <i class="ph ph-plus" style="font-weight: bold;"></i> Nova Aula
             </a>
         </div>
 
         {% if aulas %}
             {% for aula in aulas %}
             <div class="class-card">
-                <!-- CABEÇALHO DO CARD (ALINHADO PERFEITAMENTE) -->
                 <div class="class-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px;">
                     <div style="flex: 1;">
                         <h4 class="class-title">{{ aula.nome_turma }}</h4>
@@ -122,7 +152,9 @@
             </div>
             {% endfor %}
         {% else %}
-            <p style="color: #71717a; font-size: 0.9rem;">Nenhuma aula cadastrada para hoje.</p>
+            <div class="class-card" style="text-align: center; padding: 24px;">
+                <p style="color: #a1a1aa; font-size: 0.9rem; margin: 0;">Nenhuma aula cadastrada para hoje.</p>
+            </div>
         {% endif %}
     </section>
 
@@ -131,7 +163,7 @@
         <div class="punicoes-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
             <div>
                 <h3 class="section-title">Placar de Punições</h3>
-                <span class="subtitle" style="color: #71717a; font-size: 0.85rem;">Flexões devidas</span>
+                <span class="subtitle" style="color: #a1a1aa; font-size: 0.8rem;">Flexões devidas</span>
             </div>
             <a href="{{ url_for('registrar_punicao') }}" class="btn-outline">
                 <i class="ph ph-warning"></i> Registrar
@@ -140,37 +172,36 @@
 
         {% if punicoes %}
             {% for punicao in punicoes %}
-            <div class="punicao-card" style="display: flex; align-items: center; justify-content: space-between; background: #18181b; padding: 14px 16px; border-radius: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.03);">
+            <div class="punicao-card" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; margin-bottom: 10px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <div class="punicao-icon" style="background: rgba(225, 29, 72, 0.1); color: #e11d48; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <div class="punicao-icon" style="background: rgba(220, 38, 38, 0.15); color: #ef4444; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(220, 38, 38, 0.3);">
                         <i class="ph ph-warning" style="font-size: 1.2rem;"></i>
                     </div>
                     <div class="punicao-info">
-                        <strong style="display: block; color: #f4f4f5; font-size: 1rem;">{{ punicao.nome_completo }}</strong>
-                        <span style="font-size: 0.8rem; color: #71717a;">{{ punicao.motivo }}</span>
+                        <strong style="display: block; color: #ffffff; font-size: 0.95rem;">{{ punicao.nome_completo }}</strong>
+                        <span style="font-size: 0.8rem; color: #a1a1aa;">{{ punicao.motivo }}</span>
                     </div>
                 </div>
                 <div style="display: flex; align-items: center; gap: 16px;">
                     <div class="punicao-valor" style="text-align: right;">
-                        <strong style="color: #e11d48; font-size: 1.2rem;">{{ punicao.quantidade }}</strong>
-                        <span style="display: block; font-size: 0.7rem; color: #71717a; text-transform: uppercase;">flexões</span>
+                        <strong style="color: #eab308; font-size: 1.15rem;">{{ punicao.quantidade }}</strong>
+                        <span style="display: block; font-size: 0.65rem; color: #a1a1aa; text-transform: uppercase; font-weight: 600;">flexões</span>
                     </div>
-                    <a href="{{ url_for('remover_punicao', id=punicao.id) }}" class="btn-icon" style="background: #27272a; color: #10b981;" onclick="return confirm('O aluno cumpriu a punição?')" title="Pagar Punição">
+                    <a href="{{ url_for('remover_punicao', id=punicao.id) }}" class="btn-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);" onclick="return confirm('O atleta cumpriu a punição?')" title="Pagar Punição">
                         <i class="ph ph-check" style="font-size: 1.1rem;"></i>
                     </a>
                 </div>
             </div>
             {% endfor %}
         {% else %}
-            <div style="background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.3); padding: 16px; border-radius: 12px; text-align: center;">
-                <p style="color: #10b981; font-size: 0.9rem; margin: 0; font-weight: 500;">Nenhum aluno devendo flexões. O treino foi excelente!</p>
+            <div style="background: rgba(16, 185, 129, 0.08); border: 1px dashed rgba(16, 185, 129, 0.3); padding: 16px; border-radius: 12px; text-align: center;">
+                <p style="color: #34d399; font-size: 0.9rem; margin: 0; font-weight: 500;">Nenhum atleta devendo flexões. O treino foi excelente!</p>
             </div>
         {% endif %}
     </section>
 
     <!-- SCRIPT DE ATUALIZAÇÃO AUTOMÁTICA -->
     <script>
-        // Atualiza a página automaticamente a cada 15 segundos (15000 milissegundos)
         setTimeout(function(){
             location.reload();
         }, 15000);

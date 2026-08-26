@@ -1,0 +1,160 @@
+{% extends 'admin/master.html' %}
+
+{% block head %}
+  {{ super() }}
+  <style>
+    /* Estilização moderna para a tabela e container */
+    .admin-container {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 25px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+
+    .admin-header h2 {
+      font-weight: 700;
+      color: #1a1f36;
+      margin-bottom: 6px;
+    }
+
+    .admin-header p {
+      color: #697386;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    .custom-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 15px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e3e8ee;
+    }
+
+    .custom-table th {
+      background-color: #f8f9fc;
+      color: #4f566b;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      padding: 14px 16px;
+      border-bottom: 1px solid #e3e8ee;
+      text-align: left;
+    }
+
+    .custom-table td {
+      padding: 14px 16px;
+      color: #2a2f45;
+      font-size: 14px;
+      border-bottom: 1px solid #e3e8ee;
+      vertical-align: middle;
+    }
+
+    .custom-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .custom-table tbody tr:hover {
+      background-color: #f7fafc;
+    }
+
+    /* Badges de Status */
+    .badge-status {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .badge-ativo {
+      background-color: #e6f4ea;
+      color: #137333;
+    }
+
+    .badge-pendente {
+      background-color: #fef7e0;
+      color: #b06000;
+    }
+
+    /* Botões */
+    .btn-delete {
+      background-color: #e50914;
+      color: #ffffff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .btn-delete:hover {
+      background-color: #b80710;
+      color: #ffffff;
+    }
+
+    .btn-delete:active {
+      transform: scale(0.98);
+    }
+  </style>
+{% endblock %}
+
+{% block body %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h2>Gerenciar Treinadores Cadastrados</h2>
+        <p>Painel exclusivo do administrador do sistema.</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{% if category == 'erro' %}danger{% else %}success{% endif %} alert-dismissible" role="alert" style="border-radius: 8px;">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <table class="custom-table">
+        <thead>
+            <tr>
+                <th style="width: 80px;">ID</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th style="width: 120px;">Status</th>
+                <th style="width: 100px; text-align: center;">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for treinador in treinadores %}
+            <tr>
+                <td><strong>#{{ treinador.id }}</strong></td>
+                <td>{{ treinador.nome }}</td>
+                <td>{{ treinador.email }}</td>
+                <td>
+                    {% if treinador.ativo == 1 %}
+                        <span class="badge-status badge-ativo">Ativo</span>
+                    {% else %}
+                        <span class="badge-status badge-pendente">Pendente</span>
+                    {% endif %}
+                </td>
+                <td style="text-align: center;">
+                    <form action="{{ url_for('gerenciartreinadoresview.excluir', id=treinador.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este treinador?');">
+                        <button type="submit" class="btn-delete">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

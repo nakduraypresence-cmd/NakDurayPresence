@@ -2,48 +2,139 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Nova Senha - Nakduray Presence</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        body { display: flex; align-items: center; justify-content: center; height: 100vh; }
+        /* Padronização absoluta da tipografia Inter e exclusão de serifas */
+        h1, h2, h3, h4, h5, span, p, strong, a, div, label { font-family: 'Inter', sans-serif !important; }
+
+        :root {
+            --bg-dark: #0a0a0a;
+            --card-bg: rgba(18, 18, 21, 0.95);
+            --input-bg: #121215;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #ffffff;
+            --text-muted: #a1a1aa;
+            --primary: #dc2626;
+            --primary-hover: #ef4444;
+            --accent-gold: #eab308;
+        }
+
+        body { 
+            background: var(--bg-dark); 
+            color: var(--text-main); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
         .auth-card {
-            background-color: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 32px 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 40px 32px;
             border-radius: 20px;
             width: 100%;
             max-width: 400px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
         }
-        .auth-title { font-family: var(--font-serif); font-size: 1.5rem; text-align: center; margin-bottom: 8px; }
-        .auth-subtitle { color: var(--text-muted); font-size: 0.85rem; text-align: center; margin-bottom: 24px; }
-        .input-group { margin-bottom: 16px; }
-        .input-group label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
-        .input-wrapper { position: relative; }
-        .input-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        .auth-title { 
+            font-size: 1.5rem; 
+            font-weight: 800;
+            text-align: center; 
+            margin: 0 0 8px 0; 
+            letter-spacing: -0.02em;
+            color: #ffffff;
+        }
+
+        .auth-subtitle { 
+            color: var(--text-muted); 
+            font-size: 0.92rem; 
+            text-align: center; 
+            margin: 0 0 28px 0; 
+            line-height: 1.5;
+        }
+
+        .input-group { 
+            margin-bottom: 20px; 
+        }
+
+        .input-group label { 
+            display: block; 
+            font-size: 0.82rem; 
+            color: var(--text-muted); 
+            margin-bottom: 8px; 
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .input-wrapper { 
+            position: relative; 
+            display: flex; 
+            align-items: center; 
+        }
+
+        .input-wrapper i { 
+            position: absolute; 
+            left: 16px; 
+            color: var(--text-muted); 
+            font-size: 1.2rem; 
+            transition: color 0.2s;
+        }
+
         .input-wrapper input {
             width: 100%;
-            background-color: var(--bg-dark);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 12px 12px 40px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            padding: 14px 16px 14px 44px;
             border-radius: 12px;
             color: white;
             font-size: 0.95rem;
+            outline: none;
+            box-sizing: border-box;
+            transition: all 0.2s ease;
         }
-        .input-wrapper input:focus { border-color: var(--primary-red); outline: none; }
+
+        /* Foco com o padrão dourado elegante */
+        .input-wrapper input:focus { 
+            border-color: var(--accent-gold); 
+            box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.15); 
+        }
+
+        .input-wrapper input:focus + i,
+        .input-wrapper input:not(:placeholder-shown) + i {
+            color: var(--accent-gold);
+        }
+
         .btn-submit {
             width: 100%;
-            background-color: var(--primary-red);
+            background-color: var(--primary);
             color: white;
             border: none;
-            padding: 12px;
+            padding: 14px;
             border-radius: 12px;
-            font-weight: 600;
+            font-weight: 800;
             font-size: 1rem;
             cursor: pointer;
-            margin-top: 8px;
+            transition: all 0.2s;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
         }
     </style>
 </head>
@@ -56,8 +147,8 @@
             <div class="input-group">
                 <label>Nova Senha</label>
                 <div class="input-wrapper">
-                    <i class="fa-solid fa-lock"></i>
-                    <input type="password" name="senha" placeholder="********" required>
+                    <i class="ph ph-lock-key"></i>
+                    <input type="password" name="senha" placeholder="••••••••" required>
                 </div>
             </div>
             <button type="submit" class="btn-submit">Salvar Nova Senha</button>

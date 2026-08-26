@@ -88,6 +88,9 @@ def login():
             
     return render_template('login.html', erro=erro, sucesso=sucesso)
 
+# Chave secreta que você enviará no privado para os treinadores
+CODIGO_CONVITE_MESTRE = "NEXUS2026"
+
 @app.route('/cadastro_treinador', methods=['GET', 'POST'])
 def cadastro_treinador():
     erro = None
@@ -95,8 +98,12 @@ def cadastro_treinador():
         nome = request.form['nome'].strip()
         email = request.form['email'].strip().lower()
         senha = request.form['senha'].strip()
+        codigo = request.form.get('codigo_convite', '').strip()
         
-        if not validar_email(email):
+        # 1. Validação do Código de Convite
+        if codigo != CODIGO_CONVITE_MESTRE:
+            erro = 'Código de convite inválido! Solicite a chave de acesso ao administrador.'
+        elif not validar_email(email):
             erro = 'Por favor, insira um endereço de e-mail real e válido.'
         else:
             conn = get_db_connection()
@@ -105,39 +112,16 @@ def cadastro_treinador():
                 if treinador_existente:
                     erro = 'Este e-mail já está cadastrado.'
                 else:
-                    token = s.dumps(email, salt='email-confirmacao')
-                    link_ativacao = url_for('ativar_conta', token=token, _external=True)
+                    # 2. Cria a conta já ativa (ativo = 1) no banco de dados
+                    hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
+                    conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 1)', (nome, email, hashed_password))
+                    conn.commit()
                     
-                    # Tenta enviar o e-mail via Resend PRIMEIRO
-                    try:
-                        resend.Emails.send({
-                            "from": "Nakduray Presence <onboarding@resend.dev>",
-                            "to": email,
-                            "subject": "Confirme seu cadastro - Nakduray Presence",
-                            "html": f"""
-                                <h2>Olá, {nome}!</h2>
-                                <p>Obrigado por se cadastrar no <strong>Nakduray Presence</strong>.</p>
-                                <p>Para ativar sua conta e liberar o acesso, clique no botão abaixo:</p>
-                                <p><a href="{link_ativacao}" style="background-color: #E50914; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Ativar Minha Conta</a></p>
-                                <br>
-                                <p><small>Este link expira em 1 hora.</small></p>
-                            """
-                        })
-
-                        # Só salva no banco se o e-mail foi disparado sem exceções
-                        hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
-                        conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 0)', (nome, email, hashed_password))
-                        conn.commit()
-                        
-                        return redirect(url_for('verificar_email_aviso'))
-
-                    except Exception as resend_err:
-                        print(f"Erro ao enviar via Resend: {resend_err}")
-                        erro = "Não foi possível enviar o e-mail de ativação. Verifique o e-mail digitado."
+                    # Redireciona direto para o login com mensagem de sucesso
+                    return redirect(url_for('login', sucesso='Conta criada com sucesso! Faça login para acessar.'))
 
             except Exception as e:
-                print(f"ERRO NO CADASTRO: {e}")
-                erro = f"Erro ao cadastrar: {e}"
+                erro = f"Erro ao criar conta: {e}"
             finally:
                 conn.close()
                 

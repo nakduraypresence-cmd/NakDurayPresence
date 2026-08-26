@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        body { background: #0a0a0a; color: white; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        body { background: #0a0a0a; color: white; font-family: 'Inter', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px 0; box-sizing: border-box; }
         .login-card { background: #121214; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid rgba(255,255,255,0.05); box-sizing: border-box; }
         .form-group { margin-bottom: 16px; }
         label { display: block; font-size: 0.85rem; color: #a1a1aa; margin-bottom: 6px; }
@@ -47,6 +47,10 @@
             <div class="form-group">
                 <label><i class="ph ph-lock"></i> Senha</label>
                 <input type="password" name="senha" placeholder="••••••••" required>
+            </div>
+            <div class="form-group">
+                <label><i class="ph ph-key"></i> Código de Convite</label>
+                <input type="text" name="codigo_convite" placeholder="Digite o código de acesso" required>
             </div>
             <button type="submit" class="btn-submit">Criar Conta</button>
         </form>

@@ -72,7 +72,7 @@ def init_db():
             CREATE TABLE IF NOT EXISTS punicoes (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, 
                 aluno_id INTEGER, 
-                quantidade INTEGER, 
+                quantidade_flexoes INTEGER, 
                 motivo TEXT, 
                 FOREIGN KEY (aluno_id) REFERENCES alunos (id) ON DELETE CASCADE
             )
@@ -324,8 +324,13 @@ def dashboard():
         
         total_alunos = conn.execute('SELECT COUNT(*) FROM alunos').fetchone()[0]
         presencas_hoje = total_confirmados_geral
-        alunos_com_presenca = conn.execute('SELECT COUNT(DISTINCT aluno_id) FROM alunos_turma').fetchone()[0]
-        ausentes_hoje = max(0, total_alunos - alunos_com_presenca)
+        
+        # CORREÇÃO: Se não houver nenhuma aula cadastrada, o contador de ausentes reseta para 0
+        if len(aulas_hoje) == 0:
+            ausentes_hoje = 0
+        else:
+            alunos_com_presenca = conn.execute('SELECT COUNT(DISTINCT aluno_id) FROM alunos_turma').fetchone()[0]
+            ausentes_hoje = max(0, total_alunos - alunos_com_presenca)
         
         punicoes = conn.execute('SELECT p.id, a.nome_completo, p.quantidade_flexoes, p.motivo FROM punicoes p JOIN alunos a ON p.aluno_id = a.id').fetchall()
     finally:
@@ -369,7 +374,6 @@ def excluir_aula(id):
         
     conn = get_db_connection()
     try:
-        # CORREÇÃO AQUI: Remove primeiro as dependências da chave estrangeira antes de deletar a turma
         conn.execute('DELETE FROM alunos_turma WHERE turma_id = ?', (id,))
         conn.execute('DELETE FROM turmas WHERE id = ?', (id,))
         conn.commit()
@@ -381,27 +385,26 @@ def excluir_aula(id):
 def registrar_punicao():
     if request.method == 'POST':
         aluno_id = request.form['aluno_id']
-        tipo_punicao = request.form['tipo_punicao']  # Vem do formulário HTML
+        tipo_punicao = request.form['tipo_punicao'] 
         motivo = request.form['motivo']
         
-        conn = sqlite3.connect('database.db')
-        conn.row_factory = sqlite3.Row
-        
-        # Inserindo com o nome correto da coluna do banco: 'quantidade_flexoes'
-        conn.execute(
-            "INSERT INTO punicoes (aluno_id, motivo, quantidade_flexoes) VALUES (?, ?, ?)", 
-            (aluno_id, motivo, tipo_punicao)
-        )
-        conn.commit()
-        conn.close()
+        conn = get_db_connection()
+        try:
+            conn.execute(
+                "INSERT INTO punicoes (aluno_id, motivo, quantidade_flexoes) VALUES (?, ?, ?)", 
+                (aluno_id, motivo, tipo_punicao)
+            )
+            conn.commit()
+        finally:
+            conn.close()
         
         return redirect(url_for('dashboard'))
     
-    # Busca os alunos para preencher o select no HTML
-    conn = sqlite3.connect('database.db')
-    conn.row_factory = sqlite3.Row
-    alunos = conn.execute("SELECT * FROM alunos").fetchall()
-    conn.close()
+    conn = get_db_connection()
+    try:
+        alunos = conn.execute("SELECT * FROM alunos").fetchall()
+    finally:
+        conn.close()
     
     return render_template('registrar_punicao.html', alunos=alunos)
 

@@ -3,25 +3,24 @@ import sqlite3
 import os
 import re
 import itsdangerous
+import resend
 from flask_bcrypt import Bcrypt
-from flask_mail import Mail, Message
 
 app = Flask(__name__)
-app.secret_key = 'sua_chave_secreta_super_segura' 
+app.secret_key = os.environ.get('SECRET_KEY', 'sua_chave_secreta_super_segura') 
 bcrypt = Bcrypt(app)
 
 s = itsdangerous.URLSafeTimedSerializer(app.secret_key)
 
-# Configurações de E-mail
-app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'nakduray.presence@gmail.com'
-app.config['MAIL_PASSWORD'] = 'hssxixzibitohaqc'
-mail = Mail(app)
+# Configuração da API Key do Resend via Variável de Ambiente
+resend.api_key = os.environ.get("RESEND_API_KEY")
+
+# Caminho Absoluto do Banco de Dados SQLite (Evita perder dados nos deploys do Render)
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DB_PATH = os.path.join(BASE_DIR, 'database.db')
 
 def get_db_connection():
-    conn = sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row 
     return conn
 
@@ -71,8 +70,8 @@ def login():
     sucesso = request.args.get('sucesso')
     
     if request.method == 'POST':
-        email = request.form['email']
-        senha = request.form['senha']
+        email = request.form['email'].strip().lower()
+        senha = request.form['senha'].strip()
         conn = get_db_connection()
         treinador = conn.execute('SELECT * FROM treinadores WHERE email = ?', (email,)).fetchone()
         conn.close()
@@ -88,12 +87,6 @@ def login():
             erro = 'E-mail ou senha incorretos.'
             
     return render_template('login.html', erro=erro, sucesso=sucesso)
-
-import os
-import resend
-
-# Lê a chave diretamente da variável de ambiente configurada no sistema/Render
-resend.api_key = os.environ.get("re_j74aTqYq_Em9Wd4N7toDyWxfBXEyw6K6J")
 
 @app.route('/cadastro_treinador', methods=['GET', 'POST'])
 def cadastro_treinador():
@@ -112,15 +105,10 @@ def cadastro_treinador():
                 if treinador_existente:
                     erro = 'Este e-mail já está cadastrado.'
                 else:
-                    hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
-                    # Cria a conta inativa (ativo = 0) até clicar no link
-                    conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 0)', (nome, email, hashed_password))
-                    conn.commit()
-                    
                     token = s.dumps(email, salt='email-confirmacao')
                     link_ativacao = url_for('ativar_conta', token=token, _external=True)
                     
-                    # Dispara o e-mail via API do Resend (não sofre bloqueio de porta)
+                    # Tenta enviar o e-mail via Resend PRIMEIRO
                     try:
                         resend.Emails.send({
                             "from": "Nakduray Presence <onboarding@resend.dev>",
@@ -129,17 +117,24 @@ def cadastro_treinador():
                             "html": f"""
                                 <h2>Olá, {nome}!</h2>
                                 <p>Obrigado por se cadastrar no <strong>Nakduray Presence</strong>.</p>
-                                <p>Para ativar sua conta e liberar o acesso ao sistema, clique no botão abaixo:</p>
+                                <p>Para ativar sua conta e liberar o acesso, clique no botão abaixo:</p>
                                 <p><a href="{link_ativacao}" style="background-color: #E50914; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Ativar Minha Conta</a></p>
                                 <br>
                                 <p><small>Este link expira em 1 hora.</small></p>
                             """
                         })
+
+                        # Só salva no banco se o e-mail foi disparado sem exceções
+                        hashed_password = bcrypt.generate_password_hash(senha).decode('utf-8')
+                        conn.execute('INSERT INTO treinadores (nome, email, senha, ativo) VALUES (?, ?, ?, 0)', (nome, email, hashed_password))
+                        conn.commit()
+                        
+                        return redirect(url_for('verificar_email_aviso'))
+
                     except Exception as resend_err:
                         print(f"Erro ao enviar via Resend: {resend_err}")
-                    
-                    return redirect(url_for('verificar_email_aviso'))
-                    
+                        erro = "Não foi possível enviar o e-mail de ativação. Verifique o e-mail digitado."
+
             except Exception as e:
                 print(f"ERRO NO CADASTRO: {e}")
                 erro = f"Erro ao cadastrar: {e}"
@@ -165,6 +160,61 @@ def ativar_conta(token):
     conn.close()
     
     return render_template('conta_ativada.html')
+
+@app.route('/esqueci_senha', methods=['GET', 'POST'])
+def esqueci_senha():
+    erro = None
+    sucesso = None
+    if request.method == 'POST':
+        email = request.form['email'].strip().lower()
+        conn = get_db_connection()
+        treinador = conn.execute('SELECT * FROM treinadores WHERE email = ?', (email,)).fetchone()
+        conn.close()
+        
+        if treinador:
+            try:
+                token = s.dumps(email, salt='recuperar-senha')
+                link = url_for('redefinir_senha', token=token, _external=True)
+                
+                resend.Emails.send({
+                    "from": "Nakduray Presence <onboarding@resend.dev>",
+                    "to": email,
+                    "subject": "Redefinição de Senha - Nakduray Presence",
+                    "html": f"""
+                        <h2>Olá, {treinador['nome']}!</h2>
+                        <p>Para redefinir sua senha no Nakduray Presence, clique no link abaixo:</p>
+                        <p><a href="{link}" style="background-color: #E50914; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Redefinir Senha</a></p>
+                        <br>
+                        <p><small>Este link expira em 15 minutos.</small></p>
+                    """
+                })
+                sucesso = 'Um link de recuperação foi enviado para o seu e-mail!'
+            except Exception as e:
+                print(f"Erro ao enviar e-mail: {e}")
+                erro = 'Ocorreu um erro ao enviar o e-mail de recuperação.'
+        else:
+            erro = 'E-mail não encontrado em nossa base de dados.'
+            
+    return render_template('esqueci_senha.html', erro=erro, sucesso=sucesso)
+
+@app.route('/redefinir_senha/<token>', methods=['GET', 'POST'])
+def redefinir_senha(token):
+    try:
+        email = s.loads(token, salt='recuperar-senha', max_age=900)
+    except:
+        return 'O link de recuperação é inválido ou expirou.', 400
+        
+    if request.method == 'POST':
+        nova_senha = request.form['senha'].strip()
+        hashed_password = bcrypt.generate_password_hash(nova_senha).decode('utf-8')
+        
+        conn = get_db_connection()
+        conn.execute('UPDATE treinadores SET senha = ? WHERE email = ?', (hashed_password, email))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('login', sucesso='Senha alterada com sucesso! Faça login.'))
+        
+    return render_template('nova_senha.html')
 
 @app.route('/logout')
 def logout():
@@ -367,53 +417,6 @@ def remover_checkin(aula_id, aluno_id):
     conn.commit()
     conn.close()
     return redirect(url_for('aluno_turma', id=aula_id))
-
-@app.route('/esqueci_senha', methods=['GET', 'POST'])
-def esqueci_senha():
-    erro = None
-    sucesso = None
-    if request.method == 'POST':
-        email = request.form['email'].strip().lower()
-        conn = get_db_connection()
-        treinador = conn.execute('SELECT * FROM treinadores WHERE email = ?', (email,)).fetchone()
-        conn.close()
-        
-        if treinador:
-            try:
-                token = s.dumps(email, salt='recuperar-senha')
-                link = url_for('redefinir_senha', token=token, _external=True)
-                msg = Message('Redefinição de Senha - Nakduray Presence',
-                            sender=app.config['MAIL_USERNAME'],
-                            recipients=[email])
-                msg.body = f"Olá, {treinador['nome']}!\n\nPara redefinir sua senha, acesse:\n{link}"
-                mail.send(msg)
-                sucesso = 'Um link de recuperação foi enviado para o seu e-mail!'
-            except Exception as e:
-                print(f"Erro ao enviar e-mail: {e}")
-                sucesso = 'Solicitação processada.'
-        else:
-            erro = 'E-mail não encontrado em nossa base de dados.'
-            
-    return render_template('esqueci_senha.html', erro=erro, sucesso=sucesso)
-
-@app.route('/redefinir_senha/<token>', methods=['GET', 'POST'])
-def redefinir_senha(token):
-    try:
-        email = s.loads(token, salt='recuperar-senha', max_age=900)
-    except:
-        return 'O link de recuperação é inválido ou expirou.', 400
-        
-    if request.method == 'POST':
-        nova_senha = request.form['senha']
-        hashed_password = bcrypt.generate_password_hash(nova_senha).decode('utf-8')
-        
-        conn = get_db_connection()
-        conn.execute('UPDATE treinadores SET senha = ? WHERE email = ?', (hashed_password, email))
-        conn.commit()
-        conn.close()
-        return redirect(url_for('login'))
-        
-    return render_template('nova_senha.html')
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

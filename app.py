@@ -1,33 +1,32 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 import sqlite3
 import os
 import re
+from datetime import datetime, timedelta
 import itsdangerous
 import resend
 from flask_bcrypt import Bcrypt
 from flask_admin import Admin, BaseView, expose
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'sua_chave_secreta_super_segura') 
-bcrypt = Bcrypt(app)
+app.secret_key = os.environ.get('SECRET_KEY', 'sua_chave_secreta_super_segura_nakduray_2026') 
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=31)
 
+bcrypt = Bcrypt(app)
 s = itsdangerous.URLSafeTimedSerializer(app.secret_key)
 
-# Configuração da API Key do Resend via Variável de Ambiente
 resend.api_key = os.environ.get("RESEND_API_KEY")
 
-# Constantes de Segurança e Acesso
 CODIGO_CONVITE_MESTRE = os.environ.get("CODIGO_CONVITE", "NAK2026")
 EMAIL_ADMIN_MESTRE = os.environ.get("EMAIL_ADMIN", "mvvinicius231017vk@gmail.com")
 
-# Caminho Absoluto do Banco de Dados SQLite (Evita perder dados nos deploys do Render)
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'database.db')
 
 def get_db_connection():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row 
-    conn.execute('PRAGMA foreign_keys = ON') # Garante a integridade das chaves estrangeiras
+    conn.execute('PRAGMA foreign_keys = ON')
     return conn
 
 def init_db():
@@ -45,7 +44,7 @@ def init_db():
         conn.execute('''
             CREATE TABLE IF NOT EXISTS alunos (
                 id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                nome_completo TEXT NOT NULL, 
+                nome_completo TEXT UNIQUE NOT NULL, 
                 presencas INTEGER DEFAULT 0
             )
         ''')
@@ -57,13 +56,28 @@ def init_db():
                 professor TEXT NOT NULL, 
                 vagas_totais INTEGER NOT NULL,
                 treinador_id INTEGER,
+                criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
+                tempo_limite_minutos INTEGER DEFAULT 60,
                 FOREIGN KEY (treinador_id) REFERENCES treinadores (id) ON DELETE CASCADE
             )
         ''')
+        
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(turmas)")
+        columns = [col[1] for col in cursor.fetchall()]
+        if 'criado_em' not in columns:
+            cursor.execute("ALTER TABLE turmas ADD COLUMN criado_em DATETIME")
+            cursor.execute("UPDATE turmas SET criado_em = CURRENT_TIMESTAMP WHERE criado_em IS NULL")
+        if 'tempo_limite_minutos' not in columns:
+            cursor.execute("ALTER TABLE turmas ADD COLUMN tempo_limite_minutos INTEGER DEFAULT 60")
+            cursor.execute("UPDATE turmas SET tempo_limite_minutos = 60 WHERE tempo_limite_minutos IS NULL")
+
         conn.execute('''
             CREATE TABLE IF NOT EXISTS alunos_turma (
                 aluno_id INTEGER, 
                 turma_id INTEGER, 
+                data_confirmacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (aluno_id, turma_id),
                 FOREIGN KEY (aluno_id) REFERENCES alunos (id) ON DELETE CASCADE, 
                 FOREIGN KEY (turma_id) REFERENCES turmas (id) ON DELETE CASCADE
             )
@@ -89,11 +103,8 @@ def validar_email(email):
         return False
     dominios_proibidos = ['teste.com', 'email.com', 'abc.com', 'fake.com', 'x.com']
     dominio = email.split('@')[-1].lower()
-    if dominio in dominios_proibidos:
-        return False
-    return True
+    return dominio not in dominios_proibidos
 
-# Configuração do Painel Administrativo Protegido
 class GerenciarTreinadoresView(BaseView):
     def is_accessible(self):
         return session.get('treinador_email') == EMAIL_ADMIN_MESTRE
@@ -134,6 +145,9 @@ admin.add_view(GerenciarTreinadoresView(name='Gerenciar Treinadores', endpoint='
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if 'treinador_id' in session:
+        return redirect(url_for('dashboard'))
+
     sucesso = request.args.get('sucesso')
     erro = None
 
@@ -147,6 +161,7 @@ def login():
 
             if treinador and bcrypt.check_password_hash(treinador['senha'], senha):
                 if treinador['ativo'] == 1:
+                    session.permanent = True
                     session['treinador_id'] = treinador['id']
                     session['treinador_nome'] = treinador['nome']
                     session['treinador_email'] = treinador['email']
@@ -161,6 +176,11 @@ def login():
             conn.close()
 
     return render_template('login.html', erro=erro, sucesso=sucesso)
+
+@app.route('/turma_invalida')
+@app.route('/turma_invalida/<path:subpath>')
+def turma_invalida(subpath=None):
+    return render_template('turma_invalida.html')
 
 @app.route('/cadastro_treinador', methods=['GET', 'POST'])
 def cadastro_treinador():
@@ -193,26 +213,6 @@ def cadastro_treinador():
                 
     return render_template('cadastro_treinador.html', erro=erro)
 
-@app.route('/verificar_email_aviso')
-def verificar_email_aviso():
-    return render_template('verificar_email.html')
-
-@app.route('/ativar/<token>')
-def ativar_conta(token):
-    try:
-        email = s.loads(token, salt='email-confirmacao', max_age=3600)
-    except:
-        return 'O link de ativação é inválido ou já expirou.', 400
-    
-    conn = get_db_connection()
-    try:
-        conn.execute('UPDATE treinadores SET ativo = 1 WHERE email = ?', (email,))
-        conn.commit()
-    finally:
-        conn.close()
-    
-    return render_template('conta_ativada.html')
-
 @app.route('/esqueci_senha', methods=['GET', 'POST'])
 def esqueci_senha():
     erro = None
@@ -237,14 +237,13 @@ def esqueci_senha():
                     "html": f"""
                         <h2>Olá, {treinador['nome']}!</h2>
                         <p>Para redefinir sua senha no Nakduray Presence, clique no link abaixo:</p>
-                        <p><a href="{link}" style="background-color: #E50914; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Redefinir Senha</a></p>
+                        <p><a href="{link}" style="background-color: #dc2626; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Redefinir Senha</a></p>
                         <br>
                         <p><small>Este link expira em 15 minutos.</small></p>
                     """
                 })
                 sucesso = 'Um link de recuperação foi enviado para o seu e-mail!'
             except Exception as e:
-                print(f"Erro ao enviar e-mail: {e}")
                 erro = 'Ocorreu um erro ao enviar o e-mail de recuperação.'
         else:
             erro = 'E-mail não encontrado em nossa base de dados.'
@@ -286,7 +285,6 @@ def apagar_conta():
     conn = get_db_connection()
     try:
         turmas_treinador = conn.execute('SELECT id FROM turmas WHERE treinador_id = ?', (treinador_id,)).fetchall()
-        
         for turma in turmas_treinador:
             conn.execute('DELETE FROM alunos_turma WHERE turma_id = ?', (turma['id'],))
             
@@ -308,24 +306,39 @@ def dashboard():
     
     conn = get_db_connection()
     try:
-        turmas_db = conn.execute('SELECT * FROM turmas WHERE treinador_id = ?', (treinador_id,)).fetchall()
+        turmas_db = conn.execute('SELECT * FROM turmas WHERE treinador_id = ? ORDER BY id DESC', (treinador_id,)).fetchall()
         aulas_hoje = []
         
         total_confirmados_geral = 0
+        agora = datetime.now()
+
         for turma in turmas_db:
             confirmados = conn.execute('SELECT COUNT(*) FROM alunos_turma WHERE turma_id = ?', (turma['id'],)).fetchone()[0]
             total_confirmados_geral += confirmados
-            vagas_restantes = turma['vagas_totais'] - confirmados
-            ocupacao_pct = (confirmados / turma['vagas_totais']) * 100 if turma['vagas_totais'] > 0 else 0
+            
+            vagas_restantes = max(0, turma['vagas_totais'] - confirmados)
+            ocupacao_bruta = (confirmados / turma['vagas_totais']) * 100 if turma['vagas_totais'] > 0 else 0
+            ocupacao_pct = min(100, int(ocupacao_bruta))
+            
+            expirada = False
+            if turma['criado_em']:
+                criado_em_dt = datetime.strptime(str(turma['criado_em']).split('.')[0], '%Y-%m-%d %H:%M:%S')
+                expirada = (agora - criado_em_dt) > timedelta(minutes=turma['tempo_limite_minutos'])
+
             aulas_hoje.append({
-                "id": turma['id'], "nome_turma": turma['nome'], "horario": turma['horario'],
-                "confirmados": confirmados, "vagas": vagas_restantes, "ocupacao_pct": int(ocupacao_pct), "professor": turma['professor']
+                "id": turma['id'], 
+                "nome_turma": turma['nome'], 
+                "horario": turma['horario'],
+                "confirmados": confirmados, 
+                "vagas": vagas_restantes, 
+                "ocupacao_pct": ocupacao_pct, 
+                "professor": turma['professor'],
+                "expirada": expirada
             })
         
         total_alunos = conn.execute('SELECT COUNT(*) FROM alunos').fetchone()[0]
         presencas_hoje = total_confirmados_geral
         
-        # CORREÇÃO: Se não houver nenhuma aula cadastrada, o contador de ausentes reseta para 0
         if len(aulas_hoje) == 0:
             ausentes_hoje = 0
         else:
@@ -358,8 +371,12 @@ def criar_aula():
             treinador_atual = conn.execute('SELECT nome FROM treinadores WHERE id = ?', (treinador_id,)).fetchone()
             professor_responsavel = treinador_atual['nome'] if treinador_atual else session.get('treinador_nome')
             
-            conn.execute('INSERT INTO turmas (nome, horario, professor, vagas_totais, treinador_id) VALUES (?, ?, ?, ?, ?)', 
-                         (request.form['nome'], request.form['horario'], professor_responsavel, request.form['vagas'], treinador_id))
+            tempo_limite = int(request.form.get('tempo_limite', 60))
+            
+            conn.execute('''
+                INSERT INTO turmas (nome, horario, professor, vagas_totais, treinador_id, criado_em, tempo_limite_minutos) 
+                VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)
+            ''', (request.form['nome'], request.form['horario'], professor_responsavel, request.form['vagas'], treinador_id, tempo_limite))
             conn.commit()
         finally:
             conn.close()
@@ -383,6 +400,8 @@ def excluir_aula(id):
 
 @app.route('/registrar_punicao', methods=['GET', 'POST'])
 def registrar_punicao():
+    if 'treinador_id' not in session: return redirect(url_for('login'))
+    
     if request.method == 'POST':
         aluno_id = request.form['aluno_id']
         tipo_punicao = request.form['tipo_punicao'] 
@@ -402,7 +421,7 @@ def registrar_punicao():
     
     conn = get_db_connection()
     try:
-        alunos = conn.execute("SELECT * FROM alunos").fetchall()
+        alunos = conn.execute("SELECT * FROM alunos ORDER BY nome_completo ASC").fetchall()
     finally:
         conn.close()
     
@@ -428,8 +447,7 @@ def gerenciar_alunos():
         nome_aluno = request.form['nome'].strip()
         conn = get_db_connection()
         try:
-            aluno_existente = conn.execute('SELECT * FROM alunos WHERE nome_completo = ?', (nome_aluno,)).fetchone()
-            
+            aluno_existente = conn.execute('SELECT * FROM alunos WHERE LOWER(nome_completo) = LOWER(?)', (nome_aluno,)).fetchone()
             if aluno_existente:
                 erro = f'Já existe um atleta cadastrado com o nome "{nome_aluno}".'
             else:
@@ -447,6 +465,32 @@ def gerenciar_alunos():
         
     return render_template('alunos.html', alunos=alunos, erro=erro)
 
+@app.route('/alunos/importar_lote', methods=['POST'])
+def importar_alunos_lote():
+    if 'treinador_id' not in session: return redirect(url_for('login'))
+    
+    raw_text = request.form.get('lista_nomes', '')
+    nomes = [n.strip() for n in re.split(r'[\n,;]+', raw_text) if n.strip()]
+    
+    adicionados = 0
+    duplicados = 0
+    
+    conn = get_db_connection()
+    try:
+        for nome in nomes:
+            existente = conn.execute('SELECT id FROM alunos WHERE LOWER(nome_completo) = LOWER(?)', (nome,)).fetchone()
+            if not existente:
+                conn.execute('INSERT INTO alunos (nome_completo, presencas) VALUES (?, 0)', (nome,))
+                adicionados += 1
+            else:
+                duplicados += 1
+        conn.commit()
+    finally:
+        conn.close()
+        
+    flash(f'{adicionados} atleta(s) adicionado(s) com sucesso. {duplicados} ignorado(s) por duplicidade.', 'sucesso')
+    return redirect(url_for('gerenciar_alunos'))
+
 @app.route('/excluir_aluno/<int:id>')
 def excluir_aluno(id):
     if 'treinador_id' not in session: return redirect(url_for('login'))
@@ -463,7 +507,7 @@ def ranking():
     if 'treinador_id' not in session: return redirect(url_for('login'))
     conn = get_db_connection()
     try:
-        ranking_db = conn.execute('SELECT * FROM alunos ORDER BY presencas DESC').fetchall()
+        ranking_db = conn.execute('SELECT * FROM alunos ORDER BY presencas DESC, nome_completo ASC').fetchall()
     finally:
         conn.close()
     return render_template('ranking.html', ranking=ranking_db)
@@ -498,7 +542,7 @@ def gerenciar(id):
         turma = conn.execute('SELECT * FROM turmas WHERE id = ?', (id,)).fetchone()
         if not turma:
             return redirect(url_for('dashboard'))
-        alunos = conn.execute('SELECT a.id, a.nome_completo FROM alunos a JOIN alunos_turma at ON a.id = at.aluno_id WHERE at.turma_id = ?', (id,)).fetchall()
+        alunos = conn.execute('SELECT a.id, a.nome_completo FROM alunos a JOIN alunos_turma at ON a.id = at.aluno_id WHERE at.turma_id = ? ORDER BY a.nome_completo ASC', (id,)).fetchall()
     finally:
         conn.close()
         
@@ -511,9 +555,39 @@ def aluno_turma(id):
         turma = conn.execute('SELECT * FROM turmas WHERE id = ?', (id,)).fetchone()
         
         if not turma:
-            return render_template('turma_invalida.html'), 404
+            conn.close()
+            return redirect(url_for('turma_invalida'))
             
+        expirada = False
+        if turma['criado_em']:
+            criado_em_dt = datetime.strptime(str(turma['criado_em']).split('.')[0], '%Y-%m-%d %H:%M:%S')
+            if (datetime.now() - criado_em_dt) > timedelta(minutes=turma['tempo_limite_minutos']):
+                expirada = True
+
+        is_treinador = 'treinador_id' in session
+
+        # Autoexclusão automática: Se expirou e ninguém é o treinador acessando o painel de gerenciamento, a turma é deletada direto do banco!
+        if expirada and not is_treinador:
+            conn.execute('DELETE FROM alunos_turma WHERE turma_id = ?', (id,))
+            conn.execute('DELETE FROM turmas WHERE id = ?', (id,))
+            conn.commit()
+            conn.close()
+            return redirect(url_for('turma_invalida'))
+
         if request.method == 'POST':
+            if expirada and not is_treinador:
+                conn.execute('DELETE FROM alunos_turma WHERE turma_id = ?', (id,))
+                conn.execute('DELETE FROM turmas WHERE id = ?', (id,))
+                conn.commit()
+                conn.close()
+                return redirect(url_for('turma_invalida'))
+
+            confirmados_atual = conn.execute('SELECT COUNT(*) FROM alunos_turma WHERE turma_id = ?', (id,)).fetchone()[0]
+            if confirmados_atual >= turma['vagas_totais']:
+                flash('Esta turma já atingiu o limite máximo de vagas!', 'erro')
+                conn.close()
+                return redirect(url_for('aluno_turma', id=id))
+
             aluno_id = request.form.get('aluno_id')
             if aluno_id:
                 ja_confirmado = conn.execute('SELECT * FROM alunos_turma WHERE aluno_id = ? AND turma_id = ?', (aluno_id, id)).fetchone()
@@ -521,24 +595,32 @@ def aluno_turma(id):
                     conn.execute('INSERT INTO alunos_turma (aluno_id, turma_id) VALUES (?, ?)', (aluno_id, id))
                     conn.execute('UPDATE alunos SET presencas = presencas + 1 WHERE id = ?', (aluno_id,))
                     conn.commit()
+            conn.close()
             return redirect(url_for('aluno_turma', id=id))
             
-        todos_alunos = conn.execute('SELECT * FROM alunos ORDER BY nome_completo ASC').fetchall()
-        alunos_confirmados = conn.execute('SELECT a.id, a.nome_completo FROM alunos a JOIN alunos_turma at ON a.id = at.aluno_id WHERE at.turma_id = ?', (id,)).fetchall()
+        todos_alunos = conn.execute('SELECT * FROM alunos WHERE id NOT IN (SELECT aluno_id FROM alunos_turma WHERE turma_id = ?) ORDER BY nome_completo ASC', (id,)).fetchall()
+        alunos_confirmados = conn.execute('SELECT a.id, a.nome_completo FROM alunos a JOIN alunos_turma at ON a.id = at.aluno_id WHERE at.turma_id = ? ORDER BY a.nome_completo ASC', (id,)).fetchall()
     finally:
-        conn.close()
+        if 'conn' in locals() and conn:
+            conn.close()
         
-    return render_template('aluno_turma.html', turma=turma, todos_alunos=todos_alunos, alunos_confirmados=alunos_confirmados)
+    return render_template('aluno_turma.html', turma=turma, todos_alunos=todos_alunos, alunos_confirmados=alunos_confirmados, expirada=expirada, is_treinador=is_treinador)
 
-@app.route('/remover_checkin/<int:aula_id>/<int:aluno_id>')
+@app.route('/remover_checkin/<int:aula_id>/<int:aluno_id>', methods=['POST', 'GET'])
 def remover_checkin(aula_id, aluno_id):
     conn = get_db_connection()
     try:
-        conn.execute('DELETE FROM alunos_turma WHERE turma_id = ? AND aluno_id = ?', (aula_id, aluno_id))
-        conn.execute('UPDATE alunos SET presencas = MAX(0, presencas - 1) WHERE id = ?', (aluno_id,))
-        conn.commit()
+        checkin_existente = conn.execute('SELECT * FROM alunos_turma WHERE turma_id = ? AND aluno_id = ?', (aula_id, aluno_id)).fetchone()
+        if checkin_existente:
+            conn.execute('DELETE FROM alunos_turma WHERE turma_id = ? AND aluno_id = ?', (aula_id, aluno_id))
+            conn.execute('UPDATE alunos SET presencas = MAX(0, presencas - 1) WHERE id = ?', (aluno_id,))
+            conn.commit()
     finally:
         conn.close()
+
+    referrer = request.referrer
+    if referrer and '/gerenciar/' in referrer:
+        return redirect(url_for('gerenciar', id=aula_id))
     return redirect(url_for('aluno_turma', id=aula_id))
 
 if __name__ == '__main__':

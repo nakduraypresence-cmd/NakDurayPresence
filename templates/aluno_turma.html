@@ -4,29 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ turma.nome }} - Nakduray Presence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        h1, h2, h3, h4, h5, span, p, strong, a, div, label, button, select { 
-            font-family: 'Inter', sans-serif !important; 
-        }
-
-        * {
-            -webkit-tap-highlight-color: transparent;
-            box-sizing: border-box;
-        }
-
-        a, button, .turma-card, .aluno-card, .success-box {
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
         :root {
             --bg-dark: #0a0a0a;
             --card-bg: rgba(18, 18, 21, 0.95);
             --input-bg: #121215;
             --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.18);
             --text-main: #ffffff;
             --text-muted: #a1a1aa;
             --primary: #dc2626;
@@ -35,292 +23,237 @@
             --success: #10b981;
         }
 
-        body { 
-            background: var(--bg-dark); 
-            color: var(--text-main); 
-            margin: 0; 
-            padding: 20px; 
-            display: flex; 
-            justify-content: center; 
-            min-height: 100vh; 
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        .wrapper { 
-            max-width: 420px; 
-            width: 100%; 
-            margin: 0 auto; 
-            padding-bottom: 40px; 
-        }
-        
-        .turma-card { 
-            background: var(--card-bg); 
-            padding: 24px; 
-            border-radius: 20px; 
-            border: 1px solid var(--border-color); 
-            margin-bottom: 24px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6); 
-        }
-
-        h2 { 
-            margin: 0 0 16px 0; 
-            font-size: 1.25rem; 
-            font-weight: 800; 
-            color: #ffffff; 
-            letter-spacing: -0.02em;
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-        }
-
-        .info-list { 
-            color: var(--text-muted); 
-            font-size: 0.9rem; 
-            margin-bottom: 24px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 10px; 
-        }
-
-        .info-list span { 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            font-weight: 500;
-        }
-
-        .info-list i { 
-            color: var(--accent-gold); 
-            font-size: 1.1rem; 
-        }
-
-        .select-wrapper { 
-            position: relative; 
-            margin-bottom: 16px; 
-        }
-
-        .input-field { 
-            width: 100%; 
-            padding: 14px 16px; 
-            border-radius: 12px; 
-            border: 1px solid var(--border-color); 
-            background: var(--input-bg); 
-            color: #f4f4f5; 
-            font-size: 0.95rem; 
-            outline: none; 
-            appearance: none;
-            transition: all 0.2s;
-        }
-
-        .input-field option {
-            background: #121215;
-            color: white;
-        }
-
-        .input-field:focus { 
-            border-color: var(--accent-gold); 
-            box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.15); 
-            outline: none;
-        }
-
-        .select-wrapper::after {
-            content: "\e93a";
-            font-family: "Phosphor";
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            pointer-events: none;
-            font-size: 1.1rem;
-        }
-
-        .btn-checkin { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            width: 100%; 
-            padding: 14px; 
-            border-radius: 12px; 
-            font-weight: 800; 
-            cursor: pointer; 
-            font-size: 0.95rem; 
-            transition: all 0.2s;
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
             display: flex;
-            align-items: center;
             justify-content: center;
-            gap: 8px;
-            outline: none;
+            min-height: 100vh;
         }
 
-        .btn-checkin:hover { 
-            background: var(--primary-hover); 
-            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+        .wrapper { max-width: 420px; width: 100%; margin: 0 auto; padding-bottom: 40px; }
+
+        .turma-card {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
         }
 
-        .btn-checkin:active { 
-            transform: scale(0.98); 
+        h1 { margin: 0 0 16px 0; font-size: 1.25rem; font-weight: 800; color: var(--text-main); }
+
+        .info-list { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 24px; display: flex; flex-direction: column; gap: 10px; }
+        .info-list span { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+        .info-list i { color: var(--accent-gold); font-size: 1.15rem; }
+
+        .form-label { display: block; color: var(--text-muted); font-size: 0.88rem; margin-bottom: 10px; font-weight: 500; }
+
+        .select-wrapper { position: relative; margin-bottom: 16px; }
+
+        .input-field {
+            width: 100%; padding: 14px 40px 14px 16px; border-radius: 12px;
+            border: 1px solid var(--border-color); background: var(--input-bg);
+            color: #f4f4f5; font-size: 0.95rem; font-family: inherit; outline: none; appearance: none;
         }
+
+        .select-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
+
+        .btn-checkin {
+            background: var(--primary); color: var(--text-main); border: none; width: 100%; padding: 14px;
+            border-radius: 12px; font-weight: 800; font-family: inherit; cursor: pointer; font-size: 0.95rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        .btn-checkin:hover { background: var(--primary-hover); }
 
         .success-box {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.25);
-            padding: 24px 20px;
-            border-radius: 14px;
-            text-align: center;
+            background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 20px; border-radius: 14px; text-align: center; margin-bottom: 16px;
         }
 
-        .success-box i { 
-            font-size: 2.5rem; 
-            color: var(--success); 
-            margin-bottom: 8px; 
-            display: block; 
+        .success-box i { font-size: 2.2rem; color: var(--success); margin-bottom: 6px; }
+        .success-box h2 { color: var(--success); font-size: 1.05rem; margin: 0 0 4px 0; font-weight: 800; }
+        .success-box p { color: var(--text-muted); font-size: 0.85rem; margin: 0 0 12px 0; }
+
+        .btn-cancelar-meu-checkin {
+            background: transparent; border: 1px solid var(--primary); color: var(--primary);
+            padding: 8px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: all 0.2s;
+        }
+        .btn-cancelar-meu-checkin:hover { background: var(--primary); color: #fff; }
+
+        .expired-box {
+            background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.3);
+            padding: 20px; border-radius: 14px; text-align: center; color: var(--primary-hover);
         }
 
-        .success-box h3 { 
-            color: var(--success); 
-            font-size: 1.1rem; 
-            margin: 0 0 6px 0; 
-            font-weight: 800; 
+        .section-header {
+            font-size: 1.1rem; font-weight: 800; color: var(--text-main); margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: space-between;
         }
 
-        .success-box p { 
-            color: var(--text-muted); 
-            font-size: 0.88rem; 
-            margin: 0; 
-            line-height: 1.4;
+        .badge-count { background: rgba(234, 179, 8, 0.15); color: var(--accent-gold); font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; font-weight: 700; }
+
+        .aluno-card {
+            background: var(--input-bg); padding: 14px 16px; border-radius: 12px; display: flex;
+            align-items: center; justify-content: space-linejoin; margin-bottom: 8px; border: 1px solid var(--border-color);
         }
 
-        .section-title { 
-            font-size: 1.1rem; 
-            font-weight: 800; 
-            color: #ffffff; 
-            margin-bottom: 12px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            letter-spacing: -0.01em;
-        }
+        .aluno-info { display: flex; align-items: center; gap: 12px; }
+        .aluno-card i.check { color: var(--success); font-size: 1.2rem; }
+        .aluno-nome { font-weight: 600; color: #f4f4f5; font-size: 0.92rem; }
 
-        .badge-count {
-            background: rgba(234, 179, 8, 0.15); 
-            color: var(--accent-gold); 
-            font-size: 0.8rem; 
-            padding: 4px 10px; 
-            border-radius: 20px;
-            font-weight: 700;
+        .btn-remover-linha {
+            background: transparent; border: none; color: var(--primary); cursor: pointer; padding: 4px; display: flex; align-items: center; text-decoration: none;
         }
-
-        .aluno-card { 
-            background: var(--input-bg); 
-            padding: 14px 16px; 
-            border-radius: 12px; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px;
-            margin-bottom: 8px; 
-            border: 1px solid var(--border-color); 
-            transition: border-color 0.2s;
-        }
-
-        .aluno-card:hover {
-            border-color: rgba(255, 255, 255, 0.15);
-        }
-
-        .aluno-card i { 
-            color: var(--success); 
-            font-size: 1.2rem; 
-        }
-
-        .aluno-nome { 
-            font-weight: 600; 
-            color: #f4f4f5; 
-            font-size: 0.92rem; 
-        }
-
-        .empty-text {
-            color: var(--text-muted); 
-            font-size: 0.9rem; 
-            text-align: center; 
-            background: var(--input-bg);
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            margin: 0;
-        }
+        .btn-remover-linha:hover { opacity: 0.8; }
     </style>
 </head>
 <body>
 
-    <div class="wrapper">
-        <div class="turma-card">
-            <h2>{{ turma.nome }}</h2>
+    <main class="wrapper">
+        <section class="turma-card">
+            <h1>{{ turma.nome }}</h1>
+            
             <div class="info-list">
                 <span><i class="ph ph-clock"></i> Horário: {{ turma.horario }}</span>
                 <span><i class="ph ph-user-circle"></i> Professor: {{ turma.professor }}</span>
-                {% if turma.vagas_totais %}
+                <span><i class="ph ph-timer"></i> Validade da chamada: {{ turma.tempo_limite_minutos }} min</span>
                 <span><i class="ph ph-users"></i> Vagas Totais: {{ turma.vagas_totais }}</span>
-                {% endif %}
             </div>
 
-            <!-- Formulário de Check-in -->
-            <div id="checkin-container">
-                <p style="color: var(--text-muted); font-size: 0.88rem; margin: 0 0 10px 0; font-weight: 500;">Selecione seu nome para confirmar:</p>
-                <form method="POST" onsubmit="salvarCheckin()">
-                    <div class="select-wrapper">
-                        <select name="aluno_id" class="input-field" required>
-                            <option value="" disabled selected>-- Escolha seu nome --</option>
-                            {% for aluno in todos_alunos %}
-                                <option value="{{ aluno.id }}">{{ aluno.nome_completo }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-checkin">
-                        <i class="ph ph-check-circle" style="font-size: 1.2rem;"></i> Confirmar Presença
-                    </button>
-                </form>
-            </div>
-
-            <!-- Caixa de aviso exibida caso o aparelho já tenha feito o check-in -->
+            {% if expirada %}
+                <div class="expired-box">
+                    <i class="ph ph-lock-key" style="font-size: 2rem;"></i>
+                    <h3 style="margin: 8px 0 4px 0;">Chamada Encerrada</h3>
+                    <p style="font-size: 0.85rem; margin: 0;">O tempo limite desta aula expirou.</p>
+                </div>
+            <!-- Caixa de sucesso prioritária caso o usuário já tenha marcado neste aparelho -->
             <div id="success-confirmed" style="display: none;" class="success-box">
                 <i class="ph ph-check-fat"></i>
-                <h3>Presença Registrada!</h3>
-                <p>Este dispositivo já confirmou presença nesta aula. Bom treino!</p>
+                <h2>Presença Registrada!</h2>
+                <p>Este dispositivo já confirmou presença nesta aula.</p>
+                <a id="link-cancelar" href="#" class="btn-cancelar-meu-checkin">
+                    <i class="ph ph-trash"></i> Desfazer Minha Presença
+                </a>
             </div>
-        </div>
+            {% elif alunos_confirmados|length >= turma.vagas_totais %}
+                <!-- Exibe caixa de sucesso se o usuário já estiver confirmado mesmo com as vagas esgotadas -->
+                <div id="success-confirmed" style="display: none;" class="success-box">
+                    <i class="ph ph-check-fat"></i>
+                    <h2>Presença Registrada!</h2>
+                    <p>Este dispositivo já confirmou presença nesta aula.</p>
+                    <a id="link-cancelar" href="#" class="btn-cancelar-meu-checkin">
+                        <i class="ph ph-trash"></i> Desfazer Minha Presença
+                    </a>
+                </div>
+                <!-- Caso contrário, exibe o aviso de vagas esgotadas -->
+                <div id="vagas-esgotadas-box" class="expired-box">
+                    <i class="ph ph-prohibit" style="font-size: 2rem;"></i>
+                    <h3 style="margin: 8px 0 4px 0;">Vagas Esgotadas</h3>
+                    <p style="font-size: 0.85rem; margin: 0;">Não há mais vagas disponíveis para esta aula.</p>
+                </div>
+            {% else %}
+                <div id="checkin-container">
+                    <form method="POST" onsubmit="salvarCheckin()">
+                        <label for="aluno_id" class="form-label">Selecione seu nome para confirmar:</label>
+                        <div class="select-wrapper">
+                            <select id="aluno_id" name="aluno_id" class="input-field" required>
+                                <option value="" disabled selected>-- Escolha seu nome --</option>
+                                {% for aluno in todos_alunos %}
+                                    <option value="{{ aluno.id }}">{{ aluno.nome_completo }}</option>
+                                {% endfor %}
+                            </select>
+                            <i class="ph ph-caret-down select-icon"></i>
+                        </div>
+                        <button type="submit" class="btn-checkin">
+                            <i class="ph ph-check-circle" style="font-size: 1.2rem;"></i>
+                            Confirmar Presença
+                        </button>
+                    </form>
+                </div>
 
-        <!-- Lista de Alunos já Confirmados -->
-        <div class="section-title">
-            <span>Alunos Confirmados</span>
-            <span class="badge-count">{{ alunos_confirmados|length if alunos_confirmados else 0 }}</span>
-        </div>
+                <div id="success-confirmed" style="display: none;" class="success-box">
+                    <i class="ph ph-check-fat"></i>
+                    <h2>Presença Registrada!</h2>
+                    <p>Este dispositivo já confirmou presença nesta aula.</p>
+                    <a id="link-cancelar" href="#" class="btn-cancelar-meu-checkin">
+                        <i class="ph ph-trash"></i> Desfazer Minha Presença
+                    </a>
+                </div>
+            {% endif %}
+        </section>
 
-        {% if alunos_confirmados %}
+        <section>
+            <div class="section-header">
+                <h2>Alunos Confirmados</h2>
+                <span class="badge-count">{{ alunos_confirmados|length }}</span>
+            </div>
+
             <div>
                 {% for aluno in alunos_confirmados %}
-                <div class="aluno-card">
-                    <i class="ph ph-check-circle"></i>
-                    <span class="aluno-nome">{{ aluno.nome_completo }}</span>
+                <div class="aluno-card" id="aluno-card-{{ aluno.id }}">
+                    <div class="aluno-info">
+                        <i class="ph ph-check-circle check"></i>
+                        <span class="aluno-nome">{{ aluno.nome_completo }}</span>
+                    </div>
+                    {% if is_treinador %}
+                    <a href="{{ url_for('remover_checkin', aula_id=turma.id, aluno_id=aluno.id) }}" class="btn-remover-linha" title="Remover aluno">
+                        <i class="ph ph-trash" style="font-size: 1.1rem;"></i>
+                    </a>
+                    {% endif %}
                 </div>
+                {% else %}
+                <p style="color: var(--text-muted); text-align: center; font-size: 0.9rem;">Nenhum aluno confirmado ainda.</p>
                 {% endfor %}
             </div>
-        {% else %}
-            <p class="empty-text">Nenhum aluno confirmado ainda.</p>
-        {% endif %}
-    </div>
+        </section>
+    </main>
 
     <script>
-        const turmaKey = "checkin_feito_{{ turma.id }}";
+        const turmaId = "{{ turma.id }}";
 
-        if (localStorage.getItem(turmaKey) === "true") {
-            document.getElementById("checkin-container").style.display = "none";
-            document.getElementById("success-confirmed").style.display = "block";
-        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const meuAlunoId = localStorage.getItem(`checkin_aluno_${turmaId}`);
+            
+            if (meuAlunoId) {
+                const container = document.getElementById("checkin-container");
+                const vagasEsgotadasBox = document.getElementById("vagas-esgotadas-box");
+                const successBox = document.getElementById("success-confirmed");
+                
+                if (container) container.style.display = "none";
+                if (vagasEsgotadasBox) vagasEsgotadasBox.style.display = "none";
+                
+                if (successBox) {
+                    successBox.style.display = "block";
+                    const link = document.getElementById("link-cancelar");
+                    link.href = `/remover_checkin/${turmaId}/${meuAlunoId}`;
+                    link.onclick = function() {
+                        localStorage.removeItem(`checkin_aluno_${turmaId}`);
+                    };
+                }
+            }
+        });
 
         function salvarCheckin() {
-            localStorage.setItem(turmaKey, "true");
+            const select = document.getElementById("aluno_id");
+            if (select && select.value) {
+                localStorage.setItem(`checkin_aluno_${turmaId}`, select.value);
+            }
         }
-    </script>
 
+         // Atualiza a página automaticamente a cada 5 segundos (5000 milissegundos)
+    setTimeout(function() {
+        location.reload();
+    }, 3000);
+    </script>
 </body>
 </html>

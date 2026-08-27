@@ -4,25 +4,21 @@
 
 {% block conteudo %}
     <style>
-
         * {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-}
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
 
-/* Remove o contorno azul feio de foco padrão do navegador em botões e inputs */
-button:focus, input:focus, select:focus, a:focus, label:focus {
-    outline: none !important;
-}
+        button:focus, input:focus, select:focus, a:focus, label:focus {
+            outline: none !important;
+        }
 
-/* Impede o travamento por toque prolongado e seleção de texto indesejada em elementos interativos */
-button, a, .radio-btn span, input, select {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-}
+        button, a, .radio-btn span, input, select {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
 
-        /* Forçando a fonte limpa e o fundo com o mesmo padrão do login */
         h1, h2, h3, h4, h5, span, p, strong, a, div { font-family: 'Inter', sans-serif !important; }
 
         body { 
@@ -32,12 +28,10 @@ button, a, .radio-btn span, input, select {
                 radial-gradient(at 80% 85%, rgba(234, 179, 8, 0.08) 0px, transparent 40%);
         }
         
-        /* Design System Premium IDêntico ao Login */
         .greeting { color: #a1a1aa; font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
         .user-name { color: #ffffff; font-size: 1.55rem; font-weight: 800; letter-spacing: -0.02em; margin: 4px 0 0 0; }
         .section-title { color: #ffffff; font-size: 1.15rem; font-weight: 700; margin-bottom: 0; }
         
-        /* Botões Estilizados com o Padrão do Sistema */
         .btn-outline { background: transparent; color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.4); padding: 8px 16px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
         .btn-outline:hover { background: rgba(220, 38, 38, 0.15); border-color: #eab308; color: #fff; }
         
@@ -47,7 +41,6 @@ button, a, .radio-btn span, input, select {
         .btn-icon { background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.08); width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s; flex-shrink: 0; }
         .btn-icon:hover { background: rgba(255,255,255,0.1); color: #ffffff; border-color: rgba(234, 179, 8, 0.4); }
 
-        /* Cards com efeito de vidro fosco (Glassmorphism) */
         .class-card, .stat-card, .punicao-card { 
             background: rgba(15, 15, 18, 0.9); 
             backdrop-filter: blur(20px);
@@ -69,7 +62,7 @@ button, a, .radio-btn span, input, select {
         .progress-fill { background: linear-gradient(90deg, #dc2626, #eab308); height: 100%; border-radius: 10px; }
     </style>
 
-    <!-- HEADER DINÂMICO COM LOGO ESTILIZADA -->
+    <!-- HEADER DINÂMICO -->
     <header class="header" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
         <div class="user-info">
             <span class="greeting">BEM-VINDO, MESTRE</span>
@@ -146,8 +139,16 @@ button, a, .radio-btn span, input, select {
                     <div class="progress-fill" style="width: {{ aula.ocupacao_pct }}%;"></div>
                 </div>
                 
-                <div class="class-footer" style="color: #a1a1aa; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
-                    <i class="ph ph-user"></i> {{ aula.professor }}
+                <div class="class-footer" style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                    <div style="color: #a1a1aa; display: flex; align-items: center; gap: 6px;">
+                        <i class="ph ph-user"></i> {{ aula.professor }}
+                    </div>
+                    
+                    <!-- Timer alterado: baseia-se apenas no ID e na Duração -->
+                    <div class="class-timer" data-id="{{ aula.id }}" data-duracao="{{ aula.duracao | default('1h30') }}" style="display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; transition: 0.3s;">
+    <i class="ph ph-timer" style="font-size: 0.9rem;"></i>
+    <span class="tempo-restante">Iniciando...</span>
+</div>
                 </div>
             </div>
             {% endfor %}
@@ -200,10 +201,82 @@ button, a, .radio-btn span, input, select {
         {% endif %}
     </section>
 
-    <!-- SCRIPT DE ATUALIZAÇÃO AUTOMÁTICA -->
+    <!-- SCRIPT CORRIGIDO: CONTADOR INDEPENDENTE DE HORÁRIO -->
     <script>
-        setTimeout(function(){
-            location.reload();
-        }, 15000);
-    </script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const timers = document.querySelectorAll('.class-timer');
+
+        timers.forEach(timerEl => {
+            const aulaId = timerEl.getAttribute('data-id');
+            // Captura o botão "Gerenciar" específico deste card para alterá-lo no fim do tempo
+            const cardEl = timerEl.closest('.class-card');
+            const btnGerenciar = cardEl.querySelector('.btn-outline'); 
+            const spanDisplay = timerEl.querySelector('.tempo-restante');
+            const icone = timerEl.querySelector('i');
+
+            if (!aulaId) return;
+
+            // Duração travada em exatos 60 minutos (1 hora)
+            const duracaoMinutos = 60; 
+
+            // Memória do navegador (evita zerar ao atualizar a página)
+            const storageKey = 'timer_aula_' + aulaId;
+            let startTime = localStorage.getItem(storageKey);
+
+            if (!startTime) {
+                startTime = new Date().getTime();
+                localStorage.setItem(storageKey, startTime);
+            } else {
+                startTime = parseInt(startTime);
+            }
+
+            function atualizarContador() {
+                const agora = new Date().getTime();
+                const tempoFinal = startTime + (duracaoMinutos * 60000);
+                const diffSegundos = Math.floor((tempoFinal - agora) / 1000);
+
+                if (diffSegundos > 0) {
+                    let minutos = Math.floor((diffSegundos % 3600) / 60);
+                    let segundos = diffSegundos % 60;
+
+                    // Exibição em formato MM:SS
+                    let mStr = minutos < 10 ? "0" + minutos : minutos;
+                    let sStr = segundos < 10 ? "0" + segundos : segundos;
+                    
+                    spanDisplay.textContent = `Fecha em ${mStr}:${sStr}`;
+                    
+                    timerEl.style.background = "rgba(220, 38, 38, 0.15)";
+                    timerEl.style.borderColor = "rgba(220, 38, 38, 0.3)";
+                    timerEl.style.color = "#fca5a5";
+                    icone.className = "ph ph-timer";
+                } else {
+                    // ESTADO: TEMPO ESGOTADO
+                    spanDisplay.textContent = "Aula Encerrada";
+                    timerEl.style.background = "rgba(255, 255, 255, 0.05)";
+                    timerEl.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                    timerEl.style.color = "#a1a1aa";
+                    icone.className = "ph ph-lock-key";
+                    
+                    // Altera o botão automaticamente e "joga" para a rota de encerrada
+                    if (btnGerenciar) {
+                        btnGerenciar.textContent = "Ver Encerrada";
+                        // Importante: Ajuste a rota abaixo para bater com a sua rota do Python (Flask)
+                        btnGerenciar.href = "/turma_invalida/" + aulaId; 
+                        btnGerenciar.style.borderColor = "rgba(255, 255, 255, 0.2)";
+                        btnGerenciar.style.color = "#a1a1aa";
+                        btnGerenciar.style.background = "rgba(255, 255, 255, 0.05)";
+                    }
+                }
+            }
+
+            atualizarContador();
+            setInterval(atualizarContador, 1000);
+        });
+    });
+
+    // Atualiza a página inteira de forma silenciosa a cada 60s
+    setTimeout(function(){
+        location.reload();
+    }, 30000);
+</script>
 {% endblock %}

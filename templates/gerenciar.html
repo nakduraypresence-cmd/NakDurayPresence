@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gerenciar Aula - Nakduray Presence</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
         /* Padronização absoluta da tipografia Inter e exclusão de serifas */
@@ -40,6 +41,13 @@
             margin: 0 auto; 
         }
 
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
         .voltar { 
             display: inline-flex;
             align-items: center;
@@ -54,13 +62,33 @@
             border-radius: 8px;
             transition: all 0.2s;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            margin-bottom: 24px;
         }
 
         .voltar:hover { 
             background: rgba(255, 255, 255, 0.1);
             color: #ffffff;
             border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-excluir-turma {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #ef4444;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(220, 38, 38, 0.1);
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            border: 1px solid rgba(220, 38, 38, 0.2);
+        }
+
+        .btn-excluir-turma:hover {
+            background: rgba(220, 38, 38, 0.2);
+            border-color: rgba(220, 38, 38, 0.4);
         }
 
         .card { 
@@ -133,10 +161,13 @@
 
         .aluno-item { 
             background: var(--item-bg); 
-            padding: 14px 16px; 
+            padding: 12px 16px; 
             border-radius: 12px; 
             margin-bottom: 8px; 
             border: 1px solid var(--border-color); 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             transition: border-color 0.2s;
         }
 
@@ -144,13 +175,29 @@
             border-color: rgba(255, 255, 255, 0.15);
         }
 
-        .aluno-item span {
+        .aluno-info {
             display: flex; 
             align-items: center; 
             gap: 10px;
             font-weight: 600;
             font-size: 0.92rem;
             color: #f4f4f5;
+        }
+
+        .btn-remover {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .btn-remover:hover {
+            background: rgba(239, 68, 68, 0.1);
         }
 
         .sem-alunos {
@@ -170,7 +217,12 @@
 </head>
 <body>
     <div class="container">
-        <a href="{{ url_for('dashboard') }}" class="voltar"><i class="ph ph-arrow-left"></i> Voltar ao Dashboard</a>
+        <div class="header-top">
+            <a href="{{ url_for('dashboard') }}" class="voltar"><i class="ph ph-arrow-left"></i> Voltar</a>
+            <a href="{{ url_for('excluir_aula', id=turma.id) }}" class="btn-excluir-turma" onclick="return confirm('Deseja realmente excluir esta turma?')">
+                <i class="fa-solid fa-trash"></i> Excluir Turma
+            </a>
+        </div>
 
         <div class="card">
             <h1>{{ turma.nome }}</h1>
@@ -192,10 +244,13 @@
             <div>
                 {% for aluno in alunos %}
                 <div class="aluno-item">
-                    <span>
+                    <div class="aluno-info">
                         <i class="ph ph-user-circle-check" style="color: var(--success); font-size: 1.2rem;"></i>
                         {{ aluno.nome_completo }}
-                    </span>
+                    </div>
+                    <a href="{{ url_for('remover_checkin', aula_id=turma.id, aluno_id=aluno.id) }}" class="btn-remover" title="Remover presença">
+                        <i class="fa-solid fa-trash-can" style="color: #ef4444; font-size: 1rem;"></i>
+                    </a>
                 </div>
                 {% endfor %}
             </div>
@@ -262,6 +317,11 @@
 
             document.body.removeChild(textArea);
         }
+
+        // Atualiza a página automaticamente a cada 5 segundos (5000 milissegundos)
+    setTimeout(function() {
+        location.reload();
+    }, 3000);
     </script>
 </body>
 </html>

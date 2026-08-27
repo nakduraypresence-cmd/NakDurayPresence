@@ -1,186 +1,95 @@
-{% extends "base.html" %}
-
-{% block title %}Gerenciar Atletas - Nakduray Presence{% endblock %}
-
-{% block conteudo %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atletas - Nakduray Presence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        /* Reset de tipografia para garantir a fonte Inter e matar serifas */
-        h1, h2, h3, h4, h5, span, p, strong, a, div, input, button { font-family: 'Inter', sans-serif !important; }
-        
-        .page-title { color: #ffffff; font-size: 1.5rem; font-weight: 800; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px; letter-spacing: -0.02em; }
-        .page-title i { color: #dc2626; }
-
-        .section-subtitle { color: #ffffff; font-size: 1.15rem; font-weight: 700; margin: 0 0 16px 0; display: flex; align-items: center; justify-content: space-between; }
-        .badge-count { background: rgba(220, 38, 38, 0.15); color: #fca5a5; font-size: 0.85rem; padding: 4px 12px; border-radius: 20px; font-weight: 700; border: 1px solid rgba(220, 38, 38, 0.3); }
-
-        /* Estilização do Form */
-        .form-group { margin-bottom: 16px; }
-        .input-wrapper { position: relative; margin-bottom: 16px; display: flex; align-items: center; }
-        .input-icon { position: absolute; left: 16px; color: #71717a; font-size: 1.25rem; pointer-events: none; transition: color 0.2s ease; }
-        
-        .input-field { 
-            width: 100%; 
-            padding: 14px 16px 14px 48px; /* Espaço extra na esquerda para o ícone */
-            border-radius: 12px; 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            background: #121215; 
-            color: #ffffff; 
-            font-size: 0.95rem;
-            outline: none; 
-            transition: all 0.2s ease;
-            box-sizing: border-box;
+        :root {
+            --bg-dark: #0a0a0a; --card-bg: #121215; --border: rgba(255, 255, 255, 0.08);
+            --primary: #dc2626; --text: #ffffff; --text-muted: #a1a1aa;
         }
-        .input-field::placeholder { color: #52525b; }
-        .input-field:focus { 
-            border-color: #eab308; 
-            box-shadow: 0 0 0 4px rgba(234, 179, 8, 0.15);
-            background: #18181b;
-        }
-        .input-wrapper:focus-within .input-icon {
-            color: #eab308;
-        }
-
-        .btn-primary { 
-            background: linear-gradient(135deg, #dc2626, #991b1b); 
-            color: #ffffff; 
-            border: 1px solid rgba(234, 179, 8, 0.3); 
-            width: 100%; 
-            padding: 14px; 
-            border-radius: 12px; 
-            font-weight: 700; 
-            font-size: 0.95rem; 
-            cursor: pointer; 
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 18px rgba(220, 38, 38, 0.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        .btn-primary:hover { 
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            border-color: #eab308;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 22px rgba(220, 38, 38, 0.45);
-        }
-
-        .divider { border: 0; border-top: 1px solid rgba(255, 255, 255, 0.06); margin: 32px 0; }
-
-        /* Lista de Atletas */
-        .aluno-card { 
-            background: rgba(18, 18, 21, 0.9); 
-            padding: 12px 16px; 
-            border-radius: 12px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 10px; 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            transition: transform 0.2s, border-color 0.2s;
-        }
-        .aluno-card:hover {
-            border-color: rgba(234, 179, 8, 0.2);
-        }
-        .aluno-card:active { transform: scale(0.98); }
-        
-        .aluno-nome { font-weight: 600; color: #f4f4f5; font-size: 1rem; display: flex; align-items: center; gap: 12px; }
-        
-        /* Círculo com a inicial do nome estilizado */
-        .aluno-avatar { 
-            width: 38px; 
-            height: 38px; 
-            border-radius: 50%; 
-            background: #18181b; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            color: #eab308; 
-            font-size: 0.9rem; 
-            font-weight: 700; 
-            border: 1px solid rgba(234, 179, 8, 0.3); 
-            flex-shrink: 0;
-        }
-        
-        .btn-delete { 
-            color: #fca5a5; 
-            background: rgba(220, 38, 38, 0.12); 
-            border: 1px solid rgba(220, 38, 38, 0.25); 
-            width: 36px; 
-            height: 36px; 
-            border-radius: 8px; 
-            text-decoration: none; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-        .btn-delete:hover { 
-            background: rgba(220, 38, 38, 0.25); 
-            color: #ffffff;
-            border-color: #dc2626;
-        }
-        
-        /* Estado Vazio Elegante */
-        .empty-state {
-            background: rgba(18, 18, 21, 0.5);
-            border: 1px dashed rgba(255, 255, 255, 0.1);
-            padding: 32px 24px;
-            border-radius: 16px;
-            text-align: center;
-        }
-        .empty-state i { font-size: 2.5rem; color: #eab308; opacity: 0.7; margin-bottom: 12px; display: block; }
-        .empty-state p { color: #a1a1aa; font-size: 0.95rem; margin: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text); padding: 20px; margin: 0; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .header a { color: var(--text); text-decoration: none; font-size: 1.2rem; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 16px; margin-bottom: 20px; }
+        input, textarea { width: 100%; padding: 12px; background: #0a0a0a; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-family: inherit; box-sizing: border-box; margin-bottom: 12px; }
+        button { background: var(--primary); color: #fff; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; }
+        .item-aluno { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); }
+        .item-aluno a { color: var(--primary); }
+        .alert { background: rgba(220, 38, 38, 0.1); border: 1px solid var(--primary); padding: 12px; border-radius: 10px; color: #ef4444; margin-bottom: 12px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 16px; }
+        .tab-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 8px; cursor: pointer; flex: 1; }
+        .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
     </style>
-
-    <div style="padding-bottom: 40px;">
-        <h2 class="page-title">
-            <i class="ph ph-users-three"></i> 
-            Cadastro de Atletas
-        </h2>
-        
-        <!-- Formulário para adicionar aluno -->
-        <form method="POST" class="form-group">
-            <div class="input-wrapper">
-                <i class="ph ph-user input-icon"></i>
-                <input type="text" name="nome" class="input-field" placeholder="Nome completo do atleta" required autocomplete="off">
-            </div>
-            <button type="submit" class="btn-primary">
-                <i class="ph ph-plus-circle" style="font-size: 1.2rem;"></i> 
-                <span>Cadastrar Atleta</span>
-            </button>
-        </form>
-
-        <hr class="divider">
-
-        <div class="section-subtitle">
-            <span>Atletas Cadastrados</span>
-            <span class="badge-count">{{ alunos|length }}</span>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="{{ url_for('dashboard') }}"><i class="ph ph-arrow-left"></i> Voltar</a>
+            <h2>Gestão de Atletas</h2>
         </div>
-        
-        {% if alunos %}
-            <!-- Sem max-height fixo para garantir rolagem natural e sem travamentos no celular -->
-            <div>
-                {% for aluno in alunos %}
-                <div class="aluno-card">
-                    <div class="aluno-nome">
-                        <div class="aluno-avatar">
-                            <!-- Pega a primeira letra do nome do aluno -->
-                            {{ aluno.nome_completo[0]|upper }}
-                        </div>
-                        {{ aluno.nome_completo }}
-                    </div>
-                    <a href="{{ url_for('excluir_aluno', id=aluno.id) }}" onclick="return confirm('Deseja realmente remover este atleta da equipe?')" class="btn-delete" title="Excluir Atleta">
-                        <i class="ph ph-trash" style="font-size: 1.1rem;"></i>
-                    </a>
-                </div>
-                {% endfor %}
+
+        {% with messages = get_flashed_messages(category_filter=["sucesso"]) %}
+          {% if messages %}
+            {% for message in messages %}
+              <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #10b981; padding: 12px; border-radius: 10px; margin-bottom: 16px;">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        {% if erro %}<div class="alert">{{ erro }}</div>{% endif %}
+
+        <div class="card">
+            <div class="tabs">
+                <button type="button" class="tab-btn active" onclick="mostrarAba('individual')">Individual</button>
+                <button type="button" class="tab-btn" onclick="mostrarAba('lote')">Importar em Lote</button>
             </div>
-        {% else %}
-            <div class="empty-state">
-                <i class="ph ph-users-slash"></i>
-                <p>Nenhum atleta cadastrado na equipe ainda. Comece adicionando o primeiro acima!</p>
+
+            <form id="form-individual" method="POST" action="{{ url_for('gerenciar_alunos') }}">
+                <input type="text" name="nome" placeholder="Nome Completo do Atleta" required>
+                <button type="submit">Cadastrar Atleta</button>
+            </form>
+
+            <form id="form-lote" method="POST" action="{{ url_for('importar_alunos_lote') }}" style="display: none;">
+                <textarea name="lista_nomes" rows="5" placeholder="Cole os nomes dos atletas aqui (um por linha ou separados por vírgula)..." required></textarea>
+                <button type="submit">Importar Todos</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Atletas Cadastrados ({{ alunos|length }})</h3>
+            {% for aluno in alunos %}
+            <div class="item-aluno">
+                <span>{{ aluno.nome_completo }}</span>
+                <a href="{{ url_for('excluir_aluno', id=aluno.id) }}" onclick="return confirm('Deseja realmente excluir este atleta?')"><i class="ph ph-trash"></i></a>
             </div>
-        {% endif %}
+            {% else %}
+            <p style="color: var(--text-muted);">Nenhum atleta cadastrado.</p>
+            {% endfor %}
+        </div>
     </div>
-{% endblock %}
+
+    <script>
+        function mostrarAba(aba) {
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            
+            if (aba === 'individual') {
+                btns[0].classList.add('active');
+                document.getElementById('form-individual').style.display = 'block';
+                document.getElementById('form-lote').style.display = 'none';
+            } else {
+                btns[1].classList.add('active');
+                document.getElementById('form-individual').style.display = 'none';
+                document.getElementById('form-lote').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

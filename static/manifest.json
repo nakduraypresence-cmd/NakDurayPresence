@@ -7,7 +7,7 @@
   "theme_color": "#0a0a0a",
   "icons": [
     {
-      "src": "/static/logo.png",
+      "src": "https://nakduraypresence.onrender.com/static/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

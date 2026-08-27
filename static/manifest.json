@@ -7,10 +7,15 @@
   "theme_color": "#0a0a0a",
   "icons": [
     {
-      "src": "/caminho-para-sua-logo.png",
+      "src": "/static/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     }
+  ],
+  "id": "/",
+  "description": "Sistema de controle de presença do NakDuray Presence",
+  "categories": [
+    "sports"
   ]
 }

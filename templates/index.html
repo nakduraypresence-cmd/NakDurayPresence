@@ -256,9 +256,6 @@
                 <a href="{{ url_for('gerenciar', id=aula.id) }}" class="btn-solid" style="flex: 1;">
                     <i class="ph ph-gear-six" style="font-size: 1.2rem;"></i> Gerenciar
                 </a>
-                <a href="{{ url_for('aluno_turma', id=aula.id) }}" class="btn-icon" target="_blank" title="Link do Aluno">
-                    <i class="ph ph-link" style="font-size: 1.2rem;"></i>
-                </a>
                 <a href="{{ url_for('excluir_aula', id=aula.id) }}" class="btn-icon" onclick="return confirm('Deseja realmente excluir esta turma?');" style="border-color: rgba(220,38,38,0.2); color: #fca5a5;" title="Excluir Turma">
                     <i class="ph ph-trash" style="font-size: 1.2rem;"></i>
                 </a>

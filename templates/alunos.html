@@ -1,101 +1,154 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atletas - Nakduray Presence</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- Configurações para PWA e Dispositivos Móveis -->
+{% extends "base.html" %}
+
+{% block title %}Atletas - Nakduray Presence{% endblock %}
+
+{% block conteudo %}
+<!-- Configurações para PWA e Dispositivos Móveis -->
 <link rel="manifest" href="/static/manifest.json">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <style>
-        :root {
-            --bg-dark: #0a0a0a; --card-bg: #121215; --border: rgba(255, 255, 255, 0.08);
-            --primary: #dc2626; --text: #ffffff; --text-muted: #a1a1aa;
-        }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--text); padding: 20px; margin: 0; }
-        .container { max-width: 600px; margin: 0 auto; }
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-        .header a { color: var(--text); text-decoration: none; font-size: 1.2rem; }
-        .card { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; border-radius: 16px; margin-bottom: 20px; }
-        input, textarea { width: 100%; padding: 12px; background: #0a0a0a; border: 1px solid var(--border); border-radius: 10px; color: #fff; font-family: inherit; box-sizing: border-box; margin-bottom: 12px; }
-        button { background: var(--primary); color: #fff; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; }
-        .item-aluno { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); }
-        .item-aluno a { color: var(--primary); }
-        .alert { background: rgba(220, 38, 38, 0.1); border: 1px solid var(--primary); padding: 12px; border-radius: 10px; color: #ef4444; margin-bottom: 12px; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 16px; }
-        .tab-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 16px; border-radius: 8px; cursor: pointer; flex: 1; }
-        .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <a href="{{ url_for('dashboard') }}"><i class="ph ph-arrow-left"></i> Voltar</a>
-            <h2>Gestão de Atletas</h2>
-        </div>
 
-        {% with messages = get_flashed_messages(category_filter=["sucesso"]) %}
-          {% if messages %}
-            {% for message in messages %}
-              <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #10b981; padding: 12px; border-radius: 10px; margin-bottom: 16px;">
-                {{ message }}
-              </div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
+<style>
+    * {
+        -webkit-tap-highlight-color: transparent;
+        -webkit-touch-callout: none;
+    }
 
-        {% if erro %}<div class="alert">{{ erro }}</div>{% endif %}
+    button:focus, input:focus, select:focus, a:focus, label:focus {
+        outline: none !important;
+    }
 
-        <div class="card">
-            <div class="tabs">
-                <button type="button" class="tab-btn active" onclick="mostrarAba('individual')">Individual</button>
-                <button type="button" class="tab-btn" onclick="mostrarAba('lote')">Importar em Lote</button>
-            </div>
+    .card-atletas { 
+        background: rgba(15, 15, 18, 0.9); 
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08); 
+        padding: 20px; 
+        border-radius: 16px; 
+        margin-bottom: 16px; 
+        box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7);
+    }
+    
+    input, textarea { 
+        width: 100%; 
+        padding: 12px; 
+        background: #0a0a0a; 
+        border: 1px solid rgba(255, 255, 255, 0.08); 
+        border-radius: 10px; 
+        color: #fff; 
+        font-family: 'Inter', sans-serif; 
+        box-sizing: border-box; 
+        margin-bottom: 12px; 
+        font-size: 0.9rem;
+    }
+    input:focus, textarea:focus { border-color: rgba(234, 179, 8, 0.5); outline: none; }
+    
+    /* Padrão unificado de botão sólido idêntico ao restante do sistema */
+    .btn-solid { 
+        background: linear-gradient(135deg, #e11d48, #b91c1c); 
+        color: white; 
+        border: 1px solid rgba(255, 255, 255, 0.1); 
+        padding: 12px 20px; 
+        border-radius: 10px; 
+        font-weight: 700; 
+        font-size: 0.9rem; 
+        text-decoration: none; 
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 8px; 
+        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.25); 
+        width: 100%;
+        cursor: pointer;
+        transition: all 0.3s ease; 
+    }
+    .btn-solid:hover { 
+        background: linear-gradient(135deg, #f43f5e, #dc2626); 
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4); 
+        transform: translateY(-2px); 
+    }
 
-            <form id="form-individual" method="POST" action="{{ url_for('gerenciar_alunos') }}">
-                <input type="text" name="nome" placeholder="Nome Completo do Atleta" required>
-                <button type="submit">Cadastrar Atleta</button>
-            </form>
+    .item-aluno { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+    .item-aluno:last-child { border-bottom: none; }
+    .item-aluno span { font-size: 0.9rem; font-weight: 500; color: #fff; }
+    .item-aluno a { color: #fca5a5; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.2); width: 32px; height: 32px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s; }
+    .item-aluno a:hover { background: rgba(220, 38, 38, 0.25); color: #fff; }
+    
+    .alert-box { background: rgba(220, 38, 38, 0.1); border: 1px solid #dc2626; padding: 12px; border-radius: 10px; color: #ef4444; margin-bottom: 12px; font-size: 0.85rem; }
+    
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab-btn { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); color: #a1a1aa; padding: 10px 16px; border-radius: 10px; cursor: pointer; flex: 1; font-weight: 600; font-size: 0.85rem; transition: 0.2s; }
+    .tab-btn.active { background: rgba(220, 38, 38, 0.15); color: #fff; border-color: rgba(220, 38, 38, 0.4); }
+</style>
 
-            <form id="form-lote" method="POST" action="{{ url_for('importar_alunos_lote') }}" style="display: none;">
-                <textarea name="lista_nomes" rows="5" placeholder="Cole os nomes dos atletas aqui (um por linha ou separados por vírgula)..." required></textarea>
-                <button type="submit">Importar Todos</button>
-            </form>
-        </div>
+<!-- HEADER DA PÁGINA -->
+<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+    <a href="{{ url_for('dashboard') }}" style="color: #a1a1aa; text-decoration: none; font-size: 0.9rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+        <i class="ph ph-arrow-left" style="font-size: 1.1rem;"></i> Voltar
+    </a>
+    <h2 style="color: #fff; font-size: 1.25rem; font-weight: 700; margin: 0;">Gestão de Atletas</h2>
+</div>
 
-        <div class="card">
-            <h3>Atletas Cadastrados ({{ alunos|length }})</h3>
-            {% for aluno in alunos %}
-            <div class="item-aluno">
-                <span>{{ aluno.nome_completo }}</span>
-                <a href="{{ url_for('excluir_aluno', id=aluno.id) }}" onclick="return confirm('Deseja realmente excluir este atleta?')"><i class="ph ph-trash"></i></a>
-            </div>
-            {% else %}
-            <p style="color: var(--text-muted);">Nenhum atleta cadastrado.</p>
-            {% endfor %}
-        </div>
+<!-- MENSAGENS DE SUCESSO -->
+{% with messages = get_flashed_messages(category_filter=["sucesso"]) %}
+  {% if messages %}
+    {% for message in messages %}
+      <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #34d399; padding: 12px; border-radius: 10px; margin-bottom: 16px; font-size: 0.85rem;">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+{% if erro %}<div class="alert-box">{{ erro }}</div>{% endif %}
+
+<!-- CARD DE CADASTRO -->
+<div class="card-atletas">
+    <div class="tabs">
+        <button type="button" class="tab-btn active" onclick="mostrarAba('individual')">Individual</button>
+        <button type="button" class="tab-btn" onclick="mostrarAba('lote')">Importar em Lote</button>
     </div>
 
-    <script>
-        function mostrarAba(aba) {
-            const btns = document.querySelectorAll('.tab-btn');
-            btns.forEach(b => b.classList.remove('active'));
-            
-            if (aba === 'individual') {
-                btns[0].classList.add('active');
-                document.getElementById('form-individual').style.display = 'block';
-                document.getElementById('form-lote').style.display = 'none';
-            } else {
-                btns[1].classList.add('active');
-                document.getElementById('form-individual').style.display = 'none';
-                document.getElementById('form-lote').style.display = 'block';
-            }
+    <form id="form-individual" method="POST" action="{{ url_for('gerenciar_alunos') }}">
+        <input type="text" name="nome" placeholder="Nome Completo do Atleta" required autocomplete="off">
+        <button type="submit" class="btn-solid">Cadastrar Atleta</button>
+    </form>
+
+    <form id="form-lote" method="POST" action="{{ url_for('importar_alunos_lote') }}" style="display: none;">
+        <textarea name="lista_nomes" rows="5" placeholder="Cole os nomes dos atletas aqui (um por linha)..." required></textarea>
+        <button type="submit" class="btn-solid">Importar Todos</button>
+    </form>
+</div>
+
+<!-- CARD DE LISTAGEM -->
+<div class="card-atletas" style="margin-bottom: 40px;">
+    <h3 style="font-size: 0.85rem; margin-top: 0; margin-bottom: 12px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.5px;">Atletas Cadastrados ({{ alunos|length }})</h3>
+    {% for aluno in alunos %}
+    <div class="item-aluno">
+        <span>{{ aluno.nome_completo }}</span>
+        <a href="{{ url_for('excluir_aluno', id=aluno.id) }}" onclick="return confirm('Deseja realmente excluir este atleta?')" title="Excluir"><i class="ph ph-trash" style="font-size: 1rem;"></i></a>
+    </div>
+    {% else %}
+    <p style="color: #a1a1aa; font-size: 0.9rem; text-align: center; margin: 12px 0;">Nenhum atleta cadastrado.</p>
+    {% endfor %}
+</div>
+
+<script>
+    function mostrarAba(aba) {
+        const btns = document.querySelectorAll('.tab-btn');
+        btns.forEach(b => b.classList.remove('active'));
+        
+        if (aba === 'individual') {
+            btns[0].classList.add('active');
+            document.getElementById('form-individual').style.display = 'block';
+            document.getElementById('form-lote').style.display = 'none';
+        } else {
+            btns[1].classList.add('active');
+            document.getElementById('form-individual').style.display = 'none';
+            document.getElementById('form-lote').style.display = 'block';
         }
-    </script>
-</body>
-</html>
+    }
+</script>
+{% endblock %}

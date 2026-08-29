@@ -9,6 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <style>
         /* Reset de tipografia para garantir a fonte Inter e matar serifas */
         h1, h2, h3, h4, h5, span, p, strong, a, div { font-family: 'Inter', sans-serif !important; }
@@ -17,48 +18,83 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .page-title { color: #ffffff; font-size: 1.5rem; font-weight: 800; margin: 0 0 24px 0; display: flex; align-items: center; gap: 10px; letter-spacing: -0.02em; }
-        .page-title i { color: #eab308; /* Dourado do troféu refinado */ }
+        .page-title { 
+            color: #ffffff; 
+            font-size: 1.5rem; 
+            font-weight: 800; 
+            margin: 0 0 20px 0; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            letter-spacing: -0.02em; 
+        }
+        .page-title i { color: #facc15; font-size: 1.7rem; filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.4)); }
 
-        /* Cards do Ranking */
+        /* Cards do Ranking Padrão */
         .rank-card {
-            background: rgba(18, 18, 21, 0.9);
-            padding: 12px 16px;
-            border-radius: 12px;
+            background: rgba(18, 18, 22, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 14px 18px;
+            border-radius: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.2s ease;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: all 0.25s ease;
         }
         .rank-card:hover { 
-            border-color: rgba(234, 179, 8, 0.25); 
-            background: #18181b;
+            border-color: rgba(255, 255, 255, 0.15); 
+            background: rgba(24, 24, 28, 0.95);
+            transform: translateY(-1px);
         }
 
-        /* Caixinhas de Posição (Ouro, Prata, Bronze e Outros) */
+        /* DESTAQUE ESPECIAL PARA O PODIÚM (Top 3) */
+        .rank-card.podium-1 {
+            background: linear-gradient(135deg, rgba(234, 179, 8, 0.12) 0%, rgba(18, 18, 22, 0.9) 100%);
+            border: 1px solid rgba(234, 179, 8, 0.4);
+            box-shadow: 0 8px 24px rgba(234, 179, 8, 0.1);
+            padding: 16px 18px;
+        }
+        .rank-card.podium-2 {
+            background: linear-gradient(135deg, rgba(161, 161, 170, 0.1) 0%, rgba(18, 18, 22, 0.9) 100%);
+            border: 1px solid rgba(161, 161, 170, 0.3);
+        }
+        .rank-card.podium-3 {
+            background: linear-gradient(135deg, rgba(180, 83, 9, 0.1) 0%, rgba(18, 18, 22, 0.9) 100%);
+            border: 1px solid rgba(180, 83, 9, 0.3);
+        }
+
+        /* Caixinhas de Posição */
         .rank-pos {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             flex-shrink: 0;
+            gap: 4px;
         }
-        .pos-1 { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.35); }
-        .pos-2 { background: rgba(161, 161, 170, 0.15); color: #d4d4d8; border: 1px solid rgba(161, 161, 170, 0.3); }
-        .pos-3 { background: rgba(180, 83, 9, 0.15); color: #f97316; border: 1px solid rgba(180, 83, 9, 0.3); }
-        .pos-other { background: #121215; color: #71717a; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .pos-1 { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); }
+        .pos-2 { background: rgba(161, 161, 170, 0.18); color: #e4e4e7; border: 1px solid rgba(161, 161, 170, 0.35); }
+        .pos-3 { background: rgba(194, 65, 12, 0.18); color: #fb923c; border: 1px solid rgba(194, 65, 12, 0.35); }
+        .pos-other { background: rgba(255, 255, 255, 0.03); color: #71717a; border: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.85rem; }
 
-        .aluno-nome { font-weight: 600; color: #f4f4f5; font-size: 1rem; }
+        .aluno-nome { 
+            font-weight: 600; 
+            color: #f4f4f5; 
+            font-size: 0.98rem; 
+            letter-spacing: -0.01em;
+        }
+        .podium-1 .aluno-nome { color: #fff; font-weight: 700; font-size: 1.05rem; }
 
-        /* Badge de Presenças ajustada para combinar com a paleta vermelha e o destaque */
+        /* Badge de Presenças */
         .presencas-badge {
-            background: rgba(220, 38, 38, 0.15);
+            background: rgba(220, 38, 38, 0.12);
             color: #fca5a5;
             padding: 6px 14px;
             border-radius: 20px;
@@ -67,37 +103,50 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            border: 1px solid rgba(220, 38, 38, 0.3);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            box-shadow: 0 2px 10px rgba(220, 38, 38, 0.1);
+        }
+        .podium-1 .presencas-badge {
+            background: rgba(220, 38, 38, 0.2);
+            border-color: rgba(220, 38, 38, 0.4);
+            font-size: 0.9rem;
         }
 
         /* Estado Vazio Elegante */
         .empty-state {
-            background: rgba(18, 18, 21, 0.5);
+            background: rgba(18, 18, 22, 0.5);
             border: 1px dashed rgba(255, 255, 255, 0.1);
-            padding: 40px 24px;
+            padding: 48px 24px;
             border-radius: 16px;
             text-align: center;
             margin-top: 20px;
         }
-        .empty-state i { font-size: 3rem; color: #eab308; opacity: 0.7; margin-bottom: 16px; display: block; }
-        .empty-state p { color: #a1a1aa; font-size: 0.95rem; margin: 0; line-height: 1.5; }
+        .empty-state i { font-size: 3.5rem; color: #eab308; opacity: 0.8; margin-bottom: 16px; display: block; filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.3)); }
+        .empty-state p { color: #a1a1aa; font-size: 0.95rem; margin: 0; line-height: 1.6; }
     </style>
 
     <div style="padding-bottom: 40px;">
         <h2 class="page-title">
-            <i class="ph ph-trophy"></i> 
+            <i class="ph ph-trophy-fill"></i> 
             Ranking de Presenças
         </h2>
 
         {% if ranking %}
-            <!-- Mantido sem max-height/overflow interno para preservar a fluidez do scroll no mobile -->
             <div>
                 {% for aluno in ranking %}
-                <div class="rank-card">
+                <div class="rank-card {% if loop.index == 1 %}podium-1{% elif loop.index == 2 %}podium-2{% elif loop.index == 3 %}podium-3{% endif %}">
                     <div style="display: flex; align-items: center; gap: 14px;">
-                        <!-- Lógica Jinja para definir a cor da posição -->
+                        <!-- Posição com ícones diferenciados para o pódio -->
                         <div class="rank-pos {% if loop.index == 1 %}pos-1{% elif loop.index == 2 %}pos-2{% elif loop.index == 3 %}pos-3{% else %}pos-other{% endif %}">
-                            {{ loop.index }}º
+                            {% if loop.index == 1 %}
+                                <i class="ph ph-crown-simple" style="font-size: 1.1rem;"></i>
+                            {% elif loop.index == 2 %}
+                                <i class="ph ph-medal" style="font-size: 1rem;"></i>
+                            {% elif loop.index == 3 %}
+                                <i class="ph ph-medal" style="font-size: 1rem;"></i>
+                            {% else %}
+                                {{ loop.index }}º
+                            {% endif %}
                         </div>
                         <span class="aluno-nome">{{ aluno.nome_completo }}</span>
                     </div>
@@ -118,9 +167,9 @@
     </div>
 
     <script>
-         // Atualiza a página automaticamente a cada 5 segundos (5000 milissegundos)
-    setTimeout(function() {
-        location.reload();
-    }, 3000);
+        // Atualiza a página automaticamente a cada 3 segundos
+        setTimeout(function() {
+            location.reload();
+        }, 3000);
     </script>
 {% endblock %}

@@ -17,7 +17,7 @@ s = itsdangerous.URLSafeTimedSerializer(app.secret_key)
 
 resend.api_key = os.environ.get("RESEND_API_KEY")
 
-CODIGO_CONVITE_MESTRE = os.environ.get("CODIGO_CONVITE", "NAK2026")
+CODIGO_CONVITE_MESTRE = os.environ.get("CODIGO_CONVITE", "NAK@2026")
 EMAIL_ADMIN_MESTRE = os.environ.get("EMAIL_ADMIN", "mvvinicius231017vk@gmail.com")
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -306,11 +306,31 @@ def dashboard():
     
     conn = get_db_connection()
     try:
+        agora = datetime.now()
+        
+        turmas_todas = conn.execute('SELECT * FROM turmas WHERE treinador_id = ?', (treinador_id,)).fetchall()
+        for t in turmas_todas:
+            expirada_aqui = False
+            if not t['criado_em']:
+                expirada_aqui = True
+            else:
+                try:
+                    d_str = str(t['criado_em']).split('.')[0].replace('T', ' ')
+                    dt_criacao = datetime.strptime(d_str, '%Y-%m-%d %H:%M:%S')
+                    limite_min = int(t['tempo_limite_minutos'] or 60)
+                    if (agora - dt_criacao) > timedelta(minutes=limite_min):
+                        expirada_aqui = True
+                except Exception:
+                    expirada_aqui = True
+            
+            if expirada_aqui:
+                conn.execute('DELETE FROM alunos_turma WHERE turma_id = ?', (t['id'],))
+                conn.execute('DELETE FROM turmas WHERE id = ?', (t['id'],))
+        conn.commit()
+
         turmas_db = conn.execute('SELECT * FROM turmas WHERE treinador_id = ? ORDER BY id DESC', (treinador_id,)).fetchall()
         aulas_hoje = []
-        
         total_confirmados_geral = 0
-        agora = datetime.now()
 
         for turma in turmas_db:
             confirmados = conn.execute('SELECT COUNT(*) FROM alunos_turma WHERE turma_id = ?', (turma['id'],)).fetchone()[0]
@@ -319,11 +339,6 @@ def dashboard():
             vagas_restantes = max(0, turma['vagas_totais'] - confirmados)
             ocupacao_bruta = (confirmados / turma['vagas_totais']) * 100 if turma['vagas_totais'] > 0 else 0
             ocupacao_pct = min(100, int(ocupacao_bruta))
-            
-            expirada = False
-            if turma['criado_em']:
-                criado_em_dt = datetime.strptime(str(turma['criado_em']).split('.')[0], '%Y-%m-%d %H:%M:%S')
-                expirada = (agora - criado_em_dt) > timedelta(minutes=turma['tempo_limite_minutos'])
 
             aulas_hoje.append({
                 "id": turma['id'], 
@@ -333,7 +348,9 @@ def dashboard():
                 "vagas": vagas_restantes, 
                 "ocupacao_pct": ocupacao_pct, 
                 "professor": turma['professor'],
-                "expirada": expirada
+                "expirada": False,
+                "criado_em": turma['criado_em'],                    
+                "tempo_limite_minutos": turma['tempo_limite_minutos'] 
             })
         
         total_alunos = conn.execute('SELECT COUNT(*) FROM alunos').fetchone()[0]
@@ -359,6 +376,59 @@ def dashboard():
         punicoes=punicoes
     )
 
+@app.route('/aluno/turma/<int:id>', methods=['GET', 'POST'])
+def aluno_turma(id):
+    conn = get_db_connection()
+    turma = conn.execute('SELECT * FROM turmas WHERE id = ?', (id,)).fetchone()
+
+    if turma is None:
+        conn.close()
+        return render_template('turma_invalida.html')
+
+    try:
+        d_str = str(turma['criado_em']).split('.')[0].replace('T', ' ')
+        data_criacao = datetime.strptime(d_str, '%Y-%m-%d %H:%M:%S')
+    except ValueError:
+        data_criacao = datetime.strptime(turma['criado_em'], '%Y-%m-%d %H:%M:%S.%f')
+
+    limite_minutos = turma['tempo_limite_minutos']
+    horario_expiracao = data_criacao + timedelta(minutes=limite_minutos)
+    expirada = datetime.now() > horario_expiracao
+
+    if expirada:
+        conn.close()
+        return render_template('turma_invalida.html')
+
+    if request.method == 'POST':
+        aluno_id = request.form.get('aluno_id')
+        if aluno_id:
+            confirmados_atual = conn.execute('SELECT COUNT(*) FROM alunos_turma WHERE turma_id = ?', (id,)).fetchone()[0]
+            if confirmados_atual < turma['vagas_totais']:
+                try:
+                    conn.execute('INSERT OR IGNORE INTO alunos_turma (turma_id, aluno_id) VALUES (?, ?)', (id, aluno_id))
+                    conn.execute('UPDATE alunos SET presencas = presencas + 1 WHERE id = ?', (aluno_id,))
+                    conn.commit()
+                except Exception:
+                    pass
+        conn.close()
+        return redirect(url_for('aluno_turma', id=id))
+
+    # ALTERAÇÃO AQUI: Traz apenas os alunos que NÃO estão na tabela alunos_turma desta aula
+    alunos = conn.execute('''
+        SELECT * FROM alunos 
+        WHERE id NOT IN (SELECT aluno_id FROM alunos_turma WHERE turma_id = ?) 
+        ORDER BY nome_completo ASC
+    ''', (id,)).fetchall()
+
+    alunos_confirmados = conn.execute('''
+        SELECT a.* FROM alunos a 
+        JOIN alunos_turma at ON a.id = at.aluno_id 
+        WHERE at.turma_id = ?
+    ''', (id,)).fetchall()
+    
+    conn.close()
+    return render_template('aluno_turma.html', turma=turma, alunos=alunos, alunos_confirmados=alunos_confirmados, expirada=expirada)
+
 @app.route('/criar_aula', methods=['GET', 'POST'])
 def criar_aula():
     if 'treinador_id' not in session: 
@@ -368,9 +438,14 @@ def criar_aula():
         conn = get_db_connection()
         try:
             treinador_id = session['treinador_id']
-            treinador_atual = conn.execute('SELECT nome FROM treinadores WHERE id = ?', (treinador_id,)).fetchone()
-            professor_responsavel = treinador_atual['nome'] if treinador_atual else session.get('treinador_nome')
             
+            treinador_atual = conn.execute('SELECT nome FROM treinadores WHERE id = ?', (treinador_id,)).fetchone()
+            
+            if not treinador_atual:
+                session.clear()
+                return redirect(url_for('login'))
+                
+            professor_responsavel = treinador_atual['nome']
             tempo_limite = int(request.form.get('tempo_limite', 60))
             
             conn.execute('''
@@ -547,64 +622,6 @@ def gerenciar(id):
         conn.close()
         
     return render_template('gerenciar.html', turma=turma, alunos=alunos)
-
-@app.route('/aluno/turma/<int:id>', methods=['GET', 'POST'])
-def aluno_turma(id):
-    conn = get_db_connection()
-    try:
-        turma = conn.execute('SELECT * FROM turmas WHERE id = ?', (id,)).fetchone()
-        
-        if not turma:
-            conn.close()
-            return redirect(url_for('turma_invalida'))
-            
-        expirada = False
-        if turma['criado_em']:
-            criado_em_dt = datetime.strptime(str(turma['criado_em']).split('.')[0], '%Y-%m-%d %H:%M:%S')
-            if (datetime.now() - criado_em_dt) > timedelta(minutes=turma['tempo_limite_minutos']):
-                expirada = True
-
-        is_treinador = 'treinador_id' in session
-
-        # Autoexclusão automática: Se expirou e ninguém é o treinador acessando o painel de gerenciamento, a turma é deletada direto do banco!
-        if expirada and not is_treinador:
-            conn.execute('DELETE FROM alunos_turma WHERE turma_id = ?', (id,))
-            conn.execute('DELETE FROM turmas WHERE id = ?', (id,))
-            conn.commit()
-            conn.close()
-            return redirect(url_for('turma_invalida'))
-
-        if request.method == 'POST':
-            if expirada and not is_treinador:
-                conn.execute('DELETE FROM alunos_turma WHERE turma_id = ?', (id,))
-                conn.execute('DELETE FROM turmas WHERE id = ?', (id,))
-                conn.commit()
-                conn.close()
-                return redirect(url_for('turma_invalida'))
-
-            confirmados_atual = conn.execute('SELECT COUNT(*) FROM alunos_turma WHERE turma_id = ?', (id,)).fetchone()[0]
-            if confirmados_atual >= turma['vagas_totais']:
-                flash('Esta turma já atingiu o limite máximo de vagas!', 'erro')
-                conn.close()
-                return redirect(url_for('aluno_turma', id=id))
-
-            aluno_id = request.form.get('aluno_id')
-            if aluno_id:
-                ja_confirmado = conn.execute('SELECT * FROM alunos_turma WHERE aluno_id = ? AND turma_id = ?', (aluno_id, id)).fetchone()
-                if not ja_confirmado:
-                    conn.execute('INSERT INTO alunos_turma (aluno_id, turma_id) VALUES (?, ?)', (aluno_id, id))
-                    conn.execute('UPDATE alunos SET presencas = presencas + 1 WHERE id = ?', (aluno_id,))
-                    conn.commit()
-            conn.close()
-            return redirect(url_for('aluno_turma', id=id))
-            
-        todos_alunos = conn.execute('SELECT * FROM alunos WHERE id NOT IN (SELECT aluno_id FROM alunos_turma WHERE turma_id = ?) ORDER BY nome_completo ASC', (id,)).fetchall()
-        alunos_confirmados = conn.execute('SELECT a.id, a.nome_completo FROM alunos a JOIN alunos_turma at ON a.id = at.aluno_id WHERE at.turma_id = ? ORDER BY a.nome_completo ASC', (id,)).fetchall()
-    finally:
-        if 'conn' in locals() and conn:
-            conn.close()
-        
-    return render_template('aluno_turma.html', turma=turma, todos_alunos=todos_alunos, alunos_confirmados=alunos_confirmados, expirada=expirada, is_treinador=is_treinador)
 
 @app.route('/remover_checkin/<int:aula_id>/<int:aluno_id>', methods=['POST', 'GET'])
 def remover_checkin(aula_id, aluno_id):

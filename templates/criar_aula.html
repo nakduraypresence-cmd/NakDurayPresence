@@ -7,11 +7,11 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- Configurações para PWA e Dispositivos Móveis -->
-<link rel="manifest" href="/static/manifest.json">
-<meta name="theme-color" content="#0a0a0a">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         /* Padronização da tipografia Inter e eliminação de serifas */
         h1, h2, h3, h4, h5, span, p, strong, a, div, label { font-family: 'Inter', sans-serif !important; }
@@ -190,16 +190,6 @@
                 <label class="radio-btn"><input type="radio" name="nome" value="Muay Thai - Infantil"><span>Infantil</span></label>
             </div>
 
-            <!-- Seleção de Professor -->
-            <span class="form-label">Quem será o Responsável?</span>
-            <div class="option-group">
-                {% for treinador in treinadores %}
-                    <label class="radio-btn">
-                        <input type="radio" name="professor" value="{{ treinador.nome }}" {% if loop.first %}required{% endif %}>
-                        <span>{{ treinador.nome }}</span>
-                    </label>
-                {% endfor %}
-            </div>
 
             <!-- Vagas -->
             <span class="form-label">Quantidade de Vagas</span>

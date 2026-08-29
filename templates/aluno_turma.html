@@ -9,11 +9,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- Configurações para PWA e Dispositivos Móveis -->
-<link rel="manifest" href="/static/manifest.json">
-<meta name="theme-color" content="#0a0a0a">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#0a0a0a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
         :root {
             --bg-dark: #0a0a0a;
@@ -27,6 +27,8 @@
             --primary-hover: #ef4444;
             --accent-gold: #eab308;
             --success: #10b981;
+            --btn-gradient: linear-gradient(135deg, #e11d48, #b91c1c);
+            --btn-gradient-hover: linear-gradient(135deg, #f43f5e, #dc2626);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -40,7 +42,6 @@
             display: flex;
             justify-content: center;
             min-height: 100vh;
-            -webkit-tap-highlight-color: transparent;
         }
 
         .wrapper { max-width: 420px; width: 100%; margin: 0 auto; padding-bottom: 40px; }
@@ -74,12 +75,33 @@
         .select-icon { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none; }
 
         .btn-checkin {
-            background: var(--primary); color: var(--text-main); border: none; width: 100%; padding: 14px;
-            border-radius: 12px; font-weight: 800; font-family: inherit; cursor: pointer; font-size: 0.95rem;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--btn-gradient); 
+            color: var(--text-main); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            width: 100%; 
+            padding: 14px;
+            border-radius: 12px; 
+            font-weight: 800; 
+            font-family: inherit; 
+            cursor: pointer; 
+            font-size: 0.95rem;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.25);
+            transition: all 0.3s ease;
         }
 
-        .btn-checkin:hover { background: var(--primary-hover); }
+        .btn-checkin:hover { 
+            background: var(--btn-gradient-hover); 
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-checkin:active {
+            transform: translateY(1px);
+        }
 
         .success-box {
             background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25);
@@ -111,7 +133,7 @@
 
         .aluno-card {
             background: var(--input-bg); padding: 14px 16px; border-radius: 12px; display: flex;
-            align-items: center; justify-content: space-linejoin; margin-bottom: 8px; border: 1px solid var(--border-color);
+            align-items: center; justify-content: space-between; margin-bottom: 8px; border: 1px solid var(--border-color);
         }
 
         .aluno-info { display: flex; align-items: center; gap: 12px; }
@@ -143,17 +165,7 @@
                     <h3 style="margin: 8px 0 4px 0;">Chamada Encerrada</h3>
                     <p style="font-size: 0.85rem; margin: 0;">O tempo limite desta aula expirou.</p>
                 </div>
-            <!-- Caixa de sucesso prioritária caso o usuário já tenha marcado neste aparelho -->
-            <div id="success-confirmed" style="display: none;" class="success-box">
-                <i class="ph ph-check-fat"></i>
-                <h2>Presença Registrada!</h2>
-                <p>Este dispositivo já confirmou presença nesta aula.</p>
-                <a id="link-cancelar" href="#" class="btn-cancelar-meu-checkin">
-                    <i class="ph ph-trash"></i> Desfazer Minha Presença
-                </a>
-            </div>
             {% elif alunos_confirmados|length >= turma.vagas_totais %}
-                <!-- Exibe caixa de sucesso se o usuário já estiver confirmado mesmo com as vagas esgotadas -->
                 <div id="success-confirmed" style="display: none;" class="success-box">
                     <i class="ph ph-check-fat"></i>
                     <h2>Presença Registrada!</h2>
@@ -162,7 +174,6 @@
                         <i class="ph ph-trash"></i> Desfazer Minha Presença
                     </a>
                 </div>
-                <!-- Caso contrário, exibe o aviso de vagas esgotadas -->
                 <div id="vagas-esgotadas-box" class="expired-box">
                     <i class="ph ph-prohibit" style="font-size: 2rem;"></i>
                     <h3 style="margin: 8px 0 4px 0;">Vagas Esgotadas</h3>
@@ -175,7 +186,7 @@
                         <div class="select-wrapper">
                             <select id="aluno_id" name="aluno_id" class="input-field" required>
                                 <option value="" disabled selected>-- Escolha seu nome --</option>
-                                {% for aluno in todos_alunos %}
+                                {% for aluno in alunos %}
                                     <option value="{{ aluno.id }}">{{ aluno.nome_completo }}</option>
                                 {% endfor %}
                             </select>
@@ -256,11 +267,6 @@
                 localStorage.setItem(`checkin_aluno_${turmaId}`, select.value);
             }
         }
-
-         // Atualiza a página automaticamente a cada 5 segundos (5000 milissegundos)
-    setTimeout(function() {
-        location.reload();
-    }, 3000);
     </script>
 </body>
 </html>

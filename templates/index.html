@@ -3,16 +3,16 @@
 {% block title %}Nakduray Presence - Dashboard{% endblock %}
 
 {% block conteudo %}
-<!-- Configurações para PWA e Dispositivos Móveis -->
 <link rel="manifest" href="/static/manifest.json">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#08080a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
+        /* Base & Resets */
         * {
             -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
+            box-sizing: border-box;
         }
 
         button:focus, input:focus, select:focus, a:focus, label:focus {
@@ -25,265 +25,370 @@
             user-select: none;
         }
 
-        h1, h2, h3, h4, h5, span, p, strong, a, div { font-family: 'Inter', sans-serif !important; }
+        h1, h2, h3, h4, h5, span, p, strong, a, div { 
+            font-family: 'Inter', sans-serif !important; 
+        }
 
+        /* Fundo Moderno com Glow Sutil */
         body { 
             background-color: #08080a;
             background-image: 
-                radial-gradient(at 50% 15%, rgba(220, 38, 38, 0.15) 0px, transparent 50%),
-                radial-gradient(at 80% 85%, rgba(234, 179, 8, 0.08) 0px, transparent 40%);
-                -webkit-tap-highlight-color: transparent;
+                radial-gradient(circle at 15% 0%, rgba(220, 38, 38, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 90%, rgba(234, 179, 8, 0.05) 0%, transparent 40%);
+            color: #ffffff;
+            margin: 0;
+            padding-bottom: 2rem;
         }
         
-        .greeting { color: #a1a1aa; font-size: 0.75rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
-        .user-name { color: #ffffff; font-size: 1.55rem; font-weight: 800; letter-spacing: -0.02em; margin: 4px 0 0 0; }
-        .section-title { color: #ffffff; font-size: 1.15rem; font-weight: 700; margin-bottom: 0; }
+        /* Tipografia */
+        .greeting { color: #a1a1aa; font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+        .user-name { color: #ffffff; font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; margin: 2px 0 0 0; }
+        .section-title { color: #f4f4f5; font-size: 1.2rem; font-weight: 700; margin-bottom: 0; letter-spacing: -0.01em; }
         
-        .btn-outline { background: transparent; color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.4); padding: 8px 16px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; text-decoration: none; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
-        .btn-outline:hover { background: rgba(220, 38, 38, 0.15); border-color: #eab308; color: #fff; }
+        /* Botões Refinados */
+        .btn-outline { 
+            background: rgba(220, 38, 38, 0.05); 
+            color: #fca5a5; 
+            border: 1px solid rgba(220, 38, 38, 0.3); 
+            padding: 8px 16px; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            font-size: 0.85rem; 
+            text-decoration: none; 
+            transition: all 0.3s ease; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 6px; 
+            white-space: nowrap; 
+        }
+        .btn-outline:hover { 
+            background: rgba(220, 38, 38, 0.15); 
+            border-color: #ef4444; 
+            color: #fff; 
+            transform: translateY(-1px);
+        }
         
-        .btn-solid { background: linear-gradient(135deg, #dc2626, #991b1b); color: white; border: 1px solid rgba(234, 179, 8, 0.3); padding: 9px 18px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 18px rgba(220, 38, 38, 0.35); white-space: nowrap; transition: all 0.2s ease; }
-        .btn-solid:hover { background: linear-gradient(135deg, #ef4444, #dc2626); border-color: #eab308; transform: translateY(-1px); }
+        .btn-solid { 
+            background: linear-gradient(135deg, #e11d48, #b91c1c); 
+            color: white; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            padding: 10px 20px; 
+            border-radius: 12px; 
+            font-weight: 700; 
+            font-size: 0.9rem; 
+            text-decoration: none; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.25); 
+            white-space: nowrap; 
+            transition: all 0.3s ease; 
+        }
+        .btn-solid:hover { 
+            background: linear-gradient(135deg, #f43f5e, #dc2626); 
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4); 
+            transform: translateY(-2px); 
+        }
 
-        .btn-icon { background: rgba(255,255,255,0.05); color: #a1a1aa; border: 1px solid rgba(255,255,255,0.08); width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: 0.2s; flex-shrink: 0; }
-        .btn-icon:hover { background: rgba(255,255,255,0.1); color: #ffffff; border-color: rgba(234, 179, 8, 0.4); }
+        .btn-icon { 
+            background: rgba(255,255,255,0.03); 
+            color: #a1a1aa; 
+            border: 1px solid rgba(255,255,255,0.05); 
+            width: 42px; 
+            height: 42px; 
+            border-radius: 12px; 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            text-decoration: none; 
+            transition: all 0.3s ease; 
+            flex-shrink: 0; 
+        }
+        .btn-icon:hover { 
+            background: rgba(255,255,255,0.1); 
+            color: #ffffff; 
+            border-color: rgba(255,255,255,0.15);
+            transform: scale(1.05);
+        }
 
+        /* Cards Glassmorphism */
         .class-card, .stat-card, .punicao-card { 
-            background: rgba(15, 15, 18, 0.9); 
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 16px; 
-            box-shadow: 0 15px 35px -10px rgba(0, 0, 0, 0.7);
+            background: rgba(20, 20, 25, 0.6); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.04); 
+            border-radius: 18px; 
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
         }
         
-        .class-card { padding: 20px; margin-bottom: 16px; }
-        .class-title { color: #ffffff; font-size: 1.15rem; font-weight: 700; margin: 0 0 4px 0; line-height: 1.2; }
-        .class-time { color: #a1a1aa; font-size: 0.85rem; display: block; margin-top: 4px; }
+        .class-card { padding: 22px; margin-bottom: 18px; }
+        .class-card:hover {
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .class-title { color: #f8fafc; font-size: 1.2rem; font-weight: 700; margin: 0 0 6px 0; line-height: 1.2; }
+        .class-time { color: #94a3b8; font-size: 0.85rem; display: flex; align-items: center; gap: 4px; }
         
-        .stat-item { text-align: center; }
-        .stat-item strong { display: block; font-size: 1.35rem; color: #ffffff; font-weight: 700; margin-bottom: 2px; }
-        .stat-item span { color: #a1a1aa; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        /* Grid de Estatísticas */
+        .stat-card { padding: 18px; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .stat-card.highlight {
+            background: linear-gradient(180deg, rgba(220, 38, 38, 0.1) 0%, rgba(20, 20, 25, 0.6) 100%);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+        }
+        .stat-card h2 { color: #ffffff; margin: 4px 0 0 0; font-size: 1.6rem; font-weight: 800; }
+        .stat-card p { color: #94a3b8; margin: 2px 0 0 0; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        .progress-bar { background: #121215; height: 6px; border-radius: 10px; overflow: hidden; margin: 20px 0 16px 0; border: 1px solid rgba(255,255,255,0.05); }
-        .progress-fill { background: linear-gradient(90deg, #dc2626, #eab308); height: 100%; border-radius: 10px; }
+        /* Barra de Progresso Animada */
+        .progress-bar { 
+            background: rgba(0, 0, 0, 0.5); 
+            height: 8px; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            margin: 20px 0 18px 0; 
+            border: 1px solid rgba(255,255,255,0.03); 
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+        }
+        .progress-fill { 
+            background: linear-gradient(90deg, #dc2626, #f59e0b); 
+            height: 100%; 
+            border-radius: 10px; 
+            position: relative;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        /* Brilho na barra de progresso */
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            border-radius: 10px;
+        }
+
+        /* Animação do Cronômetro */
+        @keyframes pulse-timer {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+        .timer-active { animation: pulse-timer 2s infinite ease-in-out; }
+
+        .punicao-card { padding: 16px; margin-bottom: 12px; border-left: 4px solid #ef4444; }
     </style>
 
-    <!-- HEADER DINÂMICO -->
-    <header class="header" style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+    <header class="header" style="margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; padding-top: 10px;">
         <div class="user-info">
-            <span class="greeting">BEM-VINDO, MESTRE</span>
-            <h1 class="user-name">{{ nome_mestre }}</h1>
+            <span class="greeting">Bem-vindo de volta</span>
+            <h1 class="user-name">Mestre {{ nome_mestre }}</h1>
         </div>
         <div style="display: flex; align-items: center; gap: 12px;">
             <div class="avatar-container" style="position: relative;">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Nakduray" class="avatar" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(234, 179, 8, 0.6); box-shadow: 0 0 15px rgba(220, 38, 38, 0.3); background: #000; padding: 2px;">
-                <div class="notification-dot" style="background: #10b981; width: 10px; height: 10px; border-radius: 50%; border: 2px solid #08080a; position: absolute; top: 0; right: 0;"></div>
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="avatar" style="width: 52px; height: 52px; border-radius: 14px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 12px rgba(0,0,0,0.5); background: #121215; padding: 2px;">
+                <div class="notification-dot" style="background: #10b981; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #08080a; position: absolute; top: -2px; right: -2px; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);"></div>
             </div>
         </div>
     </header>
 
-    <!-- CARDS DE ESTATÍSTICAS -->
-    <section class="stats-grid" style="margin-bottom: 32px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-        <div class="stat-card" style="padding: 16px; text-align: center;">
-            <i class="ph ph-users" style="color: #a1a1aa; font-size: 1.5rem; margin-bottom: 8px;"></i>
-            <h2 style="color: #ffffff; margin: 0; font-size: 1.5rem; font-weight: 700;">{{ total_alunos }}</h2>
-            <p style="color: #a1a1aa; margin: 4px 0 0 0; font-size: 0.8rem; font-weight: 500;">Atletas</p>
+    <section class="stats-grid" style="margin-bottom: 36px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+        <div class="stat-card">
+            <i class="ph ph-users" style="color: #64748b; font-size: 1.6rem; margin-bottom: 4px;"></i>
+            <h2>{{ total_alunos }}</h2>
+            <p>Atletas</p>
         </div>
-        <div class="stat-card" style="background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.25); padding: 16px; text-align: center;">
-            <i class="ph ph-check-circle" style="color: #ef4444; font-size: 1.5rem; margin-bottom: 8px;"></i>
-            <h2 style="color: #ffffff; margin: 0; font-size: 1.5rem; font-weight: 700;">{{ presencas_hoje }}</h2>
-            <p style="color: #a1a1aa; margin: 4px 0 0 0; font-size: 0.8rem; font-weight: 500;">Presenças</p>
+        <div class="stat-card highlight">
+            <i class="ph ph-fire" style="color: #ef4444; font-size: 1.6rem; margin-bottom: 4px;"></i>
+            <h2 style="color: #f8fafc;">{{ presencas_hoje }}</h2>
+            <p style="color: #fca5a5;">Presenças</p>
         </div>
-        <div class="stat-card" style="padding: 16px; text-align: center;">
-            <i class="ph ph-x-circle" style="color: #a1a1aa; font-size: 1.5rem; margin-bottom: 8px;"></i>
-            <h2 style="color: #ffffff; margin: 0; font-size: 1.5rem; font-weight: 700;">{{ ausentes_hoje }}</h2>
-            <p style="color: #a1a1aa; margin: 4px 0 0 0; font-size: 0.8rem; font-weight: 500;">Ausentes</p>
+        <div class="stat-card">
+            <i class="ph ph-user-minus" style="color: #64748b; font-size: 1.6rem; margin-bottom: 4px;"></i>
+            <h2>{{ ausentes_hoje }}</h2>
+            <p>Ausentes</p>
         </div>
     </section>
 
-    <!-- SEÇÃO: AULAS DE HOJE -->
-    <section class="section-container" style="margin-bottom: 32px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <h3 class="section-title">Aulas de Hoje</h3>
-            <a href="/criar_aula" class="btn-solid">
-                <i class="ph ph-plus" style="font-weight: bold;"></i> Nova Aula
-            </a>
-        </div>
-
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 class="section-title">Turmas Ativas</h2>
         {% if aulas %}
-            {% for aula in aulas %}
-            <div class="class-card">
-                <div class="class-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px;">
-                    <div style="flex: 1;">
-                        <h4 class="class-title">{{ aula.nome_turma }}</h4>
-                        <span class="class-time">Hoje - {{ aula.horario }}</span>
-                    </div>
-                    <div class="card-actions-top" style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                        <a href="/gerenciar/{{ aula.id }}" class="btn-outline">Gerenciar</a>
-                        <a href="/excluir_aula/{{ aula.id }}" class="btn-icon" onclick="return confirm('Tem certeza que deseja excluir esta aula?')" title="Excluir Aula">
-                            <i class="ph ph-trash" style="font-size: 1.1rem;"></i>
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="class-stats" style="display: flex; justify-content: space-between;">
-                    <div class="stat-item">
-                        <strong>{{ aula.confirmados }}</strong>
-                        <span>Confirmados</span>
-                    </div>
-                    <div class="stat-item">
-                        <strong>{{ aula.vagas }}</strong>
-                        <span>Vagas</span>
-                    </div>
-                    <div class="stat-item">
-                        <strong>{{ aula.ocupacao_pct }}%</strong>
-                        <span>Ocupação</span>
-                    </div>
-                </div>
-                
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: {{ aula.ocupacao_pct }}%;"></div>
-                </div>
-                
-                <div class="class-footer" style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
-                    <div style="color: #a1a1aa; display: flex; align-items: center; gap: 6px;">
-                        <i class="ph ph-user"></i> {{ aula.professor }}
-                    </div>
-                    
-                    <!-- Timer alterado: baseia-se apenas no ID e na Duração -->
-                    <div class="class-timer" data-id="{{ aula.id }}" data-duracao="{{ aula.duracao | default('1h30') }}" style="display: flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; transition: 0.3s;">
-    <i class="ph ph-timer" style="font-size: 0.9rem;"></i>
-    <span class="tempo-restante">Iniciando...</span>
-</div>
-                </div>
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="class-card" style="text-align: center; padding: 24px;">
-                <p style="color: #a1a1aa; font-size: 0.9rem; margin: 0;">Nenhuma aula cadastrada para hoje.</p>
-            </div>
-        {% endif %}
-    </section>
-
-    <!-- SEÇÃO: PLACAR DE PUNIÇÕES -->
-    <section class="section-container punicoes-section" style="padding-bottom: 40px;">
-        <div class="punicoes-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-            <div>
-                <h3 class="section-title">Placar de Punições</h3>
-                <span class="subtitle" style="color: #a1a1aa; font-size: 0.8rem;">Flexões devidas</span>
-            </div>
-            <a href="{{ url_for('registrar_punicao') }}" class="btn-outline">
-                <i class="ph ph-warning"></i> Registrar
+            <a href="{{ url_for('criar_aula') }}" class="btn-solid" style="padding: 8px 16px; font-size: 0.85rem; border-radius: 10px; flex-shrink: 0; white-space: nowrap;">
+                <i class="ph ph-plus-circle" style="font-size: 1rem;"></i> Nova Turma
             </a>
-        </div>
+        {% endif %}
+    </div>
 
-        {% if punicoes %}
-            {% for punicao in punicoes %}
-            <div class="punicao-card" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; margin-bottom: 10px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <div class="punicao-icon" style="background: rgba(220, 38, 38, 0.15); color: #ef4444; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(220, 38, 38, 0.3);">
-                        <i class="ph ph-warning" style="font-size: 1.2rem;"></i>
-                    </div>
-                    <div class="punicao-info">
-                        <strong style="display: block; color: #ffffff; font-size: 0.95rem;">{{ punicao.nome_completo }}</strong>
-                        <span style="font-size: 0.8rem; color: #a1a1aa;">{{ punicao.motivo }}</span>
+    {% if aulas %}
+        {% for aula in aulas %}
+        <div class="class-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                    <h3 class="class-title" style="margin: 0 0 4px 0;">{{ aula.nome_turma }}</h3>
+                    <div style="display: flex; flex-direction: row; align-items: center; gap: 6px; color: #94a3b8; font-size: 0.85rem;">
+                        <i class="ph ph-clock" style="color: #ef4444; font-size: 1rem;"></i> 
+                        <span style="white-space: nowrap;">{{ aula.horario }}</span> 
+                        <span style="color:#3f3f46; font-size: 1.2rem; line-height: 0;">•</span> 
+                        <span style="white-space: nowrap;">Prof: {{ aula.professor }}</span>
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 16px;">
-                    <div class="punicao-valor" style="text-align: right;">
-                        <strong style="color: #eab308; font-size: 1.15rem;">{{ punicao.quantidade }}</strong>
-                        <span style="display: block; font-size: 0.65rem; color: #a1a1aa; text-transform: uppercase; font-weight: 600;">flexões</span>
+                {% if aula.expirada %}
+                    <span style="background: rgba(220, 38, 38, 0.1); color: #fca5a5; border: 1px solid rgba(220,38,38,0.2); font-size: 0.7rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; letter-spacing: 0.5px;">EXPIRADA</span>
+                {% else %}
+                    <span id="badge-{{ aula.id }}" class="timer-active" style="background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16,185,129,0.2); font-size: 0.75rem; font-weight: 700; padding: 6px 10px; border-radius: 8px; display: inline-flex; align-items: center; gap: 6px; letter-spacing: 0.5px;">
+                        <i class="ph ph-timer" style="font-size: 1rem;"></i> 
+                        <span class="timer-display" data-criado="{{ aula.criado_em }}" data-limite="{{ aula.tempo_limite_minutos|default(60) }}">Calculando...</span>
+                    </span>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #94a3b8; font-weight: 500;">
+                <span>Confirmados: <strong style="color: #f8fafc;">{{ aula.confirmados }}</strong></span>
+                <span>Vagas: <strong style="color: #f8fafc;">{{ aula.vagas }}</strong></span>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ aula.ocupacao_pct }}%;"></div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <a href="{{ url_for('gerenciar', id=aula.id) }}" class="btn-solid" style="flex: 1;">
+                    <i class="ph ph-gear-six" style="font-size: 1.2rem;"></i> Gerenciar
+                </a>
+                <a href="{{ url_for('aluno_turma', id=aula.id) }}" class="btn-icon" target="_blank" title="Link do Aluno">
+                    <i class="ph ph-link" style="font-size: 1.2rem;"></i>
+                </a>
+                <a href="{{ url_for('excluir_aula', id=aula.id) }}" class="btn-icon" onclick="return confirm('Deseja realmente excluir esta turma?');" style="border-color: rgba(220,38,38,0.2); color: #fca5a5;" title="Excluir Turma">
+                    <i class="ph ph-trash" style="font-size: 1.2rem;"></i>
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="class-card" style="text-align: center; padding: 40px 20px;">
+            <div style="background: rgba(255,255,255,0.03); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto;">
+                <i class="ph ph-calendar-plus" style="font-size: 2.5rem; color: #52525b;"></i>
+            </div>
+            <p style="color: #a1a1aa; font-size: 0.95rem; margin: 0 0 20px 0;">O tatame está vazio. Nenhuma turma cadastrada no momento.</p>
+            <a href="{{ url_for('criar_aula') }}" class="btn-solid" style="padding: 12px 24px;">Criar Primeira Turma</a>
+        </div>
+    {% endif %}
+
+    <!-- SEÇÃO DE PUNIÇÕES -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin: 40px 0 20px 0; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <i class="ph ph-warning-circle" style="color: #ef4444; font-size: 1.5rem; flex-shrink: 0;"></i>
+            <h2 class="section-title" style="font-size: 1.2rem; margin: 0; display: flex; align-items: baseline; gap: 6px;">
+                Punições <span style="font-size: 0.95rem; color: #a1a1aa; font-weight: 500;">Disciplinares</span>
+            </h2>
+        </div>
+        
+        <a href="{{ url_for('registrar_punicao') }}" class="btn-solid" style="padding: 8px 16px; font-size: 0.85rem; border-radius: 10px; flex-shrink: 0; white-space: nowrap;">
+            <i class="ph ph-plus-circle" style="font-size: 1rem;"></i> Punir
+        </a>
+    </div>
+
+    {% if punicoes %}
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px;">
+            {% for p in punicoes %}
+            <div class="punicao-card class-card" style="padding: 16px; margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, rgba(220, 38, 38, 0.05) 0%, rgba(20, 20, 25, 0.6) 60%); border-left: 4px solid #ef4444;">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <!-- Ícone de Alerta ao lado do nome -->
+                    <div style="background: rgba(220, 38, 38, 0.1); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(220, 38, 38, 0.2); flex-shrink: 0;">
+                        <i class="ph ph-warning" style="color: #ef4444; font-size: 1.4rem;"></i>
                     </div>
-                    <a href="{{ url_for('remover_punicao', id=punicao.id) }}" class="btn-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3);" onclick="return confirm('O atleta cumpriu a punição?')" title="Pagar Punição">
-                        <i class="ph ph-check" style="font-size: 1.1rem;"></i>
-                    </a>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <h4 style="color: #f8fafc; font-size: 1.05rem; font-weight: 700; margin: 0; line-height: 1;">{{ p.nome_completo }}</h4>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <!-- Badge de Flexões -->
+                            <span style="background: rgba(220, 38, 38, 0.15); color: #fca5a5; border: 1px solid rgba(220, 38, 38, 0.2); font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
+                                {{ p.quantidade_flexoes }} FLEXÕES
+                            </span>
+                            <!-- Motivo em destaque sutil -->
+                            <span style="color: #a1a1aa; font-size: 0.85rem; font-style: italic;">
+                                "{{ p.motivo }}"
+                            </span>
+                        </div>
+                    </div>
                 </div>
+
+                <!-- Botão de "Pago" corrigido com ícone válido do Phosphor Icons -->
+<a href="{{ url_for('remover_punicao', id=p.id) }}" class="btn-icon" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.25); color: #34d399; flex-shrink: 0; width: 46px; height: 46px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;" title="Marcar como pago" onmouseover="this.style.background='rgba(16, 185, 129, 0.2)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(16, 185, 129, 0.1)'; this.style.color='#34d399';">
+    <i class="ph ph-check-fat" style="font-size: 1.3rem;"></i>
+</a>
             </div>
             {% endfor %}
-        {% else %}
-            <div style="background: rgba(16, 185, 129, 0.08); border: 1px dashed rgba(16, 185, 129, 0.3); padding: 16px; border-radius: 12px; text-align: center;">
-                <p style="color: #34d399; font-size: 0.9rem; margin: 0; font-weight: 500;">Nenhum atleta devendo flexões. O treino foi excelente!</p>
+        </div>
+    {% else %}
+        <!-- Empty State Premium -->
+        <div style="background: rgba(16, 185, 129, 0.05); border: 1px dashed rgba(16, 185, 129, 0.25); border-radius: 16px; padding: 32px 24px; text-align: center; margin-bottom: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.02);">
+            <div style="background: rgba(16, 185, 129, 0.1); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(16, 185, 129, 0.2);">
+                <i class="ph ph-shield-check" style="font-size: 2.5rem; color: #34d399;"></i>
             </div>
-        {% endif %}
-    </section>
+            <div>
+                <h3 style="color: #f8fafc; font-size: 1.15rem; margin: 0 0 4px 0; font-weight: 700;">Disciplina Impecável</h3>
+                <p style="color: #94a3b8; font-size: 0.9rem; margin: 0;">Nenhum atleta com punições ativas no tatame. Tudo sob controle! ⚡</p>
+            </div>
+        </div>
+    {% endif %}
 
-    <!-- SCRIPT CORRIGIDO: CONTADOR INDEPENDENTE DE HORÁRIO -->
     <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const timers = document.querySelectorAll('.class-timer');
+        // Script do Cronômetro em Tempo Real
+        function atualizarCronometros() {
+            const timers = document.querySelectorAll('.timer-display');
+            const agora = new Date().getTime();
 
-        timers.forEach(timerEl => {
-            const aulaId = timerEl.getAttribute('data-id');
-            // Captura o botão "Gerenciar" específico deste card para alterá-lo no fim do tempo
-            const cardEl = timerEl.closest('.class-card');
-            const btnGerenciar = cardEl.querySelector('.btn-outline'); 
-            const spanDisplay = timerEl.querySelector('.tempo-restante');
-            const icone = timerEl.querySelector('i');
-
-            if (!aulaId) return;
-
-            // Duração travada em exatos 60 minutos (1 hora)
-            const duracaoMinutos = 60; 
-
-            // Memória do navegador (evita zerar ao atualizar a página)
-            const storageKey = 'timer_aula_' + aulaId;
-            let startTime = localStorage.getItem(storageKey);
-
-            if (!startTime) {
-                startTime = new Date().getTime();
-                localStorage.setItem(storageKey, startTime);
-            } else {
-                startTime = parseInt(startTime);
-            }
-
-            function atualizarContador() {
-                const agora = new Date().getTime();
-                const tempoFinal = startTime + (duracaoMinutos * 60000);
-                const diffSegundos = Math.floor((tempoFinal - agora) / 1000);
-
-                if (diffSegundos > 0) {
-                    let minutos = Math.floor((diffSegundos % 3600) / 60);
-                    let segundos = diffSegundos % 60;
-
-                    // Exibição em formato MM:SS
-                    let mStr = minutos < 10 ? "0" + minutos : minutos;
-                    let sStr = segundos < 10 ? "0" + segundos : segundos;
-                    
-                    spanDisplay.textContent = `Fecha em ${mStr}:${sStr}`;
-                    
-                    timerEl.style.background = "rgba(220, 38, 38, 0.15)";
-                    timerEl.style.borderColor = "rgba(220, 38, 38, 0.3)";
-                    timerEl.style.color = "#fca5a5";
-                    icone.className = "ph ph-timer";
-                } else {
-                    // ESTADO: TEMPO ESGOTADO
-                    spanDisplay.textContent = "Aula Encerrada";
-                    timerEl.style.background = "rgba(255, 255, 255, 0.05)";
-                    timerEl.style.borderColor = "rgba(255, 255, 255, 0.1)";
-                    timerEl.style.color = "#a1a1aa";
-                    icone.className = "ph ph-lock-key";
-                    
-                    // Altera o botão automaticamente e "joga" para a rota de encerrada
-                    if (btnGerenciar) {
-                        btnGerenciar.textContent = "Ver Encerrada";
-                        // Importante: Ajuste a rota abaixo para bater com a sua rota do Python (Flask)
-                        btnGerenciar.href = "/turma_invalida/" + aulaId; 
-                        btnGerenciar.style.borderColor = "rgba(255, 255, 255, 0.2)";
-                        btnGerenciar.style.color = "#a1a1aa";
-                        btnGerenciar.style.background = "rgba(255, 255, 255, 0.05)";
-                    }
+            timers.forEach(el => {
+                let criadoStr = el.getAttribute('data-criado');
+                const limiteMinutos = parseInt(el.getAttribute('data-limite')) || 60;
+                
+                if (!criadoStr || criadoStr === 'None' || criadoStr.trim() === '') {
+                    el.textContent = `${limiteMinutos.toString().padStart(2, '0')}:00`;
+                    return;
                 }
-            }
 
-            atualizarContador();
-            setInterval(atualizarContador, 1000);
-        });
-    });
+                let dataCriacao;
+                if (criadoStr.includes('T')) {
+                    dataCriacao = new Date(criadoStr);
+                } else {
+                    dataCriacao = new Date(criadoStr.replace(' ', 'T') + 'Z');
+                }
 
-    // Atualiza a página inteira de forma silenciosa a cada 60s
-    setTimeout(function(){
-        location.reload();
-    }, 30000);
-</script>
+                if (isNaN(dataCriacao.getTime())) {
+                    el.textContent = "00:00";
+                    return;
+                }
+
+                const tempoExpiracaoMs = dataCriacao.getTime() + (limiteMinutos * 60 * 1000);
+                const restanteMs = tempoExpiracaoMs - agora;
+
+                const badge = el.closest('span');
+
+                if (restanteMs <= 0) {
+                    el.textContent = "EXPIRADO";
+                    if (badge) {
+                        badge.classList.remove('timer-active');
+                        badge.style.background = "rgba(220, 38, 38, 0.1)";
+                        badge.style.color = "#fca5a5";
+                        badge.style.borderColor = "rgba(220, 38, 38, 0.2)";
+                    }
+                } else {
+                    const totalSegundos = Math.floor(restanteMs / 1000);
+                    const minutos = Math.floor(totalSegundos / 60);
+                    const segundos = totalSegundos % 60;
+                    
+                    el.textContent = `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+                }
+            });
+        }
+
+        atualizarCronometros();
+        setInterval(atualizarCronometros, 1000);
+
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+    </script>
 {% endblock %}

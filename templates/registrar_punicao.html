@@ -6,265 +6,297 @@
     <title>Aplicar Punição - Nakduray Presence</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- Configurações para PWA e Dispositivos Móveis -->
-<link rel="manifest" href="/static/manifest.json">
-<meta name="theme-color" content="#0a0a0a">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#09090b">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        /* Padronização absoluta da tipografia Inter e exclusão de serifas */
-        h1, h2, h3, h4, h5, span, p, strong, a, div, label { font-family: 'Inter', sans-serif !important; }
-
-
-        /* Remove o destaque azul de toque em dispositivos móveis e desktops em TUDO */
-* {
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-}
-
-/* Remove o contorno azul feio de foco padrão do navegador em botões e inputs */
-button:focus, input:focus, select:focus, a:focus, label:focus {
-    outline: none !important;
-}
-
-/* Impede o travamento por toque prolongado e seleção de texto indesejada em elementos interativos */
-button, a, .radio-btn span, input, select {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif !important;
+            -webkit-tap-highlight-color: transparent;
+        }
 
         :root {
-            --bg-dark: #0a0a0a;
-            --card-bg: rgba(18, 18, 21, 0.95);
-            --input-bg: #121215;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --text-main: #ffffff;
+            --bg-dark: #09090b;
+            --card-bg: #18181b;
+            --input-bg: #27272a;
+            --border-color: #3f3f46;
+            --text-main: #f4f4f5;
             --text-muted: #a1a1aa;
-            --primary: #dc2626;
-            --primary-hover: #ef4444;
-            --accent-gold: #eab308;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --danger-glow: rgba(239, 68, 68, 0.15);
         }
 
         body { 
             background: var(--bg-dark); 
             color: var(--text-main); 
-            margin: 0; 
-            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+            padding: 16px;
         }
 
         .container { 
             width: 100%;
-            max-width: 420px; 
-            margin: 0 auto;
+            max-width: 440px; 
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .voltar { 
             display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 6px;
             color: var(--text-muted);
             text-decoration: none;
-            font-size: 0.85rem;
+            font-size: 0.875rem;
             font-weight: 600;
-            background: rgba(255, 255, 255, 0.05);
             padding: 8px 12px;
             border-radius: 8px;
-            transition: all 0.2s;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            margin-bottom: 20px;
+            background: transparent;
+            transition: all 0.2s ease;
+            margin-bottom: 16px;
         }
 
         .voltar:hover { 
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            border-color: rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+            background: var(--input-bg);
         }
 
         .card-form { 
             background: var(--card-bg); 
-            border-radius: 20px; 
-            padding: 28px 24px; 
+            border-radius: 16px; 
+            padding: 32px 24px; 
             border: 1px solid var(--border-color); 
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
-        .card-form h2 {
-            font-size: 1.25rem;
+        .header {
+            margin-bottom: 28px;
+        }
+
+        .header h2 {
+            font-size: 1.5rem;
             font-weight: 800;
-            margin: 0 0 6px 0;
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
             letter-spacing: -0.02em;
-            color: #ffffff;
         }
 
-        .card-form p {
+        .header p {
             color: var(--text-muted);
             font-size: 0.9rem;
-            margin: 0 0 24px 0;
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
         .form-group { 
-            margin-bottom: 20px; 
+            margin-bottom: 24px; 
         }
 
         .form-group label { 
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.82rem; 
-            color: var(--text-muted); 
-            margin-bottom: 8px; 
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            text-transform: uppercase;
+            gap: 6px;
+            font-size: 0.85rem; 
+            color: var(--text-main); 
+            margin-bottom: 10px; 
+            font-weight: 600;
         }
 
-        .form-group label i {
-            color: var(--accent-gold);
-            font-size: 1.1rem;
+        .input-wrapper {
+            position: relative;
         }
 
-        select, input { 
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            pointer-events: none;
+        }
+
+        select, input[type="text"] { 
             width: 100%; 
-            padding: 14px 16px; 
-            border-radius: 12px; 
+            padding: 14px 16px 14px 44px; 
+            border-radius: 10px; 
             background: var(--input-bg); 
             border: 1px solid var(--border-color); 
-            color: white; 
+            color: var(--text-main); 
             font-size: 0.95rem; 
-            outline: none; 
-            box-sizing: border-box; 
             transition: all 0.2s ease;
+            appearance: none;
         }
 
-        select option {
-            background: #121215;
-            color: white;
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a1a1aa' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: calc(100% - 16px) center;
+            cursor: pointer;
         }
 
-        select:focus, input:focus { 
-            border-color: var(--accent-gold); 
-            box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.15);
+        select:focus, input[type="text"]:focus { 
+            outline: none;
+            border-color: var(--danger); 
+            box-shadow: 0 0 0 3px var(--danger-glow);
         }
 
-        /* Grid organizado em 2 colunas para os atalhos não quebrarem */
-        .option-group { 
+        .chips-container { 
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
-            gap: 8px; 
-            margin-bottom: 10px; 
+            gap: 10px; 
+            margin-bottom: 12px; 
         }
 
-        .radio-btn { 
-            cursor: pointer; 
-            width: 100%;
-        }
-
-        .radio-btn input { 
+        .chip-btn input { 
             display: none; 
         }
 
-        .radio-btn span { 
-            display: block; 
-            text-align: center;
-            padding: 10px 8px; 
-            border-radius: 10px; 
+        .chip-btn span { 
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            padding: 10px 12px; 
+            border-radius: 8px; 
             border: 1px solid var(--border-color); 
-            background: var(--input-bg); 
+            background: var(--bg-dark); 
             color: var(--text-muted);
             font-size: 0.85rem;
             font-weight: 600;
+            cursor: pointer;
             transition: all 0.2s ease;
+            user-select: none;
         }
 
-        .radio-btn input:checked + span { 
-            background: rgba(234, 179, 8, 0.15); 
-            color: var(--accent-gold); 
-            border-color: var(--accent-gold); 
-            font-weight: 700;
+        .chip-btn span:active {
+            transform: scale(0.96);
+        }
+
+        .chip-btn input:checked + span { 
+            background: var(--danger-glow); 
+            color: var(--danger); 
+            border-color: var(--danger); 
         }
 
         .btn-submit { 
-            background: var(--primary); 
+            background: linear-gradient(135deg, #e11d48, #b91c1c); 
             color: white; 
-            border: none; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
             width: 100%; 
-            padding: 14px; 
-            border-radius: 12px; 
-            font-weight: 800; 
+            padding: 16px; 
+            border-radius: 10px; 
+            font-weight: 700; 
+            font-size: 1rem;
             cursor: pointer; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             gap: 8px; 
-            transition: all 0.2s; 
-            font-size: 0.95rem;
-            margin-top: 8px;
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+            transition: all 0.3s ease; 
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.25);
+            margin-top: 32px;
         }
 
         .btn-submit:hover { 
-            background: var(--primary-hover); 
-            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+            background: linear-gradient(135deg, #f43f5e, #dc2626); 
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+            transform: translateY(-2px);
         }
 
         .btn-submit:active {
-            transform: scale(0.98);
+            transform: translateY(1px);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="{{ url_for('dashboard') }}" class="voltar"><i class="ph ph-arrow-left"></i> Voltar ao Dashboard</a>
+        <a href="{{ url_for('dashboard') }}" class="voltar"><i class="ph ph-caret-left"></i> Voltar</a>
         
         <div class="card-form">
-            <h2>Aplicar Punição</h2>
-            <p>Registre o tipo de punição e a penalidade devida por indisciplina ou atraso.</p>
+            <div class="header">
+                <h2><i class="ph-fill ph-warning-circle"></i> Aplicar Punição</h2>
+                <p>Registre advertências ou penalidades físicas para manter a disciplina da equipe.</p>
+            </div>
 
             <form method="POST">
-                <!-- Seleção de Aluno -->
+                <!-- Seleção de Atleta -->
                 <div class="form-group">
-                    <label for="aluno_id"><i class="ph ph-user"></i> Selecionar Aluno</label>
-                    <select name="aluno_id" id="aluno_id" required>
-                        <option value="" disabled selected>Escolha o atleta...</option>
-                        {% for aluno in alunos %}
-                        <option value="{{ aluno.id }}">{{ aluno.nome_completo }}</option>
-                        {% endfor %}
-                    </select>
+                    <label for="aluno_id">Atleta Penalizado</label>
+                    <div class="input-wrapper">
+                        <i class="ph ph-user"></i>
+                        <select name="aluno_id" id="aluno_id" required>
+                            <option value="" disabled selected>Selecione o jogador...</option>
+                            {% for aluno in alunos %}
+                            <option value="{{ aluno.id }}">{{ aluno.nome_completo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
 
-                <!-- Tipo de Punição com Atalhos em Grid + Campo Personalizado -->
+                <!-- Tipo de Punição com Chips -->
                 <div class="form-group">
-                    <label><i class="ph ph-activity"></i> Tipo de Punição</label>
-                    <div class="option-group">
-                        <label class="radio-btn"><input type="radio" name="tipo_atalho" onclick="document.getElementById('tipo_punicao').value='Flexões'"><span>Flexões</span></label>
-                        <label class="radio-btn"><input type="radio" name="tipo_atalho" onclick="document.getElementById('tipo_punicao').value='Polichinelos'"><span>Polichinelos</span></label>
-                        <label class="radio-btn"><input type="radio" name="tipo_atalho" onclick="document.getElementById('tipo_punicao').value='Agachamentos'"><span>Agachamentos</span></label>
-                        <label class="radio-btn"><input type="radio" name="tipo_atalho" onclick="document.getElementById('tipo_punicao').value='Burpees'"><span>Burpees</span></label>
+                    <label>Penalidade Aplicada</label>
+                    <div class="chips-container">
+                        <label class="chip-btn">
+                            <input type="radio" name="tipo_atalho" value="Flexões">
+                            <span>Flexões</span>
+                        </label>
+                        <label class="chip-btn">
+                            <input type="radio" name="tipo_atalho" value="Polichinelos">
+                            <span>Polichinelos</span>
+                        </label>
+                        <label class="chip-btn">
+                            <input type="radio" name="tipo_atalho" value="Agachamentos">
+                            <span>Agachamentos</span>
+                        </label>
+                        <label class="chip-btn">
+                            <input type="radio" name="tipo_atalho" value="Burpees">
+                            <span>Burpees</span>
+                        </label>
                     </div>
-                    <input type="text" name="tipo_punicao" id="tipo_punicao" placeholder="Ex: Flexões (30x) ou digite o tipo..." required>
+                    <div class="input-wrapper">
+                        <i class="ph ph-barbell"></i>
+                        <input type="text" name="tipo_punicao" id="tipo_punicao" placeholder="Ou digite a carga (ex: 30x Flexões)" required>
+                    </div>
                 </div>
 
                 <!-- Motivo -->
                 <div class="form-group">
-                    <label for="motivo"><i class="ph ph-chat-text"></i> Motivo da Punição</label>
-                    <input type="text" name="motivo" id="motivo" placeholder="Ex: Atraso, conversa excessiva..." required>
+                    <label for="motivo">Motivo da Infração</label>
+                    <div class="input-wrapper">
+                        <i class="ph ph-text-align-left"></i>
+                        <input type="text" name="motivo" id="motivo" placeholder="Ex: Atraso no treino, falta de caneleira..." required>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn-submit">
-                    <i class="ph ph-check-circle" style="font-size: 1.2rem;"></i> Confirmar Punição
+                    Registrar Punição
                 </button>
             </form>
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('input[name="tipo_atalho"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const inputPunicao = document.getElementById('tipo_punicao');
+                inputPunicao.value = e.target.value;
+                inputPunicao.focus();
+            });
+        });
+    </script>
 </body>
 </html>

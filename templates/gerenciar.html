@@ -131,9 +131,9 @@
         }
 
         .btn-copiar { 
-            background: var(--primary); 
+            background: linear-gradient(135deg, #e11d48, #b91c1c); 
             color: white; 
-            border: none; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
             width: 100%; 
             padding: 14px; 
             border-radius: 12px; 
@@ -144,14 +144,15 @@
             justify-content: center; 
             gap: 8px; 
             margin-top: 20px; 
-            transition: all 0.2s; 
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+            transition: all 0.3s ease; 
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.25);
             font-size: 0.95rem;
         }
 
         .btn-copiar:hover { 
-            background: var(--primary-hover); 
-            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4);
+            background: linear-gradient(135deg, #f43f5e, #dc2626); 
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+            transform: translateY(-2px);
         }
 
         .btn-copiar:active {
@@ -325,10 +326,10 @@
             document.body.removeChild(textArea);
         }
 
-        // Atualiza a página automaticamente a cada 5 segundos (5000 milissegundos)
-    setTimeout(function() {
-        location.reload();
-    }, 3000);
+        // Atualiza a página automaticamente a cada 3 segundos (3000 milissegundos)
+        setTimeout(function() {
+            location.reload();
+        }, 3000);
     </script>
 </body>
 </html>

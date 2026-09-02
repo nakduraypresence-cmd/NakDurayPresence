@@ -226,25 +226,14 @@ def esqueci_senha():
             conn.close()
         
         if treinador:
-            try:
-                token = s.dumps(email, salt='recuperar-senha')
-                link = url_for('redefinir_senha', token=token, _external=True)
-                
-                resend.Emails.send({
-                    "from": "Nakduray Presence <onboarding@resend.dev>",
-                    "to": email,
-                    "subject": "Redefinição de Senha - Nakduray Presence",
-                    "html": f"""
-                        <h2>Olá, {treinador['nome']}!</h2>
-                        <p>Para redefinir sua senha no Nakduray Presence, clique no link abaixo:</p>
-                        <p><a href="{link}" style="background-color: #dc2626; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Redefinir Senha</a></p>
-                        <br>
-                        <p><small>Este link expira em 15 minutos.</small></p>
-                    """
-                })
-                sucesso = 'Um link de recuperação foi enviado para o seu e-mail!'
-            except Exception as e:
-                erro = 'Ocorreu um erro ao enviar o e-mail de recuperação.'
+            # Gera o token de segurança
+            token = s.dumps(email, salt='recuperar-senha')
+            link = url_for('redefinir_senha', token=token, _external=True)
+            
+            # BYPASS: Em vez de usar a API do Resend que bloqueia outros emails, 
+            # jogamos o link diretamente na tela de sucesso.
+            sucesso = f'Copie e acesse este link no seu navegador para redefinir sua senha: {link}'
+            
         else:
             erro = 'E-mail não encontrado em nossa base de dados.'
             
@@ -306,28 +295,7 @@ def dashboard():
     
     conn = get_db_connection()
     try:
-        agora = datetime.now()
-        
-        turmas_todas = conn.execute('SELECT * FROM turmas WHERE treinador_id = ?', (treinador_id,)).fetchall()
-        for t in turmas_todas:
-            expirada_aqui = False
-            if not t['criado_em']:
-                expirada_aqui = True
-            else:
-                try:
-                    d_str = str(t['criado_em']).split('.')[0].replace('T', ' ')
-                    dt_criacao = datetime.strptime(d_str, '%Y-%m-%d %H:%M:%S')
-                    limite_min = int(t['tempo_limite_minutos'] or 60)
-                    if (agora - dt_criacao) > timedelta(minutes=limite_min):
-                        expirada_aqui = True
-                except Exception:
-                    expirada_aqui = True
-            
-            if expirada_aqui:
-                conn.execute('DELETE FROM alunos_turma WHERE turma_id = ?', (t['id'],))
-                conn.execute('DELETE FROM turmas WHERE id = ?', (t['id'],))
-        conn.commit()
-
+        # Puxa turmas diretamente sem verificar expiração de tempo
         turmas_db = conn.execute('SELECT * FROM turmas WHERE treinador_id = ? ORDER BY id DESC', (treinador_id,)).fetchall()
         aulas_hoje = []
         total_confirmados_geral = 0
@@ -348,7 +316,7 @@ def dashboard():
                 "vagas": vagas_restantes, 
                 "ocupacao_pct": ocupacao_pct, 
                 "professor": turma['professor'],
-                "expirada": False,
+                "expirada": False, # Nunca expira automaticamente
                 "criado_em": turma['criado_em'],                    
                 "tempo_limite_minutos": turma['tempo_limite_minutos'] 
             })
@@ -385,19 +353,7 @@ def aluno_turma(id):
         conn.close()
         return render_template('turma_invalida.html')
 
-    try:
-        d_str = str(turma['criado_em']).split('.')[0].replace('T', ' ')
-        data_criacao = datetime.strptime(d_str, '%Y-%m-%d %H:%M:%S')
-    except ValueError:
-        data_criacao = datetime.strptime(turma['criado_em'], '%Y-%m-%d %H:%M:%S.%f')
-
-    limite_minutos = turma['tempo_limite_minutos']
-    horario_expiracao = data_criacao + timedelta(minutes=limite_minutos)
-    expirada = datetime.now() > horario_expiracao
-
-    if expirada:
-        conn.close()
-        return render_template('turma_invalida.html')
+    # Removida a verificação de expiração que bloqueava a aula
 
     if request.method == 'POST':
         aluno_id = request.form.get('aluno_id')
@@ -413,7 +369,6 @@ def aluno_turma(id):
         conn.close()
         return redirect(url_for('aluno_turma', id=id))
 
-    # ALTERAÇÃO AQUI: Traz apenas os alunos que NÃO estão na tabela alunos_turma desta aula
     alunos = conn.execute('''
         SELECT * FROM alunos 
         WHERE id NOT IN (SELECT aluno_id FROM alunos_turma WHERE turma_id = ?) 
@@ -427,7 +382,7 @@ def aluno_turma(id):
     ''', (id,)).fetchall()
     
     conn.close()
-    return render_template('aluno_turma.html', turma=turma, alunos=alunos, alunos_confirmados=alunos_confirmados, expirada=expirada)
+    return render_template('aluno_turma.html', turma=turma, alunos=alunos, alunos_confirmados=alunos_confirmados, expirada=False)
 
 @app.route('/criar_aula', methods=['GET', 'POST'])
 def criar_aula():

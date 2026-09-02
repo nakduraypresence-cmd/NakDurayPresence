@@ -225,12 +225,12 @@
         </div>
         {% endif %}
 
-        {% if sucesso %}
-        <div class="sucesso-msg">
-            <i class="ph-bold ph-check-circle" style="font-size: 1.1rem;"></i>
-            <span>{{ sucesso }}</span>
-        </div>
-        {% endif %}
+       {% if sucesso %}
+<div class="sucesso-msg" style="word-break: break-all; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 8px;">
+    <i class="ph-bold ph-check-circle" style="font-size: 1.1rem; flex-shrink: 0; margin-top: 3px;"></i>
+    <span>{{ sucesso }}</span>
+</div>
+{% endif %}
 
         <form method="POST">
             <div class="form-group">
